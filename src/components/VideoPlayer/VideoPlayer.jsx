@@ -11,10 +11,6 @@ const VideoPlayer = () => {
     userVideo,
     stream,
     name,
-    callUser,
-    setName,
-    leaveCall,
-    answerCall,
   } = useContext(SocketContext);
   return (
     <div style={{ display: "flex" }}>

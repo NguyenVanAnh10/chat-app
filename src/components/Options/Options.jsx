@@ -5,17 +5,12 @@ import { SocketContext } from "contexts/SocketContext";
 const Options = () => {
   const {
     me,
-    call,
     callAccepted,
     callEnded,
-    myVideo,
-    userVideo,
-    stream,
     name,
     callUser,
     setName,
     leaveCall,
-    answerCall,
   } = useContext(SocketContext);
   const [idToCall, setIdToCall] = useState("");
 
