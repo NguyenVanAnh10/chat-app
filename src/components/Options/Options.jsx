@@ -19,7 +19,8 @@ const Options = () => {
       options
       <div>
         <input
-          value={name || "Name"}
+          placeholder="Name"
+          value={name || ""}
           onChange={(v) => setName(v.target.value)}
         />
         <div>

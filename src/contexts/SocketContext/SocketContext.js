@@ -4,7 +4,8 @@ import Peer from "simple-peer";
 
 const SocketContext = createContext();
 
-const socket = io("https://chat-app-v.herokuapp.com");
+const socket = io(process.env.REACT_APP_BASE_API);
+console.log(process.env.REACT_APP_BASE_API);
 
 const ContextProvider = ({ children }) => {
   const [stream, setStream] = useState(null);
@@ -14,14 +15,13 @@ const ContextProvider = ({ children }) => {
   const [callEnded, setCallEnded] = useState(false);
   const [name, setName] = useState("");
 
-  // TODO: initial myVideo
-  const myVideo = useRef({});
-  const userVideo = useRef({});
+  const myVideo = useRef();
+  const userVideo = useRef();
   const connectionRef = useRef();
 
   useEffect(() => {
     navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
+      .getUserMedia({ video: true, audio: { echoCancellation: false } })
       .then((currentStream) => {
         setStream(currentStream);
         myVideo.current.srcObject = currentStream;
