@@ -1,17 +1,15 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
-import { SocketContext } from "contexts/SocketContext";
-
-const Options = () => {
-  const {
-    me,
-    callAccepted,
-    callEnded,
-    name,
-    callUser,
-    setName,
-    leaveCall,
-  } = useContext(SocketContext);
+const Options = ({
+  call,
+  name,
+  setName,
+  me,
+  callAccepted,
+  callEnded,
+  leaveCall,
+  callUser,
+}) => {
   const [idToCall, setIdToCall] = useState("");
 
   return (
@@ -28,13 +26,13 @@ const Options = () => {
             value={idToCall}
             onChange={(v) => setIdToCall(v.target.value)}
           />
-          <div>{me}</div>
+          <div>{me.id}</div>
         </div>
         <div>
           {callAccepted && !callEnded ? (
             <button onClick={leaveCall}>Hang Up</button>
           ) : (
-            <button onClick={() => callUser(idToCall)}>Call</button>
+            <button onClick={() => callUser(idToCall, call.name)}>Call</button>
           )}
         </div>
       </div>

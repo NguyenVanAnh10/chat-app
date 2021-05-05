@@ -1,12 +1,8 @@
-import React, { useContext } from "react";
+import React from "react";
 
-import { SocketContext } from "contexts/SocketContext";
-
-const Notifications = () => {
-  const { call, callAccepted, answerCall } = useContext(SocketContext);
+const Notifications = ({ call, callAccepted, answerCall }) => {
   return (
     <div>
-      a
       {call.isReceivedCall && !callAccepted && (
         <div>
           <h2>{call.name} is calling,</h2>

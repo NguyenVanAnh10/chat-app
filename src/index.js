@@ -4,13 +4,9 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
-import { ContextProvider } from "contexts/SocketContext";
-
 ReactDOM.render(
   <React.StrictMode>
-    <ContextProvider>
-      <App />
-    </ContextProvider>
+    <App />
   </React.StrictMode>,
   document.getElementById("root")
 );
