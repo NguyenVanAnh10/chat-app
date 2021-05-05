@@ -3,7 +3,6 @@ import { io } from "socket.io-client";
 import Peer from "simple-peer";
 
 const socket = io(process.env.REACT_APP_BASE_API);
-let receiverId = "";
 
 const useVideoChat = () => {
   const [stream, setStream] = useState(null);
@@ -53,7 +52,6 @@ const useVideoChat = () => {
   };
 
   const callUser = (id) => {
-    receiverId = id;
     const peer = new Peer({ initiator: true, trickle: false, stream });
     peer.on("signal", (data) => {
       socket.emit("callUser", {
