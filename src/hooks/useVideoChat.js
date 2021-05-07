@@ -60,6 +60,9 @@ const useVideoChat = () => {
           {
             urls: "stun:stun.l.google.com:19302",
           },
+          {
+            urls: "turn:relay.backups.cz",
+          },
         ],
       },
       stream,
