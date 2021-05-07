@@ -52,7 +52,18 @@ const useVideoChat = () => {
   };
 
   const callUser = (id) => {
-    const peer = new Peer({ initiator: true, trickle: false, stream });
+    const peer = new Peer({
+      initiator: true,
+      trickle: false,
+      config: {
+        iceServers: [
+          {
+            urls: "stun:stun.l.google.com:19302",
+          },
+        ],
+      },
+      stream,
+    });
     peer.on("signal", (data) => {
       socket.emit("callUser", {
         userToCall: id,
