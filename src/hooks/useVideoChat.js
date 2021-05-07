@@ -62,6 +62,8 @@ const useVideoChat = () => {
           },
           {
             urls: "turn:relay.backups.cz",
+            credential: "webrtc",
+            username: "webrtc",
           },
         ],
       },
