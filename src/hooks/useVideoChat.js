@@ -58,12 +58,12 @@ const useVideoChat = () => {
       config: {
         iceServers: [
           {
-            urls: "stun:stun.l.google.com:19302",
+            url: "stun:stun.l.google.com:19302",
           },
           {
-            urls: "turn:relay.backups.cz",
-            credential: "webrtc",
-            username: "webrtc",
+            url: "turn:numb.viagenie.ca",
+            credential: "muazkh",
+            username: "webrtc@live.com",
           },
         ],
       },
