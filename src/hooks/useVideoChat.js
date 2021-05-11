@@ -2,7 +2,7 @@ import { useState, useRef, useEffect as useReactEffect } from "react";
 import { io } from "socket.io-client";
 import Peer from "simple-peer";
 
-const CHAT_ROOM = 'CHAT_ROOM';
+// const CHAT_ROOM = 'CHAT_ROOM';
 
 const socket = io(process.env.REACT_APP_BASE_API);
 const useVideoChat = () => {

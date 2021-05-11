@@ -30,7 +30,9 @@ const api = async ({ method, path, params }) => {
   }
 };
 
-export default {
+const apis = {
   GET: (path, params) => api({ method: "GET", path, params }),
   POST: (path, params) => api({ method: "POST", path, params }),
 };
+
+export default apis;
