@@ -3,6 +3,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 
 import ChatView from "pages/ChatView";
 import Login from "pages/Login";
+import Register from "pages/Register";
 
 export const AccountContext = createContext({});
 
@@ -18,6 +19,7 @@ function App() {
       <Switch>
         <R authorize exact path="/" component={ChatView} />
         <R path="/login" component={Login} />
+        <R path="/register" component={Register} />
       </Switch>
     </AccountContext.Provider>
   );
@@ -28,7 +30,7 @@ const R = ({ authorize, location, ...rest }) => {
   if (!authorize) {
     return <Route {...rest} />;
   }
-  if (!account.id) {
+  if (!account.isVerified) {
     return <Redirect to="/login" />;
   }
   return <Route {...rest} />;

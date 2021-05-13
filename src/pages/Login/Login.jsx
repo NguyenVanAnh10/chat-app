@@ -12,14 +12,16 @@ const Login = () => {
   const onHandleLogin = (e) => {
     e.preventDefault();
     api
-      .POST("login", { user, password })
+      .POST("/login", { user, password })
       .then((acc) => {
-        setAccount(acc);
+        setAccount(acc.isVerified ? acc : {});
+        setPassword("");
+        setUser("");
       })
       .catch((e) => console.error(e));
   };
 
-  if (account.id) {
+  if (account.email && account.isVerified) {
     return <Redirect to="/" />;
   }
 

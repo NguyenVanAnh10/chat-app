@@ -11,7 +11,7 @@ const api = async ({ method, path, params }) => {
       "Content-Type": "application/json",
     },
   };
-  let url = `${configs.baseAPI}/${path}`;
+  let url = `${configs.baseAPI}${path}`;
   switch (method) {
     case "GET":
       url = qs.stringifyUrl({ url, query: params });
