@@ -3,3 +3,7 @@
   from = "/login"
   to = "/"
   force = true # COMMENT: ensure that we always redirect
+[[redirects]]
+  from = "/register"
+  to = "/"
+  force = true # COMMENT: ensure that we always redirect
