@@ -1,0 +1,10 @@
+.Login {
+  min-height: 100vh;
+  width: 100%;
+  padding: 1rem;
+  :global {
+    .form {
+      margin-top: 2rem;
+    }
+  }
+}

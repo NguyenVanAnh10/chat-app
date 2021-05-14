@@ -1,5 +1,6 @@
 import React, { useState, createContext, useContext } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
+import { ChakraProvider } from "@chakra-ui/react";
 
 import ChatView from "pages/ChatView";
 import Login from "pages/Login";
@@ -10,18 +11,20 @@ export const AccountContext = createContext({});
 function App() {
   const [account, setAccount] = useState({});
   return (
-    <AccountContext.Provider
-      value={{
-        account,
-        setAccount,
-      }}
-    >
-      <Switch>
-        <R authorize exact path="/" component={ChatView} />
-        <R path="/login" component={Login} />
-        <R path="/register" component={Register} />
-      </Switch>
-    </AccountContext.Provider>
+    <ChakraProvider>
+      <AccountContext.Provider
+        value={{
+          account,
+          setAccount,
+        }}
+      >
+        <Switch>
+          <R authorize exact path="/" component={ChatView} />
+          <R path="/login" component={Login} />
+          <R path="/register" component={Register} />
+        </Switch>
+      </AccountContext.Provider>
+    </ChakraProvider>
   );
 }
 
