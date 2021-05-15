@@ -1,10 +1,10 @@
+## api redirect.
+[[redirects]]
+  from = "/api/*"
+  to = "https://chat-app-v.herokuapp.com/api/:splat"
+  status = 200
 ## This rule redirects to an external API, signing requests with a secret
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200
-# api redirect.
-[[redirects]]
-  from = "/api/*"
-  to = "https://chat-app-v.herokuapp.com/:splat"
   status = 200
