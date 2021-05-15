@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Button } from "@chakra-ui/react";
 import { useHistory } from "react-router-dom";
 
+import { AccountContext } from "App";
 import Options from "components/Options";
 import Notifications from "components/Notifications";
 import MessageChat from "components/MessageChat";
@@ -10,6 +11,7 @@ import api from "services/api";
 
 const VideoPlayer = () => {
   const history = useHistory();
+  const { setAccount } = useContext(AccountContext);
   const [
     { caller: call, callAccepted, callEnded, myVideo, remoteVideo, stream, me },
     { answerCall, callUser, leaveCall, setMe },
@@ -21,6 +23,7 @@ const VideoPlayer = () => {
       <Button
         onClick={() =>
           api.POST("/logout").then(() => {
+            setAccount({});
             history.push("/login");
           })
         }
