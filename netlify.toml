@@ -3,7 +3,8 @@
   from = "/*"
   to = "/index.html"
   status = 200
+# api redirect.
 [[redirects]]
-  from = "/api/v1/*"
-  to = "https://chat-app-v.herokuapp.com/api/v1/:splat"
+  from = "/api/*"
+  to = "https://chat-app-v.herokuapp.com/:splat"
   status = 200
