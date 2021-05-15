@@ -7,4 +7,3 @@
   from = "/api/v1/*"
   to = "https://chat-app-v.herokuapp.com/api/v1/:splat"
   status = 200
-  force = true
