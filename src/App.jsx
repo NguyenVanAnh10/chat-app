@@ -1,15 +1,22 @@
-import React, { useState, createContext, useContext } from "react";
+import React, {
+  useState,
+  createContext,
+  useContext,
+  useEffect as useReactEffect,
+} from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 
 import ChatView from "pages/ChatView";
 import Login from "pages/Login";
 import Register from "pages/Register";
+import api from "services/api";
 
 export const AccountContext = createContext({});
 
 function App() {
   const [account, setAccount] = useState({});
+
   return (
     <ChakraProvider>
       <AccountContext.Provider
@@ -29,11 +36,18 @@ function App() {
 }
 
 const R = ({ authorize, location, ...rest }) => {
-  const { account } = useContext(AccountContext);
+  const { account, setAccount } = useContext(AccountContext);
+  useReactEffect(() => {
+    authorize &&
+      api.GET("/me").then((acc) => {
+        setAccount(acc);
+      });
+  }, []);
+
   if (!authorize) {
     return <Route {...rest} />;
   }
-  if (!account.isVerified) {
+  if (!!account.error) {
     return <Redirect to="/login" />;
   }
   return <Route {...rest} />;

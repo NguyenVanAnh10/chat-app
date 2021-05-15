@@ -1,11 +1,15 @@
 import React, { useState } from "react";
+import { Button } from "@chakra-ui/react";
+import { useHistory } from "react-router-dom";
 
 import Options from "components/Options";
 import Notifications from "components/Notifications";
 import MessageChat from "components/MessageChat";
 import useVideoChat from "hooks/useVideoChat";
+import api from "services/api";
 
 const VideoPlayer = () => {
+  const history = useHistory();
   const [
     { caller: call, callAccepted, callEnded, myVideo, remoteVideo, stream, me },
     { answerCall, callUser, leaveCall, setMe },
@@ -14,6 +18,15 @@ const VideoPlayer = () => {
   const [toggle, setToggle] = useState(true);
   return (
     <>
+      <Button
+        onClick={() =>
+          api.POST("/logout").then(() => {
+            history.push("/login");
+          })
+        }
+      >
+        Logout
+      </Button>
       <MessageChat userName={me.name} />
       <div style={{ display: "flex", flexDirection: "column" }}>
         {callAccepted && !callEnded && (

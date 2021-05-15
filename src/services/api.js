@@ -5,8 +5,8 @@ import configs from "configs/configs";
 const api = async ({ method, path, params }) => {
   const opts = {
     method,
-    mode: "cors",
-    credentials: "same-origin",
+    credentials: "include",
+    cache: "no-cache",
     headers: {
       "Content-Type": "application/json",
     },

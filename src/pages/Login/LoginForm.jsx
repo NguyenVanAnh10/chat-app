@@ -19,7 +19,7 @@ import PasswordInput from "components/PasswordInput";
 const LoginForm = ({ onOpenRegister }) => {
   const { control, handleSubmit } = useForm();
   const [error, setError] = useState(null);
-  const { setAccount } = useContext(AccountContext);
+  const { account, setAccount } = useContext(AccountContext);
 
   const onHandleLogin = handleSubmit((user) => {
     api.POST("/login", user).then((acc) => {
@@ -56,11 +56,13 @@ const LoginForm = ({ onOpenRegister }) => {
             </FormControl>
           )}
         />
-        {error && (
+        {(error || account.error) && (
           <Alert status="error" marginTop="5">
             <AlertIcon />
             <AlertDescription>
-              {error.message || "Something went wrong"}
+              {error?.message ||
+                account.error?.message ||
+                "Something went wrong"}
             </AlertDescription>
           </Alert>
         )}
