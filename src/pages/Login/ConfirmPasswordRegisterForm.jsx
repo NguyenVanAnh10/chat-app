@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect as useReactEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import {
@@ -25,7 +25,7 @@ const ConfirmPasswordRegisterForm = ({ token }) => {
   });
   const [{ error: setPasswordError }, setPassword] = useState({});
 
-  useEffect(() => {
+  useReactEffect(() => {
     api.POST("/login", { token }).then((tokenRes) => {
       seTokenState(tokenRes);
     });
