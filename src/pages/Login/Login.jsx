@@ -26,11 +26,7 @@ const Login = () => {
         justifyContent="center"
         alignItems="center"
         className={styles.Login}
-        bgGradient={[
-          "linear(to-tr, teal.300,yellow.400)",
-          "linear(to-t, blue.200, teal.500)",
-          "linear(to-b, orange.100, purple.300)",
-        ]}
+        bgGradient="linear(to-b, orange.100, purple.300)"
         color="gray.600"
       >
         <Box
