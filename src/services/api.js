@@ -5,7 +5,6 @@ import configs from "configs/configs";
 const api = async ({ method, path, params }) => {
   const opts = {
     method,
-    mode: "cors", // TODO: cors
     credentials: "include",
     cache: "no-cache",
     headers: {
