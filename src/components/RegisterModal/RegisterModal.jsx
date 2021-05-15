@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -13,52 +13,29 @@ import {
   Alert,
   AlertIcon,
   AlertDescription,
+  FormErrorMessage,
 } from "@chakra-ui/react";
+import { useForm, Controller } from "react-hook-form";
 
 import api from "services/api";
-import useQuery from "hooks/useQuery";
 
 const RegisterModal = ({ isOpen, onClose }) => {
-  const [formData, setFormData] = useState({});
   const [{ error, success }, setStatus] = useState({});
-  const [, setCheckToken] = useState({});
-  const { token } = useQuery();
+  const { control, handleSubmit, reset } = useForm({ defaultValues: {} });
 
-  const onHandleSubmit = (e) => {
-    e.preventDefault();
-    api
-      .POST("/register", formData)
-      .then(({ error }) => setStatus({ success: !error, error }));
+  const onHandleSubmit = handleSubmit((data) => {
+    api.POST("/register", data).then(({ error }) => {
+      setStatus({ success: !error, error });
+      !error && reset({});
+    });
+  });
+  const onHandleClose = () => {
+    onClose();
+    setStatus({});
   };
 
-  useEffect(() => {
-    token &&
-      api
-        .GET("/register", { token })
-        .then(({ error }) => setCheckToken({ success: !error, error }));
-  }, [token]);
-
-  if (success) {
-    return (
-      <div>
-        We just have sent a mail to you for confirmation, please check email
-      </div>
-    );
-  }
-
-  //   if (checkToken.success) {
-  //     return <Redirect to="/login" />;
-  //   }
-
-  //   if (checkToken.error) {
-  //     return (
-  //       <div>
-  //         Token can be expired time or is not exactly, please register again.
-  //       </div>
-  //     );
-  //   }
   return (
-    <Modal size="xl" isCentered isOpen={isOpen} onClose={onClose}>
+    <Modal size="xl" isCentered isOpen={isOpen} onClose={onHandleClose}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Register account</ModalHeader>
@@ -66,40 +43,39 @@ const RegisterModal = ({ isOpen, onClose }) => {
         <ModalBody>
           {success ? (
             <div>
-              We just have sent a mail to you for confirmation, please check
+              We just have sent a mail for register confirmation, please check
               email
             </div>
           ) : (
             <form>
-              <FormControl id="user" isRequired>
-                <Input
-                  placeholder="User name"
-                  value={formData.userName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, userName: e.target.value })
-                  }
-                />
-              </FormControl>
-              <FormControl id="user" isRequired marginTop="5">
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
-              </FormControl>
-              <FormControl id="user" isRequired marginTop="5">
-                <Input
-                  type="password"
-                  placeholder="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                />
-              </FormControl>
+              <Controller
+                name="userName"
+                control={control}
+                defaultValue=""
+                rules={{ required: "User name is required" }}
+                render={({ field, fieldState: { error, invalid } }) => (
+                  <FormControl isInvalid={invalid}>
+                    <Input placeholder="User name" {...field} />
+                    {error && (
+                      <FormErrorMessage>{error.message}</FormErrorMessage>
+                    )}
+                  </FormControl>
+                )}
+              />
+              <Controller
+                name="email"
+                control={control}
+                defaultValue=""
+                rules={{ required: "Email is required" }}
+                render={({ field, fieldState: { error, invalid } }) => (
+                  <FormControl isInvalid={invalid} marginTop="5">
+                    <Input placeholder="Email" {...field} />
+                    {error && (
+                      <FormErrorMessage>{error.message}</FormErrorMessage>
+                    )}
+                  </FormControl>
+                )}
+              />
             </form>
           )}
           {error && (
@@ -118,7 +94,7 @@ const RegisterModal = ({ isOpen, onClose }) => {
               Register
             </Button>
           )}
-          <Button variant="ghost" ml={3} onClick={onClose}>
+          <Button variant="ghost" ml={3} onClick={onHandleClose}>
             Close
           </Button>
         </ModalFooter>

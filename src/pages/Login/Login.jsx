@@ -1,41 +1,19 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import { Redirect } from "react-router-dom";
-import {
-  Flex,
-  Box,
-  Heading,
-  FormControl,
-  Input,
-  Button,
-  ButtonGroup,
-  Alert,
-  AlertIcon,
-  AlertDescription,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Flex, Box, useDisclosure } from "@chakra-ui/react";
 
 import { AccountContext } from "App";
-import api from "services/api";
+import useQuery from "hooks/useQuery";
 import RegisterModal from "components/RegisterModal";
+import LoginForm from "./LoginForm";
+import ConfirmPasswordRegisterForm from "./ConfirmPasswordRegisterForm";
 
 import styles from "./Login.module.scss";
 
 const Login = () => {
-  const { account, setAccount } = useContext(AccountContext);
+  const { account } = useContext(AccountContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [user, setUser] = useState({});
-  const [error, setError] = useState(null);
-
-  const onHandleLogin = (e) => {
-    api
-      .POST("/login", user)
-      .then((acc) => {
-        if (acc.error) return setError(acc.error);
-        acc.isVerified && setAccount(acc.isVerified);
-        setUser({});
-      })
-      .catch((e) => console.error(e));
-  };
+  const { token } = useQuery();
 
   if (account.email && account.isVerified) {
     return <Redirect to="/" />;
@@ -64,50 +42,16 @@ const Login = () => {
           textAlign="center"
           w="sm"
         >
-          <Heading size="lg">RiceLo</Heading>
-          <form className="form">
-            <FormControl id="user" isRequired>
-              <Input
-                placeholder="User name"
-                value={user.name || ""}
-                onChange={(v) => setUser({ ...user, name: v.target.value })}
-              />
-            </FormControl>
-            <FormControl id="user" isRequired>
-              <Input
-                marginTop="5"
-                placeholder="Password"
-                type="password"
-                value={user.password || ""}
-                onChange={(v) => setUser({ ...user, password: v.target.value })}
-              />
-            </FormControl>
-            {error && (
-              <Alert status="error" marginTop="5">
-                <AlertIcon />
-                <AlertDescription>
-                  {error.message || "Something went wrong"}
-                </AlertDescription>
-              </Alert>
-            )}
-            <ButtonGroup spacing="5" marginTop="8">
-              <Button background="red.100" onClick={onHandleLogin}>
-                Login
-              </Button>
-              <Button
-                alignSelf="center"
-                colorScheme="teal"
-                variant="link"
-                onClick={onOpen}
-              >
-                Register
-              </Button>
-            </ButtonGroup>
-          </form>
+          {!!token ? (
+            <ConfirmPasswordRegisterForm token={token} />
+          ) : (
+            <LoginForm onOpenRegister={onOpen} />
+          )}
         </Box>
       </Flex>
       <RegisterModal isOpen={isOpen} onClose={onClose} />
     </>
   );
 };
+
 export default Login;
