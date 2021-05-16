@@ -1,3 +1,4 @@
+import React, { forwardRef } from "react";
 import {
   Button,
   Input,
@@ -5,12 +6,11 @@ import {
   InputRightElement,
   useDisclosure,
 } from "@chakra-ui/react";
-import React from "react";
 
-const PasswordInput = ({ placeholder, ...rest }) => {
+const PasswordInput = forwardRef(({ placeholder, ...rest }, ref) => {
   const { isOpen, onToggle } = useDisclosure();
   return (
-    <InputGroup size="md">
+    <InputGroup size="md" ref={ref}>
       <Input
         pr="4.5rem"
         type={isOpen ? "text" : "password"}
@@ -24,6 +24,6 @@ const PasswordInput = ({ placeholder, ...rest }) => {
       </InputRightElement>
     </InputGroup>
   );
-};
+});
 
 export default PasswordInput;

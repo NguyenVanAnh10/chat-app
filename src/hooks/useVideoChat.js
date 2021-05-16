@@ -4,7 +4,7 @@ import Peer from "simple-peer";
 
 // const CHAT_ROOM = 'CHAT_ROOM';
 
-const socket = io(process.env.REACT_APP_BASE_API);
+const socket = io(process.env.REACT_APP_HEROKU_API);
 const useVideoChat = () => {
   const [stream, setStream] = useState(null);
   const [me, setMe] = useState({ name: "Name" });
