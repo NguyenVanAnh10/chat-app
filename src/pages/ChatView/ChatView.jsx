@@ -1,14 +1,16 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useContext,
+  useEffect as useReactEffect,
+  useState,
+} from "react";
 import {
   Box,
   Button,
-  ButtonGroup,
   Flex,
   Input,
   Text,
   Avatar,
   AvatarBadge,
-  Center,
   HStack,
   VStack,
 } from "@chakra-ui/react";
@@ -26,19 +28,19 @@ const ChatView = () => {
   const { account } = useContext(AccountContext);
   const [users, setUsers] = useState([]);
 
-  useEffect(() => {
+  useReactEffect(() => {
     api.GET("/users").then((res) => {
       !res.error && setUsers(res);
     });
   }, []);
 
-  useEffect(() => {
+  useReactEffect(() => {
     socket.on("error", ({ error }) => {
       console.error("error", error);
     });
   }, []);
 
-  useEffect(() => {
+  useReactEffect(() => {
     account._id && socket.emit("join_all_room", { userId: account._id });
   }, [account._id]);
 
@@ -115,7 +117,7 @@ const RoomList = ({ users }) => {
   const [rooms, setRooms] = useState([]);
   const { account } = useContext(AccountContext);
 
-  useEffect(() => {
+  useReactEffect(() => {
     socket.on("joined_room_success", ({ roomId }) => {
       account._id &&
         api.GET("/chat_rooms", { userId: account._id }).then((res) => {
@@ -162,7 +164,7 @@ const ChatBox = ({ room, account, sendMessage }) => {
   const { control, handleSubmit, reset } = useForm({ message: "" });
   const [messages, setMessages] = useState([]);
 
-  useEffect(() => {
+  useReactEffect(() => {
     api
       .GET("/messages", { roomId: room._id, skip: 0, limit: 3 })
       .then(({ messages: msgs }) => {
