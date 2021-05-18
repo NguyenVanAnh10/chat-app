@@ -1,0 +1,82 @@
+.ChatBox {
+  :global {
+    .show-message-box {
+      // TODO calc
+      height: calc(100vh - 56px);
+      overflow-y: scroll;
+    }
+    .form {
+      flex: 1;
+    }
+    .type-box {
+    }
+
+    $send-bg: #d6bcfa;
+    $send-color: #2d3748;
+    $receive-bg: #fed7d7;
+    $receive-color: #2d3748;
+    $page-background: white;
+    .message {
+      max-width: 255px;
+      word-wrap: break-word;
+      margin-bottom: 12px;
+      line-height: 24px;
+      position: relative;
+      padding: 10px 20px;
+      border-radius: 6px;
+
+      &:before,
+      &:after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        height: 25px;
+      }
+    }
+    .send {
+      color: $send-color !important;
+      background: $send-bg;
+      align-self: flex-end;
+      margin-left: 0;
+      margin-right: 10px;
+      &:before {
+        right: -4px;
+        width: 20px;
+        background-color: $send-bg;
+        border-bottom-left-radius: 16px 14px;
+      }
+
+      &:after {
+        right: -26px;
+        width: 26px;
+        bottom: -4px;
+        height: 47px;
+        background-color: $page-background;
+        border-bottom-left-radius: 14px;
+        border-top-left-radius: 3px;
+      }
+    }
+    .receive {
+      background: $receive-bg;
+      color: $receive-color;
+      align-self: flex-start;
+
+      &:before {
+        left: -4px;
+        width: 20px;
+        background-color: $receive-bg;
+        border-bottom-right-radius: 16px 14px;
+      }
+
+      &:after {
+        left: -26px;
+        width: 26px;
+        height: 47px;
+        bottom: -4px;
+        background-color: $page-background;
+        border-bottom-right-radius: 14px;
+        border-top-right-radius: 3px;
+      }
+    }
+  }
+}

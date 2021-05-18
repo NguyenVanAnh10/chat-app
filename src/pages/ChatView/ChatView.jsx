@@ -5,7 +5,6 @@ import React, {
 } from "react";
 import {
   Box,
-  Button,
   Flex,
   Input,
   Text,
@@ -14,18 +13,16 @@ import {
   HStack,
   VStack,
 } from "@chakra-ui/react";
-import { useForm, Controller } from "react-hook-form";
-import { io } from "socket.io-client";
+import classNames from "classnames";
 
 import api from "services/api";
 import { AccountContext } from "App";
 
 import styles from "./ChatView.module.scss";
-
-const socket = io(process.env.REACT_APP_HEROKU_API);
+import ChatBox from "components/ChatBox";
 
 const ChatView = () => {
-  const { account } = useContext(AccountContext);
+  const { account, socket } = useContext(AccountContext);
   const [users, setUsers] = useState([]);
 
   useReactEffect(() => {
@@ -63,12 +60,13 @@ const ChatView = () => {
           <UserMessageList friends={users} account={account} />
         </Flex>
       </Flex>
-      <RoomList users={users} />
+      <ChatBox />
     </Flex>
   );
 };
 
-const UserMessageList = ({ friends, account }) => {
+const UserMessageList = ({ friends }) => {
+  const { account, socket } = useContext(AccountContext);
   const [selectedFriend, setSelectedFriend] = useState({});
 
   // TODO list friend (initial chatting)
@@ -92,17 +90,16 @@ const UserMessageList = ({ friends, account }) => {
               spacing="3"
               w="100%"
               borderRadius="5"
-              className="item selected-item "
-              background={selectedFriend._id === friend._id ? "blue.400" : ""}
+              cursor="pointer"
+              className={classNames("item", {
+                "selected-item": selectedFriend._id === friend._id,
+              })}
+              onClick={() => {
+                setSelectedFriend(friend);
+                createChatRoom(friend._id);
+              }}
             >
-              <Avatar
-                name={friend.userName}
-                size="md"
-                onClick={() => {
-                  setSelectedFriend(friend);
-                  createChatRoom(friend._id);
-                }}
-              >
+              <Avatar name={friend.userName} size="md">
                 <AvatarBadge boxSize="0.8em" bg="green.500" />
               </Avatar>
               <Text>{friend.userName}</Text>
@@ -110,133 +107,6 @@ const UserMessageList = ({ friends, account }) => {
           ))}
       </VStack>
     </Box>
-  );
-};
-
-const RoomList = ({ users }) => {
-  const [rooms, setRooms] = useState([]);
-  const { account } = useContext(AccountContext);
-
-  useReactEffect(() => {
-    socket.on("joined_room_success", ({ roomId }) => {
-      account._id &&
-        api.GET("/chat_rooms", { userId: account._id }).then((res) => {
-          !res.error && setRooms(res.chatRooms);
-        });
-    });
-    socket.on("create_room_chat_one_to_one_success", ({ roomId }) => {
-      account._id &&
-        api.GET("/chat_rooms", { userId: account._id }).then((res) => {
-          !res.error && setRooms(res.chatRooms);
-        });
-    });
-
-    account._id &&
-      api.GET("/chat_rooms", { userId: account._id }).then((res) => {
-        !res.error && setRooms(res.chatRooms);
-      });
-  }, [account._id]);
-  const handleSendMessage = (room, msg) => {
-    socket.emit("send_message", {
-      roomId: room._id,
-      message: {
-        sender: account.userName,
-        content: msg,
-      },
-    });
-  };
-
-  return (
-    <>
-      {rooms.map((room) => (
-        <ChatBox
-          key={room._id}
-          room={room}
-          account={account}
-          sendMessage={(msg) => handleSendMessage(room, msg)}
-        />
-      ))}
-    </>
-  );
-};
-
-const ChatBox = ({ room, account, sendMessage }) => {
-  const { control, handleSubmit, reset } = useForm({ message: "" });
-  const [messages, setMessages] = useState([]);
-
-  useReactEffect(() => {
-    api
-      .GET("/messages", { roomId: room._id, skip: 0, limit: 3 })
-      .then(({ messages: msgs }) => {
-        setMessages(msgs);
-      });
-    socket.on("receive_message", ({ roomId }) => {
-      api
-        .GET("/messages", { roomId, skip: 0, limit: 20 })
-        .then(({ messages: msgs }) => {
-          setMessages(msgs);
-        });
-    });
-    socket.on("send_message_success", ({ roomId }) => {
-      api
-        .GET("/messages", { roomId, skip: 0, limit: 20 })
-        .then(({ messages: msgs }) => {
-          setMessages(msgs);
-        });
-    });
-  }, []);
-
-  const handleSubmitMessage = handleSubmit((data) => {
-    sendMessage(data.message);
-    reset({ message: "" });
-  });
-  console.log(messages, account);
-  return (
-    <VStack
-      className={styles.ChatBox}
-      flex="1"
-      alignItems="flex-start"
-      pl="5"
-      justifyContent="space-between"
-    >
-      <Flex flexDir="column" mt="5" w="100%" className="show-message-box">
-        {messages.map((m) => (
-          <HStack
-            w="100%"
-            key={m._id}
-            flexDir={m.sender === account.userName ? "row" : "row-reverse"}
-          >
-            <Avatar
-              name={m.sender}
-              size="sm"
-              zIndex="2"
-              bottom="-10px"
-            ></Avatar>
-            <Text
-              className={`message ${
-                m.sender === account.userName ? "receive" : "send"
-              }`}
-              zIndex="1"
-            >
-              {m.content}
-            </Text>
-          </HStack>
-        ))}
-      </Flex>
-      <Flex mt="3" width="100%" className="type-box">
-        <form className="form" onSubmit={handleSubmitMessage}>
-          <Controller
-            name="message"
-            control={control}
-            defaultValue=""
-            render={({ field }) => <Input placeholder="User name" {...field} />}
-          />
-        </form>
-        <Button background="red.100" ml="3" onClick={handleSubmitMessage}>
-          Send
-        </Button>
-      </Flex>
-    </VStack>
   );
 };
 

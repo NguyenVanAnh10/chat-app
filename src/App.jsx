@@ -6,11 +6,14 @@ import React, {
 } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
+import { io } from "socket.io-client";
 
 import ChatView from "pages/ChatView";
 import Login from "pages/Login";
 import Register from "pages/Register";
 import api from "services/api";
+
+const socket = io(process.env.REACT_APP_HEROKU_API);
 
 export const AccountContext = createContext({});
 
@@ -21,6 +24,7 @@ function App() {
     <ChakraProvider>
       <AccountContext.Provider
         value={{
+          socket,
           account,
           setAccount,
         }}

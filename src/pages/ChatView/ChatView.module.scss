@@ -13,86 +13,11 @@
     .item {
       transition: all 0.3s ease;
       &:hover {
-        background-color: #e9d8fd;
+        background-color: #fed7e273;
       }
     }
     .selected-item {
-      background-color: #fed7e273;
-    }
-  }
-}
-.ChatBox {
-  :global {
-    .show-message-box {
-      height: calc(100vh - 70px);
-      overflow-y: scroll;
-    }
-    .form {
-      flex: 1;
-    }
-    .type-box {
-    }
-
-    $send-bg: #0b93f6;
-    $send-color: white;
-    $receive-bg: #fff5f5;
-    $receive-text: black;
-    $page-background: white;
-    .message {
-      max-width: 255px;
-      word-wrap: break-word;
-      margin-bottom: 12px;
-      line-height: 24px;
-      position: relative;
-      padding: 10px 20px;
-      border-radius: 6px;
-
-      &:before,
-      &:after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        height: 25px;
-      }
-    }
-    .send {
-      color: $send-color;
-      background: $send-bg;
-      align-self: flex-end;
-      margin-left: 0;
-      margin-right: 10px;
-      &:before {
-        right: -7px;
-        width: 20px;
-        background-color: $send-bg;
-        border-bottom-left-radius: 16px 14px;
-      }
-
-      &:after {
-        right: -26px;
-        width: 26px;
-        background-color: $page-background;
-        border-bottom-left-radius: 10px;
-      }
-    }
-    .receive {
-      background: $receive-bg;
-      color: black;
-      align-self: flex-start;
-
-      &:before {
-        left: -7px;
-        width: 20px;
-        background-color: $receive-bg;
-        border-bottom-right-radius: 16px 14px;
-      }
-
-      &:after {
-        left: -26px;
-        width: 26px;
-        background-color: $page-background;
-        border-bottom-right-radius: 10px;
-      }
+      background-color: #e9d8fd;
     }
   }
 }
