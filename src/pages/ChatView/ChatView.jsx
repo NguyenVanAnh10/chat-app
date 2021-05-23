@@ -67,6 +67,7 @@ const ChatView = () => {
         </Flex>
         {selectedRoomId && (
           <Flex
+            width={isMobileScreen ? "calc(100vw - 66px)" : "100%"}
             className={classNames({
               "main-content-mobile-screen": isMobileScreen,
             })}
