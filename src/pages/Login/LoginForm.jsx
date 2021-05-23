@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Alert,
@@ -12,22 +12,21 @@ import {
   Input,
 } from "@chakra-ui/react";
 
-import { AccountContext } from "App";
-import api from "services/api";
 import PasswordInput from "components/PasswordInput";
+import { useModel } from "model";
 
 const LoginForm = ({ onOpenRegister }) => {
   const { control, handleSubmit } = useForm();
-  const [error, setError] = useState(null);
-  const { account, setAccount } = useContext(AccountContext);
+  const [{ error, loading, loginError }, { login }] = useModel(
+    "account",
+    ({ login, getMe }) => ({
+      loading: login.loading,
+      loginError: login.error,
+      error: getMe.error,
+    })
+  );
 
-  const onHandleLogin = handleSubmit((user) => {
-    api.POST("/login", user).then((acc) => {
-      if (acc.error) return setError(acc.error);
-      acc.isVerified && setAccount(acc);
-    });
-  });
-
+  const onHandleLogin = handleSubmit((user) => login(user));
   return (
     <>
       <Heading size="lg">RiceLo</Heading>
@@ -56,18 +55,20 @@ const LoginForm = ({ onOpenRegister }) => {
             </FormControl>
           )}
         />
-        {(error || account.error) && (
+        {(error || loginError) && (
           <Alert status="error" marginTop="5">
             <AlertIcon />
             <AlertDescription>
-              {error?.message ||
-                account.error?.message ||
-                "Something went wrong"}
+              {error?.message || loginError?.message || "Something went wrong"}
             </AlertDescription>
           </Alert>
         )}
         <ButtonGroup spacing="5" marginTop="8">
-          <Button background="red.100" onClick={onHandleLogin}>
+          <Button
+            background="red.100"
+            onClick={onHandleLogin}
+            isLoading={loading}
+          >
             Login
           </Button>
           <Button

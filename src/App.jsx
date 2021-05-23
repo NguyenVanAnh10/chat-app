@@ -1,34 +1,26 @@
 import React, {
-  useState,
   createContext,
   useContext,
   useEffect as useReactEffect,
 } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
-import { ChakraProvider } from "@chakra-ui/react";
-import { io } from "socket.io-client";
+import { ChakraProvider, Text } from "@chakra-ui/react";
 
+import { useModel } from "model";
 import ChatView from "pages/ChatView";
 import Login from "pages/Login";
 import Register from "pages/Register";
-import api from "services/api";
-
-const socket = io(process.env.REACT_APP_HEROKU_API);
 
 export const AccountContext = createContext({});
 
 function App() {
-  const [account, setAccount] = useState({});
+  const [{ account }] = useModel("account", ({ me }) => ({
+    account: me,
+  }));
 
   return (
     <ChakraProvider>
-      <AccountContext.Provider
-        value={{
-          socket,
-          account,
-          setAccount,
-        }}
-      >
+      <AccountContext.Provider value={{ account }}>
         <Switch>
           <R authorize exact path="/" component={ChatView} />
           <R path="/login" component={Login} />
@@ -40,18 +32,21 @@ function App() {
 }
 
 const R = ({ authorize, location, ...rest }) => {
-  const { account, setAccount } = useContext(AccountContext);
+  const [{ loading }, { getMe }] = useModel("account", ({ getMe }) => ({
+    loading: getMe.loading,
+    error: getMe.error,
+  }));
+  const { account } = useContext(AccountContext);
   useReactEffect(() => {
-    authorize &&
-      api.GET("/me").then((acc) => {
-        setAccount(acc);
-      });
+    getMe();
   }, []);
-
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
   if (!authorize) {
     return <Route {...rest} />;
   }
-  if (!!account.error) {
+  if (!account._id) {
     return <Redirect to="/login" />;
   }
   return <Route {...rest} />;

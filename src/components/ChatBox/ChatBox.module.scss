@@ -19,7 +19,6 @@
     .message {
       max-width: 255px;
       word-wrap: break-word;
-      margin-bottom: 12px;
       line-height: 24px;
       position: relative;
       padding: 10px 20px;
@@ -37,7 +36,7 @@
       color: $send-color !important;
       background: $send-bg;
       align-self: flex-end;
-      margin-left: 0;
+      // margin-left: 0;
       margin-right: 10px;
       &:before {
         right: -4px;

@@ -2,6 +2,7 @@ import React, {
   useContext,
   useEffect as useReactEffect,
   useState,
+  createContext,
 } from "react";
 import {
   Box,
@@ -12,101 +13,189 @@ import {
   AvatarBadge,
   HStack,
   VStack,
+  AvatarGroup,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import classNames from "classnames";
 
-import api from "services/api";
+import SubSideNav from "components/SubSideNav";
 import { AccountContext } from "App";
+import ChatBox from "components/ChatBox";
+import useSocket from "socket";
 
 import styles from "./ChatView.module.scss";
-import ChatBox from "components/ChatBox";
+import { useModel } from "model";
+import useRoom from "hooks/useRoom";
+
+export const SocketContext = createContext({});
 
 const ChatView = () => {
-  const { account, socket } = useContext(AccountContext);
-  const [users, setUsers] = useState([]);
+  const { account } = useContext(AccountContext);
+  const [, { getMessages }] = useModel("message", () => ({}));
+  const [selectedRoomId, setSelectedRoomId] = useState();
+  const [showMainSideNav, setShowMainSideNav] = useState(true);
+  const isMobileScreen = useBreakpointValue({ base: true, md: false });
 
+  const socket = useSocket();
   useReactEffect(() => {
-    api.GET("/users").then((res) => {
-      !res.error && setUsers(res);
-    });
+    getMessages({ userId: account._id });
   }, []);
-
-  useReactEffect(() => {
-    socket.on("error", ({ error }) => {
-      console.error("error", error);
-    });
-  }, []);
-
   useReactEffect(() => {
     account._id && socket.emit("join_all_room", { userId: account._id });
   }, [account._id]);
 
   return (
-    <Flex className={styles.ChatView}>
-      <Flex className="nav-bar">
-        <Flex bg="red.100" p="2">
-          <Avatar name={account.userName}>
-            <AvatarBadge boxSize="0.8em" bg="green.500" />
-          </Avatar>
+    <SocketContext.Provider value={{ socket }}>
+      <Flex className={styles.ChatView}>
+        <Flex className="nav-bar">
+          <SubSideNav
+            isActive={showMainSideNav || !isMobileScreen}
+            onShowMainSideNav={() =>
+              isMobileScreen && setShowMainSideNav(!showMainSideNav)
+            }
+          />
+          {(showMainSideNav || !isMobileScreen) && (
+            <MainSideNav
+              isMobileScreen={isMobileScreen}
+              selectedRoomId={selectedRoomId}
+              onSelectRoom={(id) => {
+                setSelectedRoomId(id);
+                setShowMainSideNav(false);
+              }}
+            />
+          )}
         </Flex>
-        <Flex flexDir="column" flex="1" p="2">
+        {selectedRoomId && (
           <Flex
-            alignItems="center"
-            h="4rem"
-            borderBottom="1px solid rgba(0, 0, 0, 0.08)"
+            className={classNames({
+              "main-content-mobile-screen": isMobileScreen,
+            })}
           >
-            <Input w="100%" placeholder="Search friend..." />
+            <ChatBox roomId={selectedRoomId} />
           </Flex>
-          <UserMessageList friends={users} account={account} />
-        </Flex>
+        )}
       </Flex>
-      <ChatBox />
+    </SocketContext.Provider>
+  );
+};
+
+const MainSideNav = ({
+  width,
+  isMobileScreen,
+  selectedRoomId,
+  onSelectRoom,
+}) => {
+  return (
+    <Flex
+      flexDir="column"
+      flex="1"
+      p="2"
+      bg="white"
+      width={isMobileScreen ? "calc(100vw - 66px)" : 300}
+      transition="width 0.3s ease"
+    >
+      <Flex
+        alignItems="center"
+        h="4rem"
+        borderBottom="1px solid rgba(0, 0, 0, 0.08)"
+      >
+        <Input w="100%" placeholder="Search friend..." />
+      </Flex>
+      <UserMessageList
+        selectedRoomId={selectedRoomId}
+        onSelectRoom={onSelectRoom}
+      />
     </Flex>
   );
 };
 
-const UserMessageList = ({ friends }) => {
-  const { account, socket } = useContext(AccountContext);
-  const [selectedFriend, setSelectedFriend] = useState({});
+const UserMessageList = ({ selectedRoomId, onSelectRoom }) => {
+  const { account } = useContext(AccountContext);
 
-  // TODO list friend (initial chatting)
-  const createChatRoom = (toUser) => {
-    socket.emit("create_room_chat_one_to_one", {
-      fromUser: account._id,
-      toUser,
-    });
-  };
+  const [{ roomIds }, { getRooms }] = useModel(
+    "message",
+    ({ messages, getRooms }) => ({
+      messages,
+      roomIds: getRooms.ids || [],
+    })
+  );
+
+  useReactEffect(() => {
+    account._id && getRooms(account._id);
+  }, [account._id]);
+
+  // const onHandleClickRoom = (roomId) => {
+  // TODO check existing room
+  // const { socket } = useContext(SocketContext);
+  // socket.emit("create_room_chat_one_to_one", {
+  //   fromUser: account._id,
+  //   toUser: room._id,
+  // });
+  // };
 
   return (
     <Box pt="5" className={styles.UserMessageList}>
       <Text fontSize="sm">All messages</Text>
       <VStack marginTop="5" alignItems="flex-start">
-        {friends
-          .filter((friend) => friend._id !== account._id)
-          .map((friend, _, arr) => (
-            <HStack
-              key={friend._id}
-              p="1"
-              spacing="3"
-              w="100%"
-              borderRadius="5"
-              cursor="pointer"
-              className={classNames("item", {
-                "selected-item": selectedFriend._id === friend._id,
-              })}
-              onClick={() => {
-                setSelectedFriend(friend);
-                createChatRoom(friend._id);
-              }}
-            >
-              <Avatar name={friend.userName} size="md">
-                <AvatarBadge boxSize="0.8em" bg="green.500" />
-              </Avatar>
-              <Text>{friend.userName}</Text>
-            </HStack>
-          ))}
+        {roomIds.map((roomId, _, arr) => (
+          <RoomNav
+            key={roomId}
+            roomId={roomId}
+            active={selectedRoomId === roomId}
+            onClick={() => onSelectRoom(roomId)}
+          />
+        ))}
       </VStack>
     </Box>
+  );
+};
+const RoomNav = ({ roomId, active, onClick }) => {
+  const { account } = useContext(AccountContext);
+  const [{ room }, { haveSeenNewMessages }] = useRoom(roomId);
+
+  if (!room._id) return null;
+  const onHandleClick = () => {
+    onClick();
+    if (!room.newMessageNumber) return;
+    haveSeenNewMessages({ roomId: room._id, userId: account._id });
+  };
+  return (
+    <HStack
+      key={room._id}
+      p="1"
+      spacing="3"
+      w="100%"
+      borderRadius="5"
+      cursor="pointer"
+      className={classNames("item", {
+        "selected-item": active,
+      })}
+      onClick={onHandleClick}
+    >
+      <AvatarGroup size="md" max={2}>
+        {room.otherMembers.map((o) => (
+          <Avatar key={o._id} name={o.userName}>
+            <AvatarBadge boxSize="0.8em" bg="green.500" />
+          </Avatar>
+        ))}
+      </AvatarGroup>
+      <Text>{room.userName}</Text>
+      {!!room.newMessageNumber && (
+        <Text
+          ml="auto !important"
+          borderRadius="100%"
+          bg="red.500"
+          color="white"
+          fontSize="sm"
+          fontWeight="bold"
+          width="5"
+          height="5"
+          textAlign="center"
+        >
+          {room.newMessageNumber}
+        </Text>
+      )}
+    </HStack>
   );
 };
 

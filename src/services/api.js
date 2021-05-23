@@ -2,6 +2,10 @@ import qs from "query-string";
 
 import configs from "configs/configs";
 
+function ExceptionError({ name, message }) {
+  return { name, message };
+}
+
 const api = async ({ method, path, params }) => {
   const opts = {
     method,
@@ -22,11 +26,18 @@ const api = async ({ method, path, params }) => {
     default:
       break;
   }
-  try {
-    const response = await fetch(url, opts);
-    return response.json();
-  } catch (error) {
-    console.error(error);
+  const response = await fetch(url, opts);
+  switch (response.status) {
+    case 200:
+      return await response.json();
+    case 504:
+      throw new ExceptionError({
+        name: "Error",
+        message: response.statusText,
+      });
+    default:
+      const { error } = await response.json();
+      throw error;
   }
 };
 

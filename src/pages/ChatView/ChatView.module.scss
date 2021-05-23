@@ -3,8 +3,14 @@
   width: 100%;
   :global {
     .nav-bar {
-      width: 350px;
       border-right: 1px solid rgba(0, 0, 0, 0.08);
+      z-index: 2;
+    }
+    .main-content-mobile-screen {
+      position: absolute;
+      width: calc(100vw - 66px);
+      left: 64px;
+      z-index: 1;
     }
   }
 }

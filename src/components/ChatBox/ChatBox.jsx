@@ -1,77 +1,48 @@
-import React, {
-  useContext,
-  useState,
-  useEffect as useReactEffect,
-} from "react";
-import { VStack } from "@chakra-ui/react";
+import React, { useContext, useEffect as useReactEffect } from "react";
+import { Text, VStack } from "@chakra-ui/react";
+import { v4 as uuid } from "uuid";
 
 import { AccountContext } from "App";
 import MessageList from "components/MessageList";
 import MessageInput from "components/MessageInput";
-import api from "services/api";
+import { useModel } from "model";
 
 import styles from "./ChatBox.module.scss";
+import useRoom from "hooks/useRoom";
 
-const ChatBox = () => {
-  const { account, socket } = useContext(AccountContext);
-  const [room, setRoom] = useState({});
-  const [messages, setMessages] = useState([]);
-
-  useReactEffect(() => {
-    socket.on("create_room_chat_one_to_one_success", async ({ roomId }) => {
-      if (!account._id) return;
-      const roomRes = await api.GET(`/chat_rooms/${roomId}`, {
-        userId: account._id,
-      });
-      if (roomRes.error) return;
-      const messagesRes = await api.GET("/messages", {
-        roomId,
-        skip: 0,
-        limit: 20,
-      });
-      if (messagesRes.error) return;
-      setRoom(roomRes.room);
-      setMessages(messagesRes.messages);
-    });
-  }, [account._id]);
+const ChatBox = ({ roomId }) => {
+  const [
+    { messages, loading },
+    { getMessages, sendMessage, haveSeenNewMessages },
+  ] = useModel("message", ({ messages, getMessages, getRoom }) => ({
+    messages: (getMessages.ids || []).map((id) => messages[id]),
+    loading: getMessages.loading,
+  }));
+  const { account } = useContext(AccountContext);
+  const [{ room }] = useRoom(roomId);
 
   useReactEffect(() => {
     room._id &&
-      api
-        .GET("/messages", { roomId: room._id, skip: 0, limit: 20 })
-        .then(({ messages: msgs }) => {
-          setMessages(msgs);
-        });
-    socket.on("receive_message", async ({ roomId }) => {
-      const messagesRes = await api.GET("/messages", {
-        roomId,
-        skip: 0,
-        limit: 20,
-      });
-      if (messagesRes.error) return;
-      setMessages(messagesRes.messages);
-    });
-    socket.on("send_message_success", async ({ roomId }) => {
-      const messagesRes = await api.GET("/messages", {
-        roomId,
-        skip: 0,
-        limit: 20,
-      });
-      if (messagesRes.error) return;
-      setMessages(messagesRes.messages);
-    });
-  }, [room._id]);
+      account._id &&
+      getMessages({ roomId: room._id, userId: account._id });
+  }, [room._id, account._id]);
 
   const onSendMessage = (contentMessage) => {
-    socket.emit("send_message", {
+    sendMessage({
+      keyMsg: uuid(),
       roomId: room._id,
-      message: {
-        sender: account.userName,
-        content: contentMessage,
-      },
+      senderId: account._id,
+      hadSeenMessageUsers: [account._id],
+      content: contentMessage,
+      createAt: Date.now(),
+      status: false,
     });
   };
-
+  const onHandleFocusInput = () => {
+    if (!room.newMessageNumber) return;
+    haveSeenNewMessages({ roomId: room._id, userId: account._id });
+  };
+  if (loading) return <Text>LOADING...</Text>;
   return (
     <VStack
       className={styles.ChatBox}
@@ -83,7 +54,10 @@ const ChatBox = () => {
       {room._id && (
         <>
           <MessageList className="show-message-box" messages={messages} />
-          <MessageInput onSendMessage={onSendMessage} />
+          <MessageInput
+            onSendMessage={onSendMessage}
+            onFocusInput={onHandleFocusInput}
+          />
         </>
       )}
     </VStack>

@@ -3,7 +3,7 @@ import { Button, HStack, Input } from "@chakra-ui/react";
 
 import { useForm, Controller } from "react-hook-form";
 
-const MessageInput = ({ onSendMessage }) => {
+const MessageInput = ({ onSendMessage, onFocusInput }) => {
   const { control, handleSubmit, reset } = useForm({ message: "" });
   const handleSubmitMessage = handleSubmit((data) => {
     if (!data.message) return;
@@ -20,7 +20,11 @@ const MessageInput = ({ onSendMessage }) => {
           defaultValue=""
           rules={{ required: true }}
           render={({ field }) => (
-            <Input placeholder="Type message..." {...field} />
+            <Input
+              placeholder="Type message..."
+              onFocus={onFocusInput}
+              {...field}
+            />
           )}
         />
       </form>
