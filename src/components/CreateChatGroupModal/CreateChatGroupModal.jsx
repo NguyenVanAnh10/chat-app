@@ -139,7 +139,11 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
           <Button colorScheme="blue" mr={3} onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="ghost" onClick={onHandleSumbit}>
+          <Button
+            variant="ghost"
+            onClick={onHandleSumbit}
+            isLoading={createRoomState.loading}
+          >
             Create
           </Button>
         </ModalFooter>
