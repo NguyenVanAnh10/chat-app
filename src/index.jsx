@@ -8,8 +8,9 @@ import reportWebVitals from "./reportWebVitals";
 import { initRegisters } from "model";
 import messageModel from "model/message";
 import accountModel from "model/account";
+import userModel from "model/user";
 
-initRegisters({ messageModel, accountModel });
+initRegisters({ messageModel, accountModel, userModel });
 
 ReactDOM.render(
   <React.StrictMode>

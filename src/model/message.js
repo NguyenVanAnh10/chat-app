@@ -5,6 +5,7 @@ import {
   getRooms,
   sendMessage,
   haveSeenMessages,
+  createRoom,
 } from "services/message";
 import serviceAccount from "services/account";
 
@@ -19,6 +20,7 @@ const messageModel = {
     rooms: {},
     getRooms: { ids: [] }, // {ids: [], loading, error}
     getRoom: {},
+    createRoom: {},
     sendMessage: {},
   },
   reducers: {
@@ -79,13 +81,31 @@ const messageModel = {
         case "success":
           return {
             ...state,
-            rooms: { ...state.rooms, [payload.room._id]: payload.room },
-            getRoom: { id: payload.room._id },
+            rooms: { ...state.rooms, [payload._id]: payload },
+            getRooms: {
+              ids: state.getRooms.ids.includes(payload._id)
+                ? state.getRooms.ids
+                : [...state.getRooms.ids, payload._id],
+            },
+            getRoom: { id: payload._id },
           };
         case "error":
           return { ...state, getRoom: { error: payload } };
         default:
           return { ...state, getRoom: { loading: true } };
+      }
+    },
+    createRoom: (state, { status, payload }) => {
+      switch (status) {
+        case "success":
+          return {
+            ...state,
+            createRoom: payload,
+          };
+        case "error":
+          return { ...state, createRoom: { error: payload } };
+        default:
+          return { ...state, createRoom: { loading: true } };
       }
     },
     sendMessage: (state, { status, payload }) => {
@@ -200,6 +220,13 @@ const messageModel = {
         onError(error);
       }
     },
+    createRoom: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await createRoom(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
     getRoom: async (payload, onSuccess, onError) => {
       try {
         if (!payload.userId) {
@@ -240,6 +267,7 @@ const messageModel = {
     getMessage: (params) => params,
     getRoom: (params) => params,
     getRooms: (userId) => ({ userId }),
+    createRoom: (params) => params,
     sendMessage: (params) => params,
     haveSeenNewMessages: (params) => params,
     getHaveSeenNewMessages: (params) => params,

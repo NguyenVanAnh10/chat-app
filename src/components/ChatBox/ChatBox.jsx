@@ -1,31 +1,22 @@
-import React, { useContext, useEffect as useReactEffect } from "react";
-import { Text, VStack } from "@chakra-ui/react";
+import React, { useContext } from "react";
+import { VStack } from "@chakra-ui/react";
 import { v4 as uuid } from "uuid";
 
 import { AccountContext } from "App";
 import MessageList from "components/MessageList";
 import MessageInput from "components/MessageInput";
-import { useModel } from "model";
 
 import styles from "./ChatBox.module.scss";
 import useRoom from "hooks/useRoom";
+import useMessages from "hooks/useMessages";
 
 const ChatBox = ({ roomId }) => {
-  const [
-    { messages, loading },
-    { getMessages, sendMessage, haveSeenNewMessages },
-  ] = useModel("message", ({ messages, getMessages, getRoom }) => ({
-    messages: (getMessages.ids || []).map((id) => messages[id]),
-    loading: getMessages.loading,
-  }));
   const { account } = useContext(AccountContext);
+  const [, { sendMessage, haveSeenNewMessages }] = useMessages(
+    roomId,
+    account._id
+  );
   const [{ room }] = useRoom(roomId);
-
-  useReactEffect(() => {
-    room._id &&
-      account._id &&
-      getMessages({ roomId: room._id, userId: account._id });
-  }, [room._id, account._id]);
 
   const onSendMessage = (contentMessage) => {
     sendMessage({
@@ -42,7 +33,6 @@ const ChatBox = ({ roomId }) => {
     if (!room.newMessageNumber) return;
     haveSeenNewMessages({ roomId: room._id, userId: account._id });
   };
-  if (loading) return <Text>LOADING...</Text>;
   return (
     <VStack
       className={styles.ChatBox}
@@ -53,7 +43,11 @@ const ChatBox = ({ roomId }) => {
     >
       {room._id && (
         <>
-          <MessageList className="show-message-box" messages={messages} />
+          <MessageList
+            className="show-message-box"
+            roomId={room._id}
+            userId={account._id}
+          />
           <MessageInput
             onSendMessage={onSendMessage}
             onFocusInput={onHandleFocusInput}

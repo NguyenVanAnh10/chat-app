@@ -1,0 +1,13 @@
+.RoomList {
+  :global {
+    .item {
+      transition: all 0.3s ease;
+      &:hover {
+        background-color: #fed7e273;
+      }
+    }
+    .selected-item {
+      background-color: #e9d8fd;
+    }
+  }
+}

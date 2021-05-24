@@ -6,14 +6,12 @@ import { useContext } from "react";
 const useRoom = (roomId) => {
   const { account } = useContext(AccountContext);
 
-  const [{ messages, room }, { haveSeenNewMessages }] = useModel(
+  const [{ messages, rooms }, { haveSeenNewMessages }] = useModel(
     "message",
-    ({ messages, rooms, getRooms }) => ({
-      messages,
-      room: rooms[roomId] || {},
-    })
+    ({ messages, rooms }) => ({ messages, rooms })
   );
-  if (!roomId || !account._id) return [{}, {}];
+  if (!roomId || !account._id || !rooms[roomId] || !rooms[roomId].members)
+    return [{ room: {} }, {}];
 
   const newNumberMessagesInRoom = Object.keys(messages).filter(
     (id) =>
@@ -25,12 +23,14 @@ const useRoom = (roomId) => {
   return [
     {
       room: {
-        ...room,
-        otherMembers: room.members.filter((m) => m._id !== account._id),
+        ...rooms[roomId],
+        otherMembers: rooms[roomId].members.filter(
+          (m) => m._id !== account._id
+        ),
         newMessageNumber: newNumberMessagesInRoom,
         userName:
-          room.userName ||
-          room.members.find((m) => m._id !== account._id)?.userName,
+          rooms[roomId]?.userName ||
+          rooms[roomId]?.members?.find((m) => m._id !== account._id)?.userName,
       },
     },
     { haveSeenNewMessages },

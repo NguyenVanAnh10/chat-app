@@ -33,15 +33,23 @@ const useSocket = () => {
   const getRoomListener = ({ roomId }) => {
     getRoom({ roomId, userId: account?._id });
   };
+  const getNewRoom = ({ roomId, createrId }) => {
+    // TODO other peer (include person created room) auto getRoom once create room successful
+    // if (account._id !== createrId) return;
+    getRoom({ roomId, userId: account?._id });
+  };
   const errorListener = ({ error }) => {
     console.error("error", error);
   };
 
   useReactEffect(() => {
+    account._id &&
+      socketControler.socket.emit("join_all_room", { userId: account._id });
     socketControler.socket.on(
       "create_room_chat_one_to_one_success",
       getRoomListener
     );
+    socketControler.socket.on("user_has_added_new_room", getNewRoom);
     socketControler.socket.on(
       "send_message_success",
       sendMessageSuccessListener

@@ -11,5 +11,6 @@ export const getRooms = (userId) =>
   api.GET("/chat_rooms", {
     userId,
   });
+export const createRoom = (params) => api.POST("/chat_rooms", params);
 export const sendMessage = (params) => api.POST("/messages", params);
 export const haveSeenMessages = (params) => api.POST(`/messages/seen`, params);
