@@ -2,9 +2,11 @@ import React, { useContext, useEffect, useRef } from "react";
 import {
   Avatar,
   AvatarGroup,
+  Box,
   Flex,
   HStack,
   IconButton,
+  Image,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -56,7 +58,10 @@ const MessageList = ({ roomId, className, userId }) => {
                 }`}
                 zIndex="1"
               >
-                <Text>{m.content}</Text>
+                <MessageContent
+                  content={m.content}
+                  contentType={m.contentType}
+                />
                 <HStack spacing="5" color="blackAlpha.600">
                   <Text fontSize="xs">
                     {dayjs(m.createAt).format("h:mm A")}
@@ -90,5 +95,23 @@ const MessageList = ({ roomId, className, userId }) => {
       </Flex>
     </MessageListCard>
   );
+};
+const MessageContent = ({ contentType, content }) => {
+  switch (contentType) {
+    case "image":
+      return (
+        <Box boxSize="xs">
+          <Image
+            src={content}
+            loading="lazy"
+            // TODO setTimeout
+            onLoad={() => setTimeout(() => URL.revokeObjectURL(content), 100)}
+            alt="image"
+          />
+        </Box>
+      );
+    default:
+      return <Text>{content}</Text>;
+  }
 };
 export default MessageList;
