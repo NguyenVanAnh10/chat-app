@@ -116,7 +116,10 @@ const messageModel = {
             messages: {
               ...state.messages,
               [payload.keyMsg]: undefined,
-              [payload.message._id]: payload.message,
+              [payload.message._id]: {
+                ...payload.message,
+                contentBlob: state.messages[payload.keyMsg].contentBlob,
+              },
             },
             getMessages: {
               ...state.getMessages,

@@ -1,5 +1,12 @@
-import React, { useContext, useEffect as useReactEffect, useRef } from "react";
-import { Box, Button, HStack, IconButton, Input } from "@chakra-ui/react";
+import React, { useContext, useRef } from "react";
+import {
+  Box,
+  Button,
+  HStack,
+  IconButton,
+  Input,
+  useToast,
+} from "@chakra-ui/react";
 import { v4 as uuid } from "uuid";
 import { useForm, Controller } from "react-hook-form";
 
@@ -21,27 +28,31 @@ const MessageInput = ({ roomId, onFocusInput }) => {
   });
   const handleSendImage = async (imageUrls) => {
     if (!imageUrls.length) return;
-    console.log(typeof imageUrls[0]);
     try {
       const base64Image = (await getBase64(imageUrls[0])).replace(
-        /^data(.)*base64,/,
+        /^data:image\/[a-z]+;base64,/,
         ""
       );
-      console.log("base64Image", typeof base64Image);
       onSendMessage({
         contentType: "image",
-        content: URL.createObjectURL(imageUrls[0]),
+        contentBlob: URL.createObjectURL(imageUrls[0]),
         base64Image,
       });
     } catch (error) {
       console.error(error);
     }
   };
-  const onSendMessage = ({ content, contentType, base64Image }) => {
+  const onSendMessage = ({
+    content,
+    contentType,
+    base64Image,
+    contentBlob,
+  }) => {
     sendMessage({
       roomId,
       content,
       contentType,
+      contentBlob,
       base64Image,
       keyMsg: uuid(),
       status: false,
@@ -75,25 +86,39 @@ const MessageInput = ({ roomId, onFocusInput }) => {
   );
 };
 
-const UploadImage = ({ onSendImage }) => {
+const UploadImage = ({ onSendImage, maxSize = 1 }) => {
+  const toast = useToast();
+
   const inputImageRef = useRef();
-  useReactEffect(() => {}, []);
   const handleClick = () => inputImageRef.current.click();
-  const handleChange = () => {
+  const handleChange = (e) => {
     if (!inputImageRef.current.files.length) return;
     const imageUrls = [];
     const images = inputImageRef.current.files;
+    let sizeImages = 0;
     for (const image of images) {
-      console.log(typeof image);
       imageUrls.push(image);
+      sizeImages += image.size;
+    }
+    inputImageRef.current.value = "";
+    // 1B
+    if (sizeImages > maxSize * 1024 * 1024) {
+      return toast({
+        description: `Size file has to less ${maxSize}MB`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
     onSendImage(imageUrls);
   };
   return (
     <Box>
       <IconButton
+        bg="pink.50"
+        _hover={{ bg: "pink.100" }}
         onClick={handleClick}
-        icon={<ImageIcon color="pink.400" fontSize="3.2rem" />}
+        icon={<ImageIcon color="pink.400" fontSize="2rem" />}
       />
       <Input
         ref={inputImageRef}

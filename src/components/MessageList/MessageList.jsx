@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Avatar,
   AvatarGroup,
-  Box,
   Flex,
   HStack,
   IconButton,
@@ -52,43 +51,11 @@ const MessageList = ({ roomId, className, userId }) => {
                   icon={<RepeatIcon color="red.500" />}
                 />
               )}
-              <VStack
-                className={`message ${
-                  m.senderId !== account._id ? "receive" : "send"
-                }`}
-                zIndex="1"
-              >
-                <MessageContent
-                  content={m.content}
-                  contentType={m.contentType}
-                />
-                <HStack spacing="5" color="blackAlpha.600">
-                  <Text fontSize="xs">
-                    {dayjs(m.createAt).format("h:mm A")}
-                  </Text>
-                  {m.senderId === account._id &&
-                    !m.error &&
-                    m.hadSeenMessageUsers.length === 1 && (
-                      <Text fontSize="xs">
-                        {m.status ? "Delivered" : "Sending"}
-                      </Text>
-                    )}
-                  {!!m.error && <Text fontSize="xs">Sending Error</Text>}
-                  {m.hadSeenMessageUsers.length > 1 && (
-                    <AvatarGroup spacing="0.5" max="3" size="2xs" fontSize="xs">
-                      {m.hadSeenMessageUsers
-                        .filter((id) => id !== m.senderId && id !== account._id)
-                        .map((userId) => (
-                          <Avatar
-                            key={userId}
-                            border="none"
-                            name={members[userId]?.userName}
-                          />
-                        ))}
-                    </AvatarGroup>
-                  )}
-                </HStack>
-              </VStack>
+              <MessageContent
+                message={m}
+                members={members}
+                containerRef={containerRef}
+              />
             </HStack>
           </HStack>
         ))}
@@ -96,22 +63,125 @@ const MessageList = ({ roomId, className, userId }) => {
     </MessageListCard>
   );
 };
-const MessageContent = ({ contentType, content }) => {
-  switch (contentType) {
+const MessageContent = ({ message, members, containerRef }) => {
+  const { account } = useContext(AccountContext);
+
+  switch (message.contentType) {
     case "image":
       return (
-        <Box boxSize="xs">
-          <Image
-            src={content}
-            loading="lazy"
-            // TODO setTimeout
-            onLoad={() => setTimeout(() => URL.revokeObjectURL(content), 100)}
-            alt="image"
-          />
-        </Box>
+        <ImageMessage
+          message={message}
+          members={members}
+          account={account}
+          containerRef={containerRef}
+        />
       );
     default:
-      return <Text>{content}</Text>;
+      return (
+        <TextMessage message={message} members={members} account={account} />
+      );
   }
+};
+
+const TextMessage = ({ message, members, account }) => {
+  return (
+    <VStack
+      className={`message ${
+        message.senderId !== account._id ? "receive" : "send"
+      }`}
+      zIndex="1"
+    >
+      <Text>{message.content}</Text>
+      <HStack spacing="5" color="blackAlpha.600">
+        <Text fontSize="xs">{dayjs(message.createAt).format("h:mm A")}</Text>
+        {message.senderId === account._id &&
+          !message.error &&
+          message.hadSeenMessageUsers.length === 1 && (
+            <Text fontSize="xs">
+              {message.status ? "Delivered" : "Sending"}
+            </Text>
+          )}
+        {!!message.error && <Text fontSize="xs">Sending Error</Text>}
+        {message.hadSeenMessageUsers.length > 1 && (
+          <AvatarGroup spacing="0.5" max="3" size="2xs" fontSize="xs">
+            {message.hadSeenMessageUsers
+              .filter((id) => id !== message.senderId && id !== account._id)
+              .map((userId) => (
+                <Avatar
+                  key={userId}
+                  border="none"
+                  name={members[userId]?.userName}
+                />
+              ))}
+          </AvatarGroup>
+        )}
+      </HStack>
+    </VStack>
+  );
+};
+
+// TODO blink image (blob local image - url server image)
+const ImageMessage = ({ message, members, account, containerRef }) => {
+  const [visible, setVisible] = useState(false);
+  return (
+    <VStack mr="2" alignItems="flex-end">
+      <Image
+        maxW="100%"
+        maxH={200}
+        borderRadius="lg"
+        objectFit="contain"
+        display={!visible ? "block" : "none"}
+        objectPosition={message.senderId === account._id ? "right" : "left"}
+        src={message.contentBlob}
+        onLoad={() => {
+          containerRef.current.scrollIntoView(false);
+        }}
+      />
+      <Image
+        maxW="100%"
+        maxH={200}
+        borderRadius="lg"
+        objectFit="contain"
+        display={visible ? "block" : "none"}
+        objectPosition={message.senderId === account._id ? "right" : "left"}
+        src={message.content}
+        onLoad={() => {
+          setVisible(true);
+          containerRef.current.scrollIntoView(false);
+          // containerRef.current.scrollIntoView(false);
+          // setTimeout(() => URL.revokeObjectURL(message.contentBlob), 100);
+        }}
+      />
+      <HStack
+        spacing="5"
+        color="blackAlpha.600"
+        w="100%"
+        justifyContent="space-between"
+      >
+        <Text fontSize="xs">{dayjs(message.createAt).format("h:mm A")}</Text>
+        {message.senderId === account._id &&
+          !message.error &&
+          message.hadSeenMessageUsers.length === 1 && (
+            <Text fontSize="xs">
+              {message.status ? "Delivered" : "Sending"}
+            </Text>
+          )}
+        {!!message.error && <Text fontSize="xs">Sending Error</Text>}
+        {message.hadSeenMessageUsers.length > 1 && (
+          <AvatarGroup spacing="0.5" max="3" size="2xs" fontSize="xs">
+            {message.hadSeenMessageUsers
+              .filter((id) => id !== message.senderId && id !== account._id)
+              .map((userId) => (
+                <Avatar
+                  key={userId}
+                  border="none"
+                  name={members[userId]?.userName}
+                />
+              ))}
+          </AvatarGroup>
+        )}
+      </HStack>
+    </VStack>
+  );
 };
 export default MessageList;
