@@ -5,17 +5,28 @@ import {
   HStack,
   IconButton,
   Input,
+  InputGroup,
+  InputRightElement,
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
+  Portal,
   useToast,
 } from "@chakra-ui/react";
 import { v4 as uuid } from "uuid";
 import { useForm, Controller } from "react-hook-form";
+import data from "emoji-mart/data/twitter.json";
+import { Picker } from "emoji-mart/dist-modern/index.js";
 
-import { ImageIcon } from "components/CustomIcons";
+import { ImageIcon, EmojiIcon } from "components/CustomIcons";
 import useMessages from "hooks/useMessages";
 import { AccountContext } from "App";
 import { getBase64 } from "utils";
 
-const MessageInput = ({ roomId, onFocusInput }) => {
+import styles from "./MessageInput.module.scss";
+
+const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
   const { account } = useContext(AccountContext);
 
   const [, { sendMessage }] = useMessages(roomId, account._id);
@@ -62,7 +73,7 @@ const MessageInput = ({ roomId, onFocusInput }) => {
     });
   };
   return (
-    <HStack w="100%" pb="2" pr="3" mt="0" spacing="2">
+    <HStack w="100%" pb="2" pr="3" mt="0" spacing="2" {...rest}>
       <form className="form" onSubmit={handleSubmitMessage}>
         <Controller
           name="message"
@@ -70,11 +81,46 @@ const MessageInput = ({ roomId, onFocusInput }) => {
           defaultValue=""
           rules={{ required: true }}
           render={({ field }) => (
-            <Input
-              placeholder="Type message..."
-              onFocus={onFocusInput}
-              {...field}
-            />
+            <InputGroup>
+              <InputRightElement>
+                <Popover placement="bottom-end">
+                  <PopoverTrigger>
+                    <IconButton
+                      bg="transparent"
+                      _active="none"
+                      _hover="none"
+                      _focus="none"
+                      icon={
+                        <EmojiIcon
+                          color="pink.700"
+                          fontSize="1.8rem"
+                          borderRadius="full"
+                          bg="yellow.300"
+                        />
+                      }
+                    />
+                  </PopoverTrigger>
+                  <Portal>
+                    <PopoverContent className={styles.Picker}>
+                      <PopoverArrow />
+                      <Picker
+                        set="twitter"
+                        data={data}
+                        sheetSize={32}
+                        onSelect={(icon) =>
+                          field.onChange(`${field.value}${icon.native}`)
+                        }
+                      />
+                    </PopoverContent>
+                  </Portal>
+                </Popover>
+              </InputRightElement>
+              <Input
+                placeholder="Type message..."
+                onFocus={onFocusInput}
+                {...field}
+              />
+            </InputGroup>
           )}
         />
       </form>
@@ -131,4 +177,5 @@ const UploadImage = ({ onSendImage, maxSize = 1 }) => {
     </Box>
   );
 };
+
 export default MessageInput;

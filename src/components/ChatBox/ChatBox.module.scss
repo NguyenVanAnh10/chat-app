@@ -2,15 +2,14 @@
   :global {
     .show-message-box {
       // TODO calc
-      height: calc(100vh - 56px);
+      height: calc(100vh - 135px);
       overflow-y: scroll;
+      padding-left: 10px;
+      margin-top: 0 !important;
     }
     .form {
       flex: 1;
     }
-    .type-box {
-    }
-
     $send-bg: #d6bcfa;
     $send-color: #2d3748;
     $receive-bg: #fed7d7;

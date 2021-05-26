@@ -1,139 +1,119 @@
-// import { useState, useRef } from "react";
+import {
+  useContext,
+  useEffect as useReactEffect,
+  useRef,
+  useState,
+} from "react";
+import Peer from "simple-peer";
 
-// const CHAT_ROOM = 'CHAT_ROOM';
+import { SocketContext } from "pages/ChatView";
+import { AccountContext } from "App";
 
-// const socket = io(process.env.REACT_APP_HEROKU_API);
-const useVideoChat = () => {
-  // const [stream, setStream] = useState(null);
-  // const [me, setMe] = useState({ name: "Name" });
-  // const [caller, setCaller] = useState({});
-  // const [callAccepted, setCallAccepted] = useState(false);
-  // const [callEnded, setCallEnded] = useState(false);
+const useVideoChat = (room) => {
+  const { socket } = useContext(SocketContext);
+  const { account } = useContext(AccountContext);
 
-  // const myVideo = useRef({});
-  // const remoteVideo = useRef({});
-  // const connectionRef = useRef();
+  const [caller, setCaller] = useState({});
+  const [hasReceivedACall, setHasReceivedACall] = useState(false);
+  const [callAccepted, setCallAccepted] = useState(false);
 
-  // useReactEffect(() => {
-  //   navigator.mediaDevices
-  //     .getUserMedia({ video: true, audio: true })
-  //     .then((currentStream) => {
-  //       setStream(currentStream);
-  //       myVideo.current.srcObject = currentStream;
-  //     })
-  //     .catch((err) => {
-  //       console.error("Failed to get local stream", err);
-  //     });
-  //   socket.on("me", (id) => {
-  //     setMe({ ...me, id });
-  //   });
-  //   socket.on("callUser", ({ from, name, signal }) => {
-  //     setCaller({ isReceivedCall: true, from, name, signal });
-  //   });
-  //   socket.on("callended", () => {
-  //     console.log("callended end");
-  //   });
-  // }, []);
+  const currentVideo = useRef();
+  const remoteVideo = useRef();
+  const connectionRef = useRef();
 
-  // const answerCall = () => {
-  //   setCallAccepted(true);
-  //   const peer = new Peer({ initiator: false, trickle: false, stream });
-  //   peer.on("signal", (data) => {
-  //     socket.emit("answerCall", { signal: data, to: caller.from });
-  //   });
+  useReactEffect(() => {
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((currentStream) => {
+        currentVideo.current = currentStream;
+      })
+      .catch((err) => {
+        console.error("Failed to get local stream", err);
+      });
 
-  //   peer.on("stream", (remoteStream) => {
-  //     remoteVideo.current.srcObject = remoteStream;
-  //   });
+    socket.on("a_call_from", ({ receiverId, signal, callerId, roomId }) => {
+      setHasReceivedACall(true);
+      setCaller({ receiverId, signal, callerId, roomId });
+    });
+    socket.on("callended", () => {
+      console.log("callended end");
+    });
+  }, []);
 
-  //   peer.signal(caller.signal);
-  //   connectionRef.current = peer;
-  // };
+  const onAnswerCall = () => {
+    setCallAccepted(true);
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      stream: currentVideo.current,
+    });
+    peer.on("signal", (signal) => {
+      socket.emit("answer_call", { ...caller, signal });
+    });
 
-  // const callUser = (id) => {
-  //   const peer = new Peer({
-  //     initiator: true,
-  //     trickle: false,
-  //     config: {
-  //       iceServers: [
-  //         {
-  //           url: "stun:stun.l.google.com:19302",
-  //         },
-  //         {
-  //           url: "turn:numb.viagenie.ca",
-  //           credential: "muazkh",
-  //           username: "webrtc@live.com",
-  //         },
-  //       ],
-  //     },
-  //     stream,
-  //   });
-  //   peer.on("signal", (data) => {
-  //     socket.emit("callUser", {
-  //       userToCall: id,
-  //       signal: data,
-  //       from: me.id,
-  //       name: me.name,
-  //     });
-  //   });
+    peer.on("stream", (remoteStream) => {
+      remoteVideo.current.srcObject = remoteStream;
+    });
 
-  //   peer.on("stream", (remoteStream) => {
-  //     remoteVideo.current.srcObject = remoteStream;
-  //   });
+    peer.signal(caller.signal);
+    connectionRef.current = peer;
+  };
 
-  //   socket.on("callAccepted", (signal) => {
-  //     setCallAccepted(true);
-  //     peer.signal(signal);
-  //   });
-  //   connectionRef.current = peer;
-  // };
+  const onCallUser = (receiverId) => {
+    const peer = new Peer({
+      initiator: true,
+      trickle: false,
+      config: {
+        iceServers: [
+          {
+            url: "stun:stun.l.google.com:19302",
+          },
+          {
+            url: "turn:numb.viagenie.ca",
+            credential: "muazkh",
+            username: "webrtc@live.com",
+          },
+        ],
+      },
+      stream: currentVideo.current,
+    });
+    peer.on("signal", (signal) => {
+      socket.emit("call_to", {
+        receiverId,
+        signal,
+        callerId: account._id,
+        roomId: room._id,
+      });
+    });
 
-  // const leaveCall = () => {
-  //   setCallEnded(true);
-  //   connectionRef.current.destroy();
-  //   window.location.reload();
-  // };
+    peer.on("stream", (remoteStream) => {
+      remoteVideo.current = remoteStream;
+    });
 
-  // return [
-  //   {
-  //     me,
-  //     caller,
-  //     callAccepted,
-  //     callEnded,
-  //     myVideo,
-  //     remoteVideo,
-  //     stream,
-  //   },
-  //   {
-  //     // callUser,
-  //     // leaveCall,
-  //     // answerCall,
-  //     setMe,
-  //   },
-  // ];
-};
+    socket.on("call_accepted", ({ signal }) => {
+      setCallAccepted(true);
+      peer.signal(signal);
+    });
+    connectionRef.current = peer;
+  };
 
-export const useMessageChat = () => {
-  // const [messages, setMessages] = useState([]);
-  // useReactEffect(() => {
-  //   socket.on("message", ({ message }) => {
-  //     console.log("messages messages");
+  const onLeaveCall = () => {
+    connectionRef.current.destroy();
+  };
 
-  //     setMessages((messages) => [...messages, message]);
-  //   });
-  // }, []);
-  // const onMessage = (message) => {
-  //   setMessages([...messages, message]);
-  //   socket.emit("message", { message });
-  // };
-  // return [
-  //   {
-  //     messages,
-  //   },
-  //   {
-  //     onMessage,
-  //   },
-  // ];
+  return [
+    {
+      currentVideo: currentVideo.current,
+      remoteVideo: remoteVideo.current,
+      hasReceivedACall,
+      callAccepted,
+    },
+    {
+      onCallUser,
+      onLeaveCall,
+      onAnswerCall,
+    },
+  ];
 };
 
 export default useVideoChat;

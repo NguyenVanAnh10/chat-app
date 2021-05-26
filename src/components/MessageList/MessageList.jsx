@@ -38,7 +38,7 @@ const MessageList = ({ roomId, className, userId }) => {
       <Flex flexDir="column" mt="5" ref={containerRef}>
         {messages.map((m) => (
           <HStack
-            key={m._id}
+            key={m._id || m.keyMsg}
             mt="3"
             flexDir={m.senderId !== account._id ? "row" : "row-reverse"}
           >

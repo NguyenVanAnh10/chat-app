@@ -24,3 +24,37 @@ export const ImageIcon = createIcon({
     />
   ),
 });
+
+export const EmojiIcon = createIcon({
+  displayName: "EmojiIcon",
+  viewBox: "-77 20 700 500",
+  path: (
+    <>
+      <g>
+        <circle fill="currentColor" cx="160" cy="192" r="32" />
+        <circle fill="currentColor" cx="352" cy="192" r="32" />
+        <path
+          fill="currentColor"
+          d="M256,416c-42.752,0-82.912-16.672-113.152-46.88c-6.24-6.24-6.24-16.384,0-22.624
+		s16.384-6.24,22.624,0c48.352,48.384,132.64,48.384,181.024,0c6.24-6.24,16.384-6.24,22.624,0s6.24,16.384,0,22.624
+		C338.912,399.328,298.752,416,256,416z"
+        />
+      </g>
+      <g fill="currentColor"></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+      <g></g>
+    </>
+  ),
+});
