@@ -92,7 +92,6 @@ export const useModel = (name, selector) => {
     const unsub = models.store.subscribe(() => {
       const nextState = selector(models.store.getState()[name]);
       if (!isEqual(nextState, currentStateRef.current)) {
-        console.log("ss");
         currentStateRef.current = { ...nextState };
         forceRender({});
       }

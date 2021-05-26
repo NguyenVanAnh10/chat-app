@@ -7,6 +7,7 @@ import {
   IconButton,
   Image,
   Text,
+  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { RepeatIcon } from "@chakra-ui/icons";
@@ -16,9 +17,12 @@ import useRoom from "hooks/useRoom";
 import { AccountContext } from "App";
 import useMessages from "hooks/useMessages";
 import MessageListCard from "components/MessageListCard";
+import ReviewImageModal from "components/ReviewImageModal";
 
 const MessageList = ({ roomId, className, userId }) => {
-  const [{ messages, loading }] = useMessages(roomId, userId);
+  const [{ messages, loading }] = useMessages(roomId, userId, {
+    fetchData: true,
+  });
 
   const [{ room }] = useRoom(roomId);
   const { account } = useContext(AccountContext);
@@ -92,30 +96,7 @@ const TextMessage = ({ message, members, account }) => {
       zIndex="1"
     >
       <Text>{message.content}</Text>
-      <HStack spacing="5" color="blackAlpha.600">
-        <Text fontSize="xs">{dayjs(message.createAt).format("h:mm A")}</Text>
-        {message.senderId === account._id &&
-          !message.error &&
-          message.hadSeenMessageUsers.length === 1 && (
-            <Text fontSize="xs">
-              {message.status ? "Delivered" : "Sending"}
-            </Text>
-          )}
-        {!!message.error && <Text fontSize="xs">Sending Error</Text>}
-        {message.hadSeenMessageUsers.length > 1 && (
-          <AvatarGroup spacing="0.5" max="3" size="2xs" fontSize="xs">
-            {message.hadSeenMessageUsers
-              .filter((id) => id !== message.senderId && id !== account._id)
-              .map((userId) => (
-                <Avatar
-                  key={userId}
-                  border="none"
-                  name={members[userId]?.userName}
-                />
-              ))}
-          </AvatarGroup>
-        )}
-      </HStack>
+      <MessageStatus message={message} account={account} members={members} />
     </VStack>
   );
 };
@@ -123,65 +104,84 @@ const TextMessage = ({ message, members, account }) => {
 // TODO blink image (blob local image - url server image)
 const ImageMessage = ({ message, members, account, containerRef }) => {
   const [visible, setVisible] = useState(false);
+  const { isOpen, onClose, onOpen } = useDisclosure();
   return (
-    <VStack mr="2" alignItems="flex-end">
-      <Image
-        maxW="100%"
-        maxH={200}
-        borderRadius="lg"
-        objectFit="contain"
-        display={!visible ? "block" : "none"}
-        objectPosition={message.senderId === account._id ? "right" : "left"}
-        src={message.contentBlob}
-        onLoad={() => {
-          containerRef.current.scrollIntoView(false);
-        }}
-      />
-      <Image
-        maxW="100%"
-        maxH={200}
-        borderRadius="lg"
-        objectFit="contain"
-        display={visible ? "block" : "none"}
-        objectPosition={message.senderId === account._id ? "right" : "left"}
-        src={message.content}
-        onLoad={() => {
-          setVisible(true);
-          containerRef.current.scrollIntoView(false);
-          // containerRef.current.scrollIntoView(false);
-          // setTimeout(() => URL.revokeObjectURL(message.contentBlob), 100);
-        }}
-      />
-      <HStack
-        spacing="5"
-        color="blackAlpha.600"
-        w="100%"
-        justifyContent="space-between"
+    <>
+      <VStack
+        mr="2"
+        alignItems="flex-end"
+        cursor="pointer"
+        onClick={() => visible && onOpen()}
       >
-        <Text fontSize="xs">{dayjs(message.createAt).format("h:mm A")}</Text>
-        {message.senderId === account._id &&
-          !message.error &&
-          message.hadSeenMessageUsers.length === 1 && (
-            <Text fontSize="xs">
-              {message.status ? "Delivered" : "Sending"}
-            </Text>
-          )}
-        {!!message.error && <Text fontSize="xs">Sending Error</Text>}
-        {message.hadSeenMessageUsers.length > 1 && (
-          <AvatarGroup spacing="0.5" max="3" size="2xs" fontSize="xs">
-            {message.hadSeenMessageUsers
-              .filter((id) => id !== message.senderId && id !== account._id)
-              .map((userId) => (
-                <Avatar
-                  key={userId}
-                  border="none"
-                  name={members[userId]?.userName}
-                />
-              ))}
-          </AvatarGroup>
-        )}
-      </HStack>
-    </VStack>
+        <Image
+          maxW="100%"
+          maxH={200}
+          borderRadius="lg"
+          objectFit="contain"
+          display={!visible ? "block" : "none"}
+          objectPosition={message.senderId === account._id ? "right" : "left"}
+          src={message.contentBlob}
+          onLoad={() => {
+            containerRef.current.scrollIntoView(false);
+          }}
+        />
+        <Image
+          maxW="100%"
+          maxH={200}
+          borderRadius="lg"
+          objectFit="contain"
+          display={visible ? "block" : "none"}
+          objectPosition={message.senderId === account._id ? "right" : "left"}
+          src={message.content}
+          onLoad={() => {
+            setVisible(true);
+            containerRef.current.scrollIntoView(false);
+            URL.revokeObjectURL(message.contentBlob);
+            // containerRef.current.scrollIntoView(false);
+            // setTimeout(() => URL.revokeObjectURL(message.contentBlob), 100);
+          }}
+        />
+        <MessageStatus message={message} account={account} members={members} />
+      </VStack>
+      <ReviewImageModal
+        isOpen={isOpen}
+        onClose={onClose}
+        imgSrc={message.content}
+      />
+    </>
   );
 };
+
+const MessageStatus = ({ message, account, members }) => {
+  return (
+    <HStack
+      spacing="5"
+      color="blackAlpha.600"
+      w="100%"
+      justifyContent="space-between"
+    >
+      <Text fontSize="xs">{dayjs(message.createAt).format("h:mm A")}</Text>
+      {message.senderId === account._id &&
+        !message.error &&
+        message.hadSeenMessageUsers.length === 1 && (
+          <Text fontSize="xs">{message.status ? "Delivered" : "Sending"}</Text>
+        )}
+      {!!message.error && <Text fontSize="xs">Sending Error</Text>}
+      {message.hadSeenMessageUsers.length > 1 && (
+        <AvatarGroup spacing="0.5" max="3" size="2xs" fontSize="xs">
+          {message.hadSeenMessageUsers
+            .filter((id) => id !== message.senderId && id !== account._id)
+            .map((userId) => (
+              <Avatar
+                key={userId}
+                border="none"
+                name={members[userId]?.userName}
+              />
+            ))}
+        </AvatarGroup>
+      )}
+    </HStack>
+  );
+};
+
 export default MessageList;

@@ -1,22 +1,36 @@
 import { useEffect as useReactEffect } from "react";
+import qs from "query-string";
 
 import { useModel } from "model";
 
-const useMessages = (roomId, userId) => {
-  const [{ msgs, loading }, { getMessages, sendMessage, haveSeenNewMessages }] =
-    useModel("message", ({ messages, getMessages }) => ({
-      messages,
-      loading: getMessages.loading,
-      msgs: (getMessages.ids || []).map((id) => messages[id]),
-    }));
+const opts = { fetchData: false };
+
+const useMessages = (roomId, userId, options = opts) => {
+  const cachedKey = qs.stringify({ roomId, userId });
+  const [
+    { messages, mesagesState },
+    { getMessages, sendMessage, haveSeenNewMessages },
+  ] = useModel("message", ({ messages, getMessages }) => ({
+    mesagesState: getMessages,
+    messages,
+  }));
 
   useReactEffect(() => {
-    roomId && userId && getMessages({ roomId, userId });
+    roomId &&
+      userId &&
+      options.fetchData &&
+      !mesagesState[cachedKey] &&
+      getMessages({ roomId, userId });
   }, [roomId, userId]);
 
   if (!roomId || !userId) return [{ messages: [] }, {}];
   return [
-    { messages: msgs.filter((m) => m.roomId === roomId), loading },
+    {
+      messages: (mesagesState[cachedKey]?.ids || [])
+        .map((id) => messages[id])
+        .filter((m) => m.roomId === roomId),
+      loading: mesagesState[cachedKey]?.loading,
+    },
     { getMessages, sendMessage, haveSeenNewMessages },
   ];
 };

@@ -18,9 +18,9 @@ const useSocket = () => {
     socketControler.initSocket();
   }
 
-  const sendMessageSuccessListener = ({ senderId, messageId }) => {
+  const sendMessageSuccessListener = ({ senderId, messageId, roomId }) => {
     if (account._id === senderId) return;
-    getMessage({ messageId, userId: account._id });
+    getMessage({ messageId, userId: account._id, roomId });
   };
   const receiveMessageListener = ({ roomId }) => {
     getMessages({ roomId, userId: account._id });

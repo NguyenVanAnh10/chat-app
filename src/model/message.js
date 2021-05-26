@@ -1,3 +1,5 @@
+import qs from "query-string";
+
 import {
   getMessage,
   getMessages,
@@ -13,9 +15,7 @@ const messageModel = {
   name: "message",
   state: {
     messages: {}, // {[id]: message}
-    getMessages: {
-      ids: [],
-    }, // {ids: [], loading: Boolean, error: {}}
+    getMessages: {}, //{[cachedKey]: {ids: [], loading: Boolean, error: {}}}
     getMessage: {},
     rooms: {},
     getRooms: { ids: [] }, // {ids: [], loading, error}
@@ -29,16 +29,36 @@ const messageModel = {
         case "success":
           return {
             ...state,
-            messages: payload.reduce(
+            messages: payload.messages.reduce(
               (s, msg) => ({ ...s, [msg._id]: msg }),
               state.messages
             ),
-            getMessages: { ids: payload.map((m) => m._id) },
+            getMessages: {
+              ...state.getMessages,
+              [payload.cachedKey]: { ids: payload.messages.map((m) => m._id) },
+            },
           };
         case "error":
-          return { ...state, getMessages: { error: payload } };
+          return {
+            ...state,
+            getMessages: {
+              ...state.getMessages,
+              [payload.cachedKey]: { error: payload.error },
+            },
+          };
         default:
-          return { ...state, getMessages: { loading: true } };
+          const cachedKey = qs.stringify({
+            roomId: payload.roomId,
+            userId: payload.userId,
+          });
+
+          return {
+            ...state,
+            getMessages: {
+              ...state.getMessages,
+              [cachedKey]: { loading: true },
+            },
+          };
       }
     },
     getMessage: (state, { status, payload }) => {
@@ -46,14 +66,38 @@ const messageModel = {
         case "success":
           return {
             ...state,
-            messages: { ...state.messages, [payload._id]: payload },
-            getMessages: { ids: [...state.getMessages.ids, payload._id] },
-            getMessage: {},
+            messages: { ...state.messages, [payload._id]: payload.message },
+            getMessages: {
+              ...state.getMessages,
+              [payload.cachedKey]: {
+                ids: [
+                  ...(state.getMessages[payload.cachedKey]?.ids || []),
+                  payload._id,
+                ],
+              },
+            },
+            getMessage: { [payload.cachedKey]: {} },
           };
         case "error":
-          return { ...state, getMessage: { error: payload } };
+          return {
+            ...state,
+            getMessage: {
+              [payload.cachedKey]: {
+                error: payload.error,
+              },
+            },
+          };
         default:
-          return { ...state, getMessage: { loading: true } };
+          const cachedKey = qs.stringify({
+            roomId: payload.roomId,
+            userId: payload.userId,
+          });
+          return {
+            ...state,
+            getMessage: {
+              [cachedKey]: { loading: true },
+            },
+          };
       }
     },
     getRooms: (state, { status, payload }) => {
@@ -123,10 +167,14 @@ const messageModel = {
             },
             getMessages: {
               ...state.getMessages,
-              ids: [
-                ...state.getMessages.ids.filter((id) => id !== payload.keyMsg),
-                payload.message._id,
-              ],
+              [payload.cachedKey]: {
+                ids: [
+                  ...(state.getMessages[payload.cachedKey]?.ids || []).filter(
+                    (id) => id !== payload.keyMsg
+                  ),
+                  payload.message._id,
+                ],
+              },
             },
             sendMessage: {
               [payload.keyMsg]: payload.message,
@@ -147,6 +195,11 @@ const messageModel = {
             },
           };
         default:
+          const cachedKey = qs.stringify({
+            roomId: payload.roomId,
+            userId: payload.senderId,
+          });
+
           return {
             ...state,
             messages: {
@@ -160,7 +213,12 @@ const messageModel = {
             },
             getMessages: {
               ...state.getMessages,
-              ids: [...state.getMessages.ids, payload.keyMsg],
+              [cachedKey]: {
+                ids: [
+                  ...(state.getMessages[cachedKey]?.ids || []),
+                  payload.keyMsg,
+                ],
+              },
             },
           };
       }
@@ -200,17 +258,26 @@ const messageModel = {
   },
   effects: {
     getMessages: async (payload, onSuccess, onError) => {
+      const cachedKey = qs.stringify({
+        roomId: payload.roomId,
+        userId: payload.userId,
+      });
+
       try {
-        onSuccess(await getMessages(payload));
+        onSuccess({ cachedKey, messages: await getMessages(payload) });
       } catch (error) {
-        onError(error);
+        onError({ cachedKey, error });
       }
     },
     getMessage: async (payload, onSuccess, onError) => {
+      const cachedKey = qs.stringify({
+        roomId: payload.roomId,
+        userId: payload.userId,
+      });
       try {
-        onSuccess(await getMessage(payload));
+        onSuccess({ cachedKey, message: await getMessage(payload) });
       } catch (error) {
-        onError(error);
+        onError({ cachedKey, error });
       }
     },
     getRooms: async (payload, onSuccess, onError) => {
@@ -241,8 +308,13 @@ const messageModel = {
       }
     },
     sendMessage: async (params, onSuccess, onError) => {
+      const cachedKey = qs.stringify({
+        roomId: params.roomId,
+        userId: params.senderId,
+      });
       try {
         onSuccess({
+          cachedKey,
           keyMsg: params.keyMsg,
           message: (await sendMessage(params)).message,
         });
