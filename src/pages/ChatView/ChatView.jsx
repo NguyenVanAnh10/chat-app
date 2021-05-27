@@ -4,7 +4,7 @@ import React, {
   useState,
   createContext,
 } from "react";
-import { Flex, useBreakpointValue } from "@chakra-ui/react";
+import { Flex, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
 import classNames from "classnames";
 
 import { AccountContext } from "App";
@@ -15,6 +15,9 @@ import ChatBox from "components/ChatBox";
 import MainSideNav from "layouts/ChatView/MainSideNav";
 
 import styles from "./ChatView.module.scss";
+import useVideoChat from "hooks/useVideoChat";
+import CallingAlertModal from "components/CallingAlertModal";
+import VideoCallModal from "components/VideoCallModal";
 
 export const SocketContext = createContext({});
 
@@ -24,12 +27,15 @@ const ChatView = () => {
   const [selectedRoomId, setSelectedRoomId] = useState();
   const [showMainSideNav, setShowMainSideNav] = useState(true);
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
-
   const socket = useSocket();
+  const [{ callerId, hasReceivedACall }, { onDeclineCall: onCloseCall }] =
+    useVideoChat();
+  const { isOpen, onClose, onOpen: onOpenConversationModal } = useDisclosure();
+
   useReactEffect(() => {
     getMessages({ userId: account._id });
   }, []);
-
+  console.log("hasReceivedACall", hasReceivedACall);
   return (
     <SocketContext.Provider value={{ socket }}>
       <Flex className={styles.ChatView}>
@@ -62,6 +68,16 @@ const ChatView = () => {
           </Flex>
         )}
       </Flex>
+      <CallingAlertModal
+        callerId={callerId}
+        isOpen={hasReceivedACall}
+        onDecline={onCloseCall}
+        onAnswer={() => {
+          onOpenConversationModal();
+          onCloseCall();
+        }}
+      />
+      <VideoCallModal isOpen={isOpen} onClose={onClose} />
     </SocketContext.Provider>
   );
 };

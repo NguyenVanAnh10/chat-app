@@ -27,6 +27,7 @@
     "simple-peer": "^9.11.0",
     "socket.io-client": "^4.0.1",
     "uuid": "^8.3.2",
+    "video.js": "^7.11.8",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
@@ -54,9 +55,9 @@
     ]
   },
   "devDependencies": {
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "http-proxy-middleware": "^2.0.0",
     "node-sass": "^6.0.0",
-    "sass": "^1.32.13",
-    "babel-plugin-transform-react-remove-prop-types": "^0.4.24"
+    "sass": "^1.32.13"
   }
 }

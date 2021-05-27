@@ -27,6 +27,8 @@ const MessageList = ({ roomId, className, userId }) => {
   const [{ room }] = useRoom(roomId);
   const { account } = useContext(AccountContext);
   const containerRef = useRef();
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const [imgSrc, setImgSrc] = useState();
 
   const members = room.members.reduce((s, m) => ({ ...s, [m._id]: m }), {});
   useEffect(() => {
@@ -59,15 +61,21 @@ const MessageList = ({ roomId, className, userId }) => {
                 message={m}
                 members={members}
                 containerRef={containerRef}
+                onImageClick={() => {
+                  if (m.contentType !== "image") return;
+                  setImgSrc(m.content);
+                  onOpen();
+                }}
               />
             </HStack>
           </HStack>
         ))}
       </Flex>
+      <ReviewImageModal isOpen={isOpen} onClose={onClose} imgSrc={imgSrc} />
     </MessageListCard>
   );
 };
-const MessageContent = ({ message, members, containerRef }) => {
+const MessageContent = ({ message, members, containerRef, onImageClick }) => {
   const { account } = useContext(AccountContext);
 
   switch (message.contentType) {
@@ -78,6 +86,7 @@ const MessageContent = ({ message, members, containerRef }) => {
           members={members}
           account={account}
           containerRef={containerRef}
+          onClick={onImageClick}
         />
       );
     default:
@@ -102,53 +111,45 @@ const TextMessage = ({ message, members, account }) => {
 };
 
 // TODO blink image (blob local image - url server image)
-const ImageMessage = ({ message, members, account, containerRef }) => {
+const ImageMessage = ({ message, members, account, containerRef, onClick }) => {
   const [visible, setVisible] = useState(false);
-  const { isOpen, onClose, onOpen } = useDisclosure();
   return (
-    <>
-      <VStack
-        mr="2"
-        alignItems="flex-end"
-        cursor="pointer"
-        onClick={() => visible && onOpen()}
-      >
-        <Image
-          maxW="100%"
-          maxH={200}
-          borderRadius="lg"
-          objectFit="contain"
-          display={!visible ? "block" : "none"}
-          objectPosition={message.senderId === account._id ? "right" : "left"}
-          src={message.contentBlob}
-          onLoad={() => {
-            containerRef.current.scrollIntoView(false);
-          }}
-        />
-        <Image
-          maxW="100%"
-          maxH={200}
-          borderRadius="lg"
-          objectFit="contain"
-          display={visible ? "block" : "none"}
-          objectPosition={message.senderId === account._id ? "right" : "left"}
-          src={message.content}
-          onLoad={() => {
-            setVisible(true);
-            containerRef.current.scrollIntoView(false);
-            URL.revokeObjectURL(message.contentBlob);
-            // containerRef.current.scrollIntoView(false);
-            // setTimeout(() => URL.revokeObjectURL(message.contentBlob), 100);
-          }}
-        />
-        <MessageStatus message={message} account={account} members={members} />
-      </VStack>
-      <ReviewImageModal
-        isOpen={isOpen}
-        onClose={onClose}
-        imgSrc={message.content}
+    <VStack
+      mr="2"
+      alignItems="flex-end"
+      cursor="pointer"
+      onClick={() => visible && onClick()}
+    >
+      <Image
+        maxW="100%"
+        maxH={200}
+        borderRadius="lg"
+        objectFit="contain"
+        display={!visible ? "block" : "none"}
+        objectPosition={message.senderId === account._id ? "right" : "left"}
+        src={message.contentBlob}
+        onLoad={() => {
+          containerRef.current.scrollIntoView(false);
+        }}
       />
-    </>
+      <Image
+        maxW="100%"
+        maxH={200}
+        borderRadius="lg"
+        objectFit="contain"
+        display={visible ? "block" : "none"}
+        objectPosition={message.senderId === account._id ? "right" : "left"}
+        src={message.content}
+        onLoad={() => {
+          setVisible(true);
+          containerRef.current.scrollIntoView(false);
+          URL.revokeObjectURL(message.contentBlob);
+          // containerRef.current.scrollIntoView(false);
+          // setTimeout(() => URL.revokeObjectURL(message.contentBlob), 100);
+        }}
+      />
+      <MessageStatus message={message} account={account} members={members} />
+    </VStack>
   );
 };
 

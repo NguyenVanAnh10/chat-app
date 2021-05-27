@@ -66,13 +66,16 @@ const messageModel = {
         case "success":
           return {
             ...state,
-            messages: { ...state.messages, [payload._id]: payload.message },
+            messages: {
+              ...state.messages,
+              [payload.message._id]: payload.message,
+            },
             getMessages: {
               ...state.getMessages,
               [payload.cachedKey]: {
                 ids: [
                   ...(state.getMessages[payload.cachedKey]?.ids || []),
-                  payload._id,
+                  payload.message._id,
                 ],
               },
             },
