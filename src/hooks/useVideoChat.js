@@ -107,7 +107,7 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
   const onDeclineCall = () => setHasReceivedACall(false);
 
   const onLeaveCall = () => {
-    connectionRef.current.destroy();
+    // connectionRef.current.destroy();
     stopStreamedVideo(currentStreamVideoRef.current);
   };
 

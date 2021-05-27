@@ -13,7 +13,7 @@ import VideoPlayer from "./VideoPlayer";
 const VideoCallModal = ({ isCaller = false, isOpen, onClose, room }) => {
   const [
     { currentVideo, remoteVideo, hasReceivedACall },
-    { onCallUser, onLeaveCall, onAnswerCall },
+    { onCallUser, onAnswerCall },
   ] = useVideoChat(room, { activeDevice: isOpen });
 
   useReactEffect(() => {
@@ -27,7 +27,7 @@ const VideoCallModal = ({ isCaller = false, isOpen, onClose, room }) => {
       isOpen={isOpen}
       onClose={() => {
         onClose();
-        onLeaveCall();
+        // onLeaveCall();
       }}
     >
       <ModalOverlay />
