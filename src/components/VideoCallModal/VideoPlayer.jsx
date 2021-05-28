@@ -1,12 +1,12 @@
 import React, { useEffect as useReactEffect, useRef } from "react";
 import videojs from "video.js";
 
-const VideoPlayer = ({ currentVideo, options = {}, ...rest }) => {
+const VideoPlayer = ({ videoSrc, options = {}, ...rest }) => {
   const playerRef = useRef();
   const videoNode = useRef({});
 
   useReactEffect(() => {
-    videoNode.current.srcObject = currentVideo;
+    videoNode.current.srcObject = videoSrc;
 
     playerRef.current = videojs(
       videoNode.current,
@@ -53,13 +53,13 @@ const VideoPlayer = ({ currentVideo, options = {}, ...rest }) => {
         ...options,
       },
       function onPlayerReady() {
-        console.log("onPlayerReady", videoNode.current);
+        // console.log("onPlayerReady", videoNode.current);
       }
     );
     return () => {
       playerRef.current.dispose();
     };
-  }, [!!currentVideo]);
+  }, [videoSrc]);
   // wrap the player in a div with a `data-vjs-player` attribute
   // so videojs won't create additional wrapper in the DOM
   // see https://github.com/videojs/video.js/pull/3856

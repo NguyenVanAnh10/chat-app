@@ -16,8 +16,8 @@ import {
 } from "@chakra-ui/react";
 import { v4 as uuid } from "uuid";
 import { useForm, Controller } from "react-hook-form";
-import data from "emoji-mart/data/twitter.json";
-import { Picker } from "emoji-mart/dist-modern/index.js";
+// import data from "emoji-mart/data/twitter.json";
+// import { Picker } from "emoji-mart/dist-modern/index.js";
 
 import { ImageIcon, EmojiIcon } from "components/CustomIcons";
 import useMessages from "hooks/useMessages";
@@ -103,14 +103,14 @@ const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
                   <Portal>
                     <PopoverContent className={styles.Picker}>
                       <PopoverArrow />
-                      <Picker
+                      {/* <Picker
                         set="twitter"
                         data={data}
                         sheetSize={32}
                         onSelect={(icon) =>
                           field.onChange(`${field.value}${icon.native}`)
                         }
-                      />
+                      /> */}
                     </PopoverContent>
                   </Portal>
                 </Popover>

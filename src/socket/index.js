@@ -1,4 +1,4 @@
-import { useContext, useEffect as useReactEffect } from "react";
+import { useContext } from "react";
 import { useModel } from "model";
 import { io } from "socket.io-client";
 import { AccountContext } from "App";
@@ -13,11 +13,6 @@ const useSocket = () => {
   const { account } = useContext(AccountContext);
   const [, { getMessages, getRoom, getMessage, getHaveSeenNewMessages }] =
     useModel("message", () => ({}));
-
-  if (!socketControler.socket) {
-    socketControler.initSocket();
-  }
-
   const sendMessageSuccessListener = ({ senderId, messageId, roomId }) => {
     if (account._id === senderId) return;
     getMessage({ messageId, userId: account._id, roomId });
@@ -42,9 +37,9 @@ const useSocket = () => {
     console.error("error", error);
   };
 
-  useReactEffect(() => {
-    account._id &&
-      socketControler.socket.emit("join_all_room", { userId: account._id });
+  if (!socketControler.socket && account._id) {
+    socketControler.initSocket();
+    socketControler.socket.emit("join_all_room", { userId: account._id });
     socketControler.socket.on(
       "create_room_chat_one_to_one_success",
       getRoomListener
@@ -69,7 +64,8 @@ const useSocket = () => {
       socketControler.socket.off("receive_message", receiveMessageListener);
       socketControler.socket.off("error", errorListener);
     };
-  }, [account]);
+  }
+
   return socketControler.socket;
 };
 

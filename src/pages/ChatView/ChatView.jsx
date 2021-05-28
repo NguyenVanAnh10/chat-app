@@ -35,7 +35,6 @@ const ChatView = () => {
   useReactEffect(() => {
     getMessages({ userId: account._id });
   }, []);
-  console.log("hasReceivedACall", hasReceivedACall);
   return (
     <SocketContext.Provider value={{ socket }}>
       <Flex className={styles.ChatView}>
