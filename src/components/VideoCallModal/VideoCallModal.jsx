@@ -32,6 +32,7 @@ const VideoCallModal = ({ isCaller = false, isOpen, onClose, room }) => {
             <video
               ref={currentStreamVideoRef}
               playsInline
+              muted
               autoPlay
               style={{ width: "100%", maxWidth: 500, height: 200 }}
             />
