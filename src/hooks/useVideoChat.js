@@ -83,10 +83,10 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
       config: {
         iceServers: [
           {
-            url: "stun:stun.l.google.com:19302",
+            urls: "stun:stun.l.google.com:19302",
           },
           {
-            url: "turn:13.59.253.25:3478",
+            urls: "turn:13.59.253.25:3478",
             credential: "key1",
             username: "username1",
           },
