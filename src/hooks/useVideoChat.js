@@ -90,13 +90,13 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           //   credential: "muazkh",
           //   username: "webrtc@live.com",
           // },
-          { url: "stun:stun.l.google.com:19302" },
-          { url: "stun:global.stun.twilio.com:3478?transport=udp" },
-          // {
-          //   url: "turn:relay.backups.cz",
-          //   credential: "webrtc",
-          //   username: "webrtc",
-          // },
+          { url: "stun:relay.backups.cz" },
+          // { url: "stun:global.stun.twilio.com:3478?transport=udp" },
+          {
+            url: "turn:relay.backups.cz",
+            credential: "webrtc",
+            username: "webrtc",
+          },
           // {
           //   url: "turn:relay.backups.cz?transport=tcp",
           //   credential: "webrtc",
