@@ -82,14 +82,26 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
       trickle: false,
       config: {
         iceServers: [
-          {
-            url: "stun:stun.l.google.com:19302",
-          },
-          {
-            url: "turn:numb.viagenie.ca",
-            credential: "muazkh",
-            username: "webrtc@live.com",
-          },
+          // {
+          //   url: "stun:stun.l.google.com:19302",
+          // },
+          // {
+          //   url: "turn:numb.viagenie.ca",
+          //   credential: "muazkh",
+          //   username: "webrtc@live.com",
+          // },
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+          // {
+          //   url: "turn:relay.backups.cz",
+          //   credential: "webrtc",
+          //   username: "webrtc",
+          // },
+          // {
+          //   url: "turn:relay.backups.cz?transport=tcp",
+          //   credential: "webrtc",
+          //   username: "webrtc",
+          // },
         ],
       },
       stream: currentStreamVideoRef.current.srcObject,
