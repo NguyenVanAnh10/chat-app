@@ -87,8 +87,8 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           },
           {
             urls: [
-              "turn:13.59.253.25:3478?transport=udp",
-              "turn:13.59.253.25:3478?transport=tcp",
+              "turn:172.31.2.63:3478?transport=udp",
+              "turn:172.31.2.63:3478?transport=tcp",
             ],
             credential: "rice241120",
             username: "anhnv",
