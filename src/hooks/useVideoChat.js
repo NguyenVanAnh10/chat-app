@@ -86,9 +86,9 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
             url: "stun:stun.l.google.com:19302",
           },
           {
-            url: "turn:anhnv@13.59.253.25:3478",
+            url: "turn:13.59.253.25:3478",
             credential: "rice241120",
-            // username: "anhnv",
+            username: "anhnv",
           },
           // { url: "stun:relay.backups.cz" },
           // { url: "stun:global.stun.twilio.com:3478?transport=udp" },
