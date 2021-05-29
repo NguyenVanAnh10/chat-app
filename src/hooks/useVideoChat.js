@@ -87,8 +87,7 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           },
           {
             url: "turn:13.59.253.25:3478",
-            credential:
-              "4f315e13ca7475a8e03562bd08277cc9beb2b60b9d360c8a412d3aee4069393e",
+            credential: "rice",
             username: "anhnv",
           },
           // { url: "stun:relay.backups.cz" },
