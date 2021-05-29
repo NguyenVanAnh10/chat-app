@@ -83,23 +83,23 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
       config: {
         iceServers: [
           {
-            urls: "stun:stun.l.google.com:19302",
+            url: "stun:stun.l.google.com:19302",
           },
-          {
-            urls: [
-              "turn:2600:1f16:9c3:701:d7a7:b413:c1e7:e507?transport=udp",
-              "turn:2600:1f16:9c3:701:d7a7:b413:c1e7:e507?transport=tcp",
-            ],
-            credential: "rice241120",
-            username: "anhnv",
-          },
+          // {
+          //   urls: [
+          //     "turn:2600:1f16:9c3:701:d7a7:b413:c1e7:e507?transport=udp",
+          //     "turn:2600:1f16:9c3:701:d7a7:b413:c1e7:e507?transport=tcp",
+          //   ],
+          //   credential: "rice241120",
+          //   username: "anhnv",
+          // },
           // { url: "stun:relay.backups.cz" },
           // { url: "stun:global.stun.twilio.com:3478?transport=udp" },
-          // {
-          //   url: "turn:relay.backups.cz",
-          //   credential: "webrtc",
-          //   username: "webrtc",
-          // },
+          {
+            url: "turn:relay.backups.cz",
+            credential: "webrtc",
+            username: "webrtc",
+          },
           // {
           //   url: "turn:relay.backups.cz?transport=tcp",
           //   credential: "webrtc",
