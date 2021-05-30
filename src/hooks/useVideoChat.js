@@ -86,6 +86,16 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
             urls: "stun:stun.fbsbx.com:3478",
           },
           {
+            urls: "turn:13.59.253.25:3478?transport=udp",
+            username: "anhnv",
+            credential: "rice",
+          },
+          {
+            urls: "turn:13.59.253.25:3478?transport=tcp",
+            username: "anhnv",
+            credential: "rice",
+          },
+          {
             urls: "turn:13.59.253.25:443?transport=tcp",
             username: "anhnv",
             credential: "rice",
@@ -97,19 +107,6 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           //   url: "turn:numb.viagenie.ca",
           //   credential: "muazkh",
           //   username: "webrtc@live.com",
-          // },
-
-          // { url: "stun:relay.backups.cz" },
-          // { url: "stun:global.stun.twilio.com:3478?transport=udp" },
-          // {
-          //   url: "turn:relay.backups.cz",
-          //   credential: "webrtc",
-          //   username: "webrtc",
-          // },
-          // {
-          //   urls: "turn:relay.backups.cz?transport=tcp",
-          //   credential: "webrtc",
-          //   username: "webrtc",
           // },
         ],
         iceTransportPolicy: "all",
