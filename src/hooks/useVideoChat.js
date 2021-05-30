@@ -83,18 +83,22 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
       config: {
         iceServers: [
           {
-            urls: "stun:stun.l.google.com:19302",
+            urls: "stun:stun.fbsbx.com:3478",
           },
+          {
+            urls: "turn:13.59.253.25:3478?transport=tcp",
+            username: "anhnv",
+            credential: "rice",
+          },
+          // {
+          //   urls: "stun:stun.l.google.com:19302",
+          // },
           // {
           //   url: "turn:numb.viagenie.ca",
           //   credential: "muazkh",
           //   username: "webrtc@live.com",
           // },
-          {
-            urls: "turn:13.59.253.25:3478",
-            username: "anhnv",
-            credential: "rice",
-          },
+
           // { url: "stun:relay.backups.cz" },
           // { url: "stun:global.stun.twilio.com:3478?transport=udp" },
           // {
@@ -108,6 +112,12 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           //   username: "webrtc",
           // },
         ],
+        iceTransportPolicy: "all",
+        bundlePolicy: "balanced",
+        rtcpMuxPolicy: "require",
+        iceCandidatePoolSize: 0,
+        sdpSemantics: "plan-b",
+        extmapAllowMixed: true,
       },
       stream: currentStreamVideoRef.current.srcObject,
     });
