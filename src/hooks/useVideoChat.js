@@ -86,7 +86,7 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
             urls: "stun:stun.fbsbx.com:3478",
           },
           {
-            urls: "turn:13.59.253.25:3478?transport=tcp",
+            urls: "turn:13.59.253.25:443?transport=tcp",
             username: "anhnv",
             credential: "rice",
           },
