@@ -85,18 +85,18 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           {
             urls: "stun:stun.fbsbx.com:3478",
           },
+          // {
+          //   urls: "turn:13.59.253.25:40002?transport=udp",
+          //   username: "anhnv",
+          //   credential: "rice",
+          // },
+          // {
+          //   urls: "turn:13.59.253.25:3478?transport=tcp",
+          //   username: "anhnv",
+          //   credential: "rice",
+          // },
           {
-            urls: "turn:13.59.253.25:40002?transport=udp",
-            username: "anhnv",
-            credential: "rice",
-          },
-          {
-            urls: "turn:13.59.253.25:3478?transport=tcp",
-            username: "anhnv",
-            credential: "rice",
-          },
-          {
-            urls: "turn:13.59.253.25:443?transport=tcp",
+            urls: "turn:13.59.253.25:5349?transport=tcp",
             username: "anhnv",
             credential: "rice",
           },
