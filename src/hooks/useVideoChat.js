@@ -85,6 +85,11 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           {
             urls: "stun:stun.l.google.com:19302",
           },
+          {
+            url: "turn:numb.viagenie.ca",
+            credential: "muazkh",
+            username: "webrtc@live.com",
+          },
           // {
           //   urls: "turn:13.59.253.25:3478?transport=tcp",
           //   username: "anhnv",
@@ -97,11 +102,11 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           //   credential: "webrtc",
           //   username: "webrtc",
           // },
-          {
-            urls: "turn:relay.backups.cz?transport=tcp",
-            credential: "webrtc",
-            username: "webrtc",
-          },
+          // {
+          //   urls: "turn:relay.backups.cz?transport=tcp",
+          //   credential: "webrtc",
+          //   username: "webrtc",
+          // },
         ],
       },
       stream: currentStreamVideoRef.current.srcObject,
