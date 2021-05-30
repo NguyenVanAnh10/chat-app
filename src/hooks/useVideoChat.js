@@ -96,6 +96,11 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           //   credential: "rice",
           // },
           {
+            urls: "turn:13.59.253.25:5349?transport=udp",
+            username: "anhnv",
+            credential: "rice",
+          },
+          {
             urls: "turn:13.59.253.25:5349?transport=tcp",
             username: "anhnv",
             credential: "rice",
@@ -109,12 +114,6 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           //   username: "webrtc@live.com",
           // },
         ],
-        iceTransportPolicy: "all",
-        bundlePolicy: "balanced",
-        rtcpMuxPolicy: "require",
-        iceCandidatePoolSize: 0,
-        sdpSemantics: "plan-b",
-        extmapAllowMixed: true,
       },
       stream: currentStreamVideoRef.current.srcObject,
     });
