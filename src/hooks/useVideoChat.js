@@ -80,6 +80,8 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
     const peer = new Peer({
       initiator: true,
       trickle: false,
+      reconnectTimer: 100,
+      iceTransportPolicy: "relay",
       config: {
         iceServers: [
           {
@@ -100,16 +102,16 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
             username: "anhnv",
             credential: "rice",
           },
-          // {
-          //   urls: "turn:13.59.253.25:5349?transport=udp",
-          //   username: "anhnv",
-          //   credential: "rice",
-          // },
-          // {
-          //   urls: "turn:13.59.253.25:5349?transport=tcp",
-          //   username: "anhnv",
-          //   credential: "rice",
-          // },
+          {
+            urls: "turn:13.59.253.25:5349?transport=udp",
+            username: "anhnv",
+            credential: "rice",
+          },
+          {
+            urls: "turn:13.59.253.25:5349?transport=tcp",
+            username: "anhnv",
+            credential: "rice",
+          },
           // {
           //   urls: "stun:stun.l.google.com:19302",
           // },
