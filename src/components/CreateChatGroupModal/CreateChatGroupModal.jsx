@@ -75,7 +75,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Modal Title</ModalHeader>
+        <ModalHeader>Create group chat</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <form onSubmit={onHandleSumbit}>

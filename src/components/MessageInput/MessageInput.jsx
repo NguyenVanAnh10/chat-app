@@ -11,13 +11,11 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
-  Portal,
   useToast,
 } from "@chakra-ui/react";
 import { v4 as uuid } from "uuid";
 import { useForm, Controller } from "react-hook-form";
-// import data from "emoji-mart/data/twitter.json";
-// import { Picker } from "emoji-mart/dist-modern/index.js";
+import { Picker } from "mr-emoji";
 
 import { ImageIcon, EmojiIcon } from "components/CustomIcons";
 import useMessages from "hooks/useMessages";
@@ -72,6 +70,10 @@ const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
       hadSeenMessageUsers: [account._id],
     });
   };
+  const hanleKeyDown = (e) => {
+    if (e.keyCode !== 13) return;
+    handleSubmitMessage();
+  };
   return (
     <HStack w="100%" pb="2" pr="3" mt="0" spacing="2" {...rest}>
       <form className="form" onSubmit={handleSubmitMessage}>
@@ -100,24 +102,27 @@ const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
                       }
                     />
                   </PopoverTrigger>
-                  <Portal>
-                    <PopoverContent className={styles.Picker}>
-                      <PopoverArrow />
-                      {/* <Picker
-                        set="twitter"
-                        data={data}
-                        sheetSize={32}
-                        onSelect={(icon) =>
-                          field.onChange(`${field.value}${icon.native}`)
-                        }
-                      /> */}
-                    </PopoverContent>
-                  </Portal>
+                  <PopoverContent
+                    className={styles.Picker}
+                    w="100%"
+                    _focus="none"
+                    border="none"
+                  >
+                    <PopoverArrow />
+                    <Picker
+                      set="apple"
+                      sheetSize={20}
+                      onClick={(icon) =>
+                        field.onChange(`${field.value}${icon.native}`)
+                      }
+                    />
+                  </PopoverContent>
                 </Popover>
               </InputRightElement>
               <Input
                 placeholder="Type message..."
                 onFocus={onFocusInput}
+                onKeyDown={hanleKeyDown}
                 {...field}
               />
             </InputGroup>
