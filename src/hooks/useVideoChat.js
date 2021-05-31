@@ -80,8 +80,6 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
     const peer = new Peer({
       initiator: true,
       trickle: false,
-      reconnectTimer: 100,
-      iceTransportPolicy: "relay",
       config: {
         iceServers: [
           {
@@ -121,7 +119,11 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           //   username: "webrtc@live.com",
           // },
         ],
+        iceTransportPolicy: "relay",
+        reconnectTimer: 100,
+        sdpSemantics: "plan-b",
       },
+      advanced: [{ enableDtlsSrtp: { exact: true } }],
       stream: currentStreamVideoRef.current.srcObject,
     });
     peer.on("signal", (signal) => {
