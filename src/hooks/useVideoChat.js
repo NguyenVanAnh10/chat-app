@@ -119,11 +119,7 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           //   username: "webrtc@live.com",
           // },
         ],
-        iceTransportPolicy: "relay",
-        reconnectTimer: 100,
-        sdpSemantics: "plan-b",
       },
-      advanced: [{ enableDtlsSrtp: { exact: true } }],
       stream: currentStreamVideoRef.current.srcObject,
     });
     peer.on("signal", (signal) => {
