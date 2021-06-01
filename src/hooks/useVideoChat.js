@@ -85,11 +85,6 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           {
             urls: "stun:stun.fbsbx.com:3478",
           },
-          // {
-          //   urls: "turn:13.59.253.25:40002?transport=udp",
-          //   username: "anhnv",
-          //   credential: "rice",
-          // },
           {
             urls: "turn:54.169.254.47:3478?transport=tcp",
             username: "anhnv",
@@ -100,24 +95,6 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
             username: "anhnv",
             credential: "rice",
           },
-          // {
-          //   urls: "turn:13.59.253.25:5349?transport=udp",
-          //   username: "anhnv",
-          //   credential: "rice",
-          // },
-          // {
-          //   urls: "turn:13.59.253.25:5349?transport=tcp",
-          //   username: "anhnv",
-          //   credential: "rice",
-          // },
-          // {
-          //   urls: "stun:stun.l.google.com:19302",
-          // },
-          // {
-          //   url: "turn:numb.viagenie.ca",
-          //   credential: "muazkh",
-          //   username: "webrtc@live.com",
-          // },
         ],
       },
       stream: currentStreamVideoRef.current.srcObject,
