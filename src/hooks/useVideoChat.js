@@ -91,25 +91,25 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
           //   credential: "rice",
           // },
           {
-            urls: "turn:13.59.253.25:3478?transport=tcp",
+            urls: "turn:54.169.254.47:3478?transport=tcp",
             username: "anhnv",
             credential: "rice",
           },
           {
-            urls: "turn:13.59.253.25:3478?transport=udp",
+            urls: "turn:54.169.254.47:3478?transport=udp",
             username: "anhnv",
             credential: "rice",
           },
-          {
-            urls: "turn:13.59.253.25:5349?transport=udp",
-            username: "anhnv",
-            credential: "rice",
-          },
-          {
-            urls: "turn:13.59.253.25:5349?transport=tcp",
-            username: "anhnv",
-            credential: "rice",
-          },
+          // {
+          //   urls: "turn:13.59.253.25:5349?transport=udp",
+          //   username: "anhnv",
+          //   credential: "rice",
+          // },
+          // {
+          //   urls: "turn:13.59.253.25:5349?transport=tcp",
+          //   username: "anhnv",
+          //   credential: "rice",
+          // },
           // {
           //   urls: "stun:stun.l.google.com:19302",
           // },
