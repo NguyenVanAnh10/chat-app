@@ -71,7 +71,11 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
               overflow="hidden"
               className="is-full-screen"
             >
-              <VideoPlayer videoSrc={remoteVideo} isFullScreen />
+              <VideoPlayer
+                videoSrc={remoteVideo}
+                isFullScreen
+                options={{ muted: false }}
+              />
             </AspectRatio>
           )}
           {caller && !acceptedCall && (
