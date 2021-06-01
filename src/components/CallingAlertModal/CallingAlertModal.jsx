@@ -27,6 +27,7 @@ const CallingAlertModal = ({ callerId, onDecline, isOpen, onAnswer }) => {
       onClose={onDecline}
       isOpen={isOpen}
       isCentered
+      closeOnOverlayClick={false}
     >
       <AlertDialogOverlay />
       <AlertDialogContent>

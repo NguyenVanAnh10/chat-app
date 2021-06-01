@@ -1,7 +1,12 @@
 import React, { useEffect as useReactEffect, useRef } from "react";
 import videojs from "video.js";
 
-const VideoPlayer = ({ videoSrc, options = {}, ...rest }) => {
+const VideoPlayer = ({
+  isFullScreen = false,
+  videoSrc,
+  options = {},
+  ...rest
+}) => {
   const playerRef = useRef();
   const videoNode = useRef({});
 
@@ -21,11 +26,11 @@ const VideoPlayer = ({ videoSrc, options = {}, ...rest }) => {
         textTrackSettings: false,
         bigPlayButton: false,
         responsive: true,
-        fluid: false,
+        // fluid: false,
         // aspectRatio: '9:16',
         // height: 300,
-        width: "300px",
-        fill: false,
+        // width: "300px",
+        // fill: false,
         controlBar: {
           currentTimeDisplay: false,
           playToggle: true,
@@ -65,7 +70,7 @@ const VideoPlayer = ({ videoSrc, options = {}, ...rest }) => {
   // see https://github.com/videojs/video.js/pull/3856
   return (
     <div data-vjs-player>
-      <video ref={videoNode} className="video-js"></video>
+      <video ref={videoNode}></video>
     </div>
   );
 };

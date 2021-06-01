@@ -9,13 +9,14 @@ import Peer from "simple-peer";
 import useSocket from "socket";
 import { AccountContext } from "App";
 
-const useVideoChat = (room, opts = { activeDevice: false }) => {
+const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
   const socket = useSocket();
   const { account } = useContext(AccountContext);
 
+  const [roomId, setRoomId] = useState(initRoomId);
   const [caller, setCaller] = useState({});
-  const [currentStreamVideo, setCurrentStreamVideo] = useState();
-  const [remoteStreamVideo, setRemoteStreamVideo] = useState();
+  const [currentStreamVideo, setCurrentStreamVideo] = useState(null);
+  const [remoteStreamVideo, setRemoteStreamVideo] = useState(null);
 
   const [hasReceivedACall, setHasReceivedACall] = useState(false);
   const [acceptedCall, setAcceptedCall] = useState(false);
@@ -38,20 +39,25 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
 
     socket.on("a_call_from", callFromListener);
     socket.on("callended", callEndedListener);
+
     return () => {
       socket.off("a_call_from", callFromListener);
       socket.off("callended", callEndedListener);
     };
   }, [opts.activeDevice]);
 
-  const callFromListener = ({ signal, id, roomId }) => {
-    if (id === account._id) return;
-    setHasReceivedACall(true);
-    setCaller({ signal, id, roomId });
+  const callEndedListener = ({ userId }) => {
+    if (userId === account._id) return;
+    setRemoteStreamVideo(null);
+    connectionRef.current?.destroy();
+    stopStreamedVideo(currentStreamVideoRef.current.srcObject);
   };
 
-  const callEndedListener = () => {
-    console.log("callended end");
+  const callFromListener = ({ signal, id, roomId: callerRoomId }) => {
+    if (id === account._id) return;
+    setHasReceivedACall(true);
+    setCaller({ signal, id, roomId: callerRoomId });
+    setRoomId(callerRoomId);
   };
 
   const onAnswerCall = () => {
@@ -104,7 +110,7 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
       socket.emit("call_to", {
         signal,
         id: account._id,
-        roomId: room._id,
+        roomId,
       });
     });
 
@@ -124,6 +130,9 @@ const useVideoChat = (room, opts = { activeDevice: false }) => {
   const onDeclineCall = () => setHasReceivedACall(false);
 
   const onLeaveCall = () => {
+    if (!remoteStreamVideo) return;
+    setRemoteStreamVideo(null);
+    socket.emit("callended", { userId: account._id, roomId });
     connectionRef.current?.destroy();
     stopStreamedVideo(currentStreamVideoRef.current.srcObject);
   };

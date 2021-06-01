@@ -111,7 +111,7 @@ const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
                     <PopoverArrow />
                     <Picker
                       set="apple"
-                      sheetSize={20}
+                      sheetSize={32}
                       onClick={(icon) =>
                         field.onChange(`${field.value}${icon.native}`)
                       }

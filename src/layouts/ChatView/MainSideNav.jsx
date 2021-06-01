@@ -32,6 +32,7 @@ const MainSideNav = ({
       bg="white"
       width={isMobileScreen ? "calc(100vw - 66px)" : 300}
       transition="width 0.3s ease"
+      zIndex="3"
     >
       <Flex
         alignItems="center"

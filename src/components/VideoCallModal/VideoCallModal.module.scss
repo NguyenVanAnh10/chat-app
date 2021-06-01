@@ -1,0 +1,10 @@
+.VideoCallModal {
+  :global {
+    .is-full-screen {
+      .vjs-tech {
+        max-width: none !important;
+        height: 100% !important;
+      }
+    }
+  }
+}

@@ -36,6 +36,9 @@ const useSocket = () => {
   const errorListener = ({ error }) => {
     console.error("error", error);
   };
+  const disconnectSocket = () => {
+    console.log("disconnect_socket");
+  };
 
   if (!socketControler.socket && account._id) {
     socketControler.initSocket();
@@ -52,6 +55,8 @@ const useSocket = () => {
     socketControler.socket.on("receive_message", receiveMessageListener);
     socketControler.socket.on("user_has_seen_messages", userHasSeenNewMessages);
     socketControler.socket.on("error", errorListener);
+    socketControler.socket.on("disconnect_socket", disconnectSocket);
+
     return () => {
       socketControler.socket.off(
         "create_room_chat_one_to_one_success",
@@ -63,6 +68,7 @@ const useSocket = () => {
       );
       socketControler.socket.off("receive_message", receiveMessageListener);
       socketControler.socket.off("error", errorListener);
+      socketControler.socket.off("disconnect_socket", disconnectSocket);
     };
   }
 

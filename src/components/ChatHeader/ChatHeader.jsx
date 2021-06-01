@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Avatar,
   AvatarBadge,
@@ -10,11 +10,12 @@ import {
 } from "@chakra-ui/react";
 import { PhoneIcon } from "@chakra-ui/icons";
 
+import { AccountContext } from "App";
 import VideoCallModal from "components/VideoCallModal";
 
 const ChatHeader = ({ room }) => {
-  // const [{}, {}] = useVideoChat(room);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { account } = useContext(AccountContext);
 
   return (
     <>
@@ -48,7 +49,14 @@ const ChatHeader = ({ room }) => {
           icon={<PhoneIcon fontSize="lg" />}
         />
       </HStack>
-      <VideoCallModal isCaller isOpen={isOpen} onClose={onClose} room={room} />
+      {room && (
+        <VideoCallModal
+          isOpen={isOpen}
+          onClose={onClose}
+          room={room}
+          caller={room?.members?.find((u) => u._id !== account._id)}
+        />
+      )}
     </>
   );
 };
