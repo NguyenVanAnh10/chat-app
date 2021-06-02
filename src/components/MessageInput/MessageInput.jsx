@@ -1,7 +1,6 @@
 import React, { useContext, useRef } from "react";
 import {
   Box,
-  Button,
   HStack,
   IconButton,
   Input,
@@ -17,7 +16,7 @@ import { v4 as uuid } from "uuid";
 import { useForm, Controller } from "react-hook-form";
 import { Picker } from "mr-emoji";
 
-import { ImageIcon, EmojiIcon } from "components/CustomIcons";
+import { ImageIcon, EmojiIcon, PaperPlaneIcon } from "components/CustomIcons";
 import useMessages from "hooks/useMessages";
 import { AccountContext } from "App";
 import { getBase64 } from "utils";
@@ -130,9 +129,16 @@ const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
         />
       </form>
       <UploadImage onSendImage={handleSendImage} />
-      <Button background="red.100" onClick={handleSubmitMessage}>
+      <IconButton
+        bg="transparent"
+        color="pink.500"
+        fontSize="1.5rem"
+        _hover={{ bg: "pink.100" }}
+        icon={<PaperPlaneIcon />}
+        onClick={handleSubmitMessage}
+      >
         Send
-      </Button>
+      </IconButton>
     </HStack>
   );
 };

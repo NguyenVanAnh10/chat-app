@@ -28,8 +28,10 @@ const ChatView = () => {
   const [showMainSideNav, setShowMainSideNav] = useState(true);
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
   const socket = useSocket();
-  const [{ callerId, hasReceivedACall }, { onDeclineCall: onCloseCall }] =
-    useVideoChat();
+  const [
+    { callerId, hasReceivedACall },
+    { onDeclineCall, setHasReceivedACall },
+  ] = useVideoChat();
   const { isOpen, onClose, onOpen: onOpenConversationModal } = useDisclosure();
 
   useReactEffect(() => {
@@ -70,10 +72,10 @@ const ChatView = () => {
       <CallingAlertModal
         callerId={callerId}
         isOpen={hasReceivedACall}
-        onDecline={onCloseCall}
+        onDecline={() => onDeclineCall(callerId)}
         onAnswer={() => {
           onOpenConversationModal();
-          onCloseCall();
+          setHasReceivedACall(false);
         }}
       />
       <VideoCallModal isOpen={isOpen} onClose={onClose} />

@@ -17,12 +17,10 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
   const [caller, setCaller] = useState({});
   const [currentStreamVideo, setCurrentStreamVideo] = useState(null);
   const [remoteStreamVideo, setRemoteStreamVideo] = useState(null);
-
   const [hasReceivedACall, setHasReceivedACall] = useState(false);
-  const [acceptedCall, setAcceptedCall] = useState(false);
+  const [acceptedCall, setAcceptedCall] = useState();
 
-  const currentStreamVideoRef = useRef({});
-  const remoteStreamVideoRef = useRef({});
+  const currentStreamVideoRef = useRef();
   const connectionRef = useRef();
 
   useReactEffect(() => {
@@ -30,42 +28,51 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
       navigator.mediaDevices
         .getUserMedia({ video: true, audio: true })
         .then((currentStream) => {
-          currentStreamVideoRef.current.srcObject = currentStream;
+          currentStreamVideoRef.current = currentStream;
           setCurrentStreamVideo(currentStream);
         })
         .catch((err) => {
           console.error("Failed to get local stream", err);
         });
-
-    socket.on("a_call_from", callFromListener);
-    socket.on("callended", callEndedListener);
-
-    return () => {
-      socket.off("a_call_from", callFromListener);
-      socket.off("callended", callEndedListener);
-    };
   }, [opts.activeDevice]);
 
-  const callEndedListener = ({ userId }) => {
-    if (userId === account._id) return;
-    setRemoteStreamVideo(null);
-    connectionRef.current?.destroy();
-    stopStreamedVideo(currentStreamVideoRef.current.srcObject);
-  };
-
-  const callFromListener = ({ signal, id, roomId: callerRoomId }) => {
-    if (id === account._id) return;
-    setHasReceivedACall(true);
-    setCaller({ signal, id, roomId: callerRoomId });
-    setRoomId(callerRoomId);
-  };
+  useReactEffect(() => {
+    socket.on("a_call_from", ({ signal, id, roomId: callerRoomId }) => {
+      if (id === account._id) return;
+      setHasReceivedACall(true);
+      setCaller({ signal, id, roomId: callerRoomId });
+      setRoomId(callerRoomId);
+    });
+    socket.on("callended", ({ userId }) => {
+      if (userId === account._id) return;
+      setHasReceivedACall(false);
+      setRemoteStreamVideo(null);
+      connectionRef.current?.destroy();
+      stopStreamedVideo(currentStreamVideoRef.current);
+      setAcceptedCall();
+    });
+    socket.on("decline_incoming_call", ({ callerId }) => {
+      if (callerId === account._id) {
+        connectionRef.current?.destroy();
+        stopStreamedVideo(currentStreamVideoRef.current);
+        setAcceptedCall(false);
+      }
+    });
+    return () => {
+      socket.removeAllListeners("decline_incoming_call");
+      socket.removeAllListeners("a_call_from");
+      socket.removeAllListeners("callended");
+    };
+  }, []);
 
   const onAnswerCall = () => {
+    if (!currentStreamVideo) return;
     setAcceptedCall(true);
+    setHasReceivedACall(false);
     const peer = new Peer({
       initiator: false,
       trickle: false,
-      stream: currentStreamVideoRef.current.srcObject,
+      stream: currentStreamVideo,
     });
     peer.on("signal", (signal) => {
       // if (signal.renegotiate || signal.transceiverRequest) return;
@@ -73,7 +80,6 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
     });
 
     peer.on("stream", (remoteStream) => {
-      remoteStreamVideoRef.current.srcObject = remoteStream;
       setRemoteStreamVideo(remoteStream);
     });
 
@@ -83,6 +89,7 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
   };
 
   const onCallUser = () => {
+    if (!currentStreamVideo) return;
     const peer = new Peer({
       initiator: true,
       trickle: false,
@@ -103,7 +110,7 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
           },
         ],
       },
-      stream: currentStreamVideoRef.current.srcObject,
+      stream: currentStreamVideo,
     });
     peer.on("signal", (signal) => {
       // if (signal.renegotiate || signal.transceiverRequest) return;
@@ -115,26 +122,28 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
     });
 
     peer.on("stream", (remoteStream) => {
-      remoteStreamVideoRef.current.srcObject = remoteStream;
       setRemoteStreamVideo(remoteStream);
     });
     socket.removeAllListeners("call_accepted");
     socket.on("call_accepted", ({ signal }) => {
-      setAcceptedCall(true);
+      setAcceptedCall();
       peer.signal(signal);
     });
     peer._debug = console.log;
     connectionRef.current = peer;
   };
 
-  const onDeclineCall = () => setHasReceivedACall(false);
+  const onDeclineCall = (callerId) => {
+    socket.emit("decline_incoming_call", { callerId, roomId });
+    setHasReceivedACall(false);
+  };
 
   const onLeaveCall = () => {
-    if (!remoteStreamVideo) return;
+    stopStreamedVideo(currentStreamVideo);
     setRemoteStreamVideo(null);
     socket.emit("callended", { userId: account._id, roomId });
+    setAcceptedCall();
     connectionRef.current?.destroy();
-    stopStreamedVideo(currentStreamVideoRef.current.srcObject);
   };
 
   const stopStreamedVideo = (stream) => {
@@ -153,8 +162,6 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
       callerId: caller.id,
       currentVideo: currentStreamVideo,
       remoteVideo: remoteStreamVideo,
-      currentStreamVideoRef,
-      remoteStreamVideoRef,
       hasReceivedACall,
       acceptedCall,
     },
@@ -163,6 +170,8 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
       onLeaveCall,
       onAnswerCall,
       onDeclineCall,
+      setHasReceivedACall,
+      setAcceptedCall,
     },
   ];
 };

@@ -1,4 +1,5 @@
-import React, { useEffect as useReactEffect } from "react";
+import React from "react";
+import { useUpdateEffect } from "react-use";
 import {
   Modal,
   ModalBody,
@@ -22,13 +23,25 @@ import styles from "./VideoCallModal.module.scss";
 const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
   const [
     { currentVideo, remoteVideo, acceptedCall },
-    { onCallUser, onAnswerCall, onLeaveCall },
+    { onCallUser, onAnswerCall, onLeaveCall, setAcceptedCall },
   ] = useVideoChat(room._id, { activeDevice: isOpen });
-  useReactEffect(() => {
-    !remoteVideo && acceptedCall && onClose();
+  const isDeclinedCall = typeof acceptedCall === "boolean" && !acceptedCall;
+
+  useUpdateEffect(() => {
+    // finish call
+    !remoteVideo && typeof acceptedCall === "undefined" && onClose();
   }, [remoteVideo]);
 
-  useReactEffect(() => {
+  useUpdateEffect(() => {
+    // declined call
+    if (!isDeclinedCall) return;
+    setTimeout(() => {
+      onClose();
+      setAcceptedCall();
+    }, 300);
+  }, [typeof acceptedCall]);
+
+  useUpdateEffect(() => {
     if (!currentVideo) return;
     caller ? onCallUser() : onAnswerCall();
   }, [currentVideo]);
@@ -48,9 +61,9 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
               ratio={4 / 3}
               w="100%"
               position="absolute"
-              maxW="150px"
-              right="1"
-              top="1"
+              maxW="250px"
+              right="3"
+              top="3"
               borderRadius="lg"
               overflow="hidden"
               zIndex="1"
@@ -58,7 +71,7 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
               <VideoPlayer videoSrc={currentVideo} />
             </AspectRatio>
           )}
-          {!!remoteVideo && (
+          {acceptedCall && !!remoteVideo && (
             <AspectRatio
               ratio={1}
               w="100%"
@@ -80,7 +93,7 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
           )}
           {caller && !acceptedCall && (
             <VStack mx="auto" zIndex="1">
-              <AvatarGroup size="lg" max={3}>
+              <AvatarGroup size="xl" max={3}>
                 {room.otherMembers.length > 1
                   ? room.members.map((o) => (
                       <Avatar key={o._id} name={o.userName}></Avatar>
@@ -90,30 +103,30 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
                     ))}
               </AvatarGroup>
               <Heading size="md">{caller.userName} </Heading>
-              <Text>...Calling </Text>
+              <Text>{isDeclinedCall ? "Busy" : "Call..."}</Text>
             </VStack>
           )}
           <IconButton
             position="absolute"
             bottom="10"
+            p="1"
             left="50%"
             transform="translateX(-50%)"
             color="white"
-            size="lg"
+            size="xl"
+            fontSize="3rem"
             colorScheme="red"
             borderRadius="100%"
             _focus="none"
             opacity="0.6"
             _hover={{ opacity: 1 }}
-            icon={<HangoutPhoneIcon fontSize="2.5rem" />}
+            icon={<HangoutPhoneIcon />}
             m="0 auto"
             onClick={() => {
               onLeaveCall();
               onClose();
             }}
-          >
-            Ended
-          </IconButton>
+          />
         </ModalBody>
       </ModalContent>
     </Modal>

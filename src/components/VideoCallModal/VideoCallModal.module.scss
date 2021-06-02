@@ -6,5 +6,9 @@
         height: 100% !important;
       }
     }
+    video {
+      -webkit-transform: scaleX(-1);
+      transform: scaleX(-1);
+    }
   }
 }

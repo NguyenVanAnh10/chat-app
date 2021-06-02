@@ -26,11 +26,6 @@ const VideoPlayer = ({
         textTrackSettings: false,
         bigPlayButton: false,
         responsive: true,
-        // fluid: false,
-        // aspectRatio: '9:16',
-        // height: 300,
-        // width: "300px",
-        // fill: false,
         controlBar: {
           currentTimeDisplay: false,
           playToggle: true,
@@ -64,7 +59,7 @@ const VideoPlayer = ({
     return () => {
       playerRef.current.dispose();
     };
-  }, [videoSrc]);
+  }, []);
   // wrap the player in a div with a `data-vjs-player` attribute
   // so videojs won't create additional wrapper in the DOM
   // see https://github.com/videojs/video.js/pull/3856
