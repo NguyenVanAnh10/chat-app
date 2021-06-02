@@ -45,8 +45,8 @@ const ChatHeader = ({ room }) => {
         </HStack>
         <IconButton
           onClick={onOpen}
-          size="md"
-          fontSize="1.4rem"
+          size="lg"
+          fontSize="1.5rem"
           colorScheme="green"
           icon={<PhoneIcon />}
         />

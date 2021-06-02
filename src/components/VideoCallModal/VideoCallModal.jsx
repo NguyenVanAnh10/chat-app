@@ -30,7 +30,7 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
   useUpdateEffect(() => {
     // finish call
     !remoteVideo && typeof acceptedCall === "undefined" && onClose();
-  }, [remoteVideo]);
+  }, [remoteVideo, typeof acceptedCall]);
 
   useUpdateEffect(() => {
     // declined call

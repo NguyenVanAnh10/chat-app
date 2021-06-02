@@ -41,7 +41,7 @@ const SubSideNav = ({ isActive, onShowMainSideNav }) => {
     ).length;
   }
   return (
-    <VStack bg="red.100" w="65px" py="4">
+    <VStack bg="red.100" w="65px" py="4" zIndex="4">
       <AvatarMenu />
       <Box
         w="100%"

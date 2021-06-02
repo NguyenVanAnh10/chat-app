@@ -126,7 +126,7 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
     });
     socket.removeAllListeners("call_accepted");
     socket.on("call_accepted", ({ signal }) => {
-      setAcceptedCall();
+      setAcceptedCall(true);
       peer.signal(signal);
     });
     peer._debug = console.log;
