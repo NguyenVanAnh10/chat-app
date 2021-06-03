@@ -15,23 +15,32 @@ import {
 import { v4 as uuid } from "uuid";
 import { useForm, Controller } from "react-hook-form";
 import { Picker } from "mr-emoji";
+import Message from "entities/Message";
 
-import { ImageIcon, EmojiIcon, PaperPlaneIcon } from "components/CustomIcons";
-import useMessages from "hooks/useMessages";
-import { AccountContext } from "App";
+import { useModel } from "model";
 import { getBase64 } from "utils";
+import { AccountContext } from "App";
+import { ImageIcon, EmojiIcon, PaperPlaneIcon } from "components/CustomIcons";
 
 import styles from "./MessageInput.module.scss";
 
 const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
   const { account } = useContext(AccountContext);
 
-  const [, { sendMessage }] = useMessages(roomId, account._id);
+  const [, { sendMessage }] = useModel("message", () => ({}));
 
   const { control, handleSubmit, reset } = useForm({ message: "" });
   const handleSubmitMessage = handleSubmit((data) => {
     if (!data.message) return;
-    onSendMessage({ contentType: "text", content: data.message });
+    sendMessage({
+      roomId,
+      keyMsg: uuid(),
+      contentType: Message.CONTENT_TYPE_TEXT,
+      content: data.message,
+      createAt: Date.now(),
+      senderId: account._id,
+      hadSeenMessageUsers: [account._id],
+    });
     reset({ message: "" });
   });
   const handleSendImage = async (imageUrls) => {
@@ -41,33 +50,19 @@ const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
         /^data:image\/[a-z]+;base64,/,
         ""
       );
-      onSendMessage({
-        contentType: "image",
+      sendMessage({
+        roomId,
+        keyMsg: uuid(),
+        contentType: Message.CONTENT_TYPE_IMAGE,
         contentBlob: URL.createObjectURL(imageUrls[0]),
         base64Image,
+        createAt: Date.now(),
+        senderId: account._id,
+        hadSeenMessageUsers: [account._id],
       });
     } catch (error) {
       console.error(error);
     }
-  };
-  const onSendMessage = ({
-    content,
-    contentType,
-    base64Image,
-    contentBlob,
-  }) => {
-    sendMessage({
-      roomId,
-      content,
-      contentType,
-      contentBlob,
-      base64Image,
-      keyMsg: uuid(),
-      status: false,
-      createAt: Date.now(),
-      senderId: account._id,
-      hadSeenMessageUsers: [account._id],
-    });
   };
   const hanleKeyDown = (e) => {
     if (e.keyCode !== 13) return;

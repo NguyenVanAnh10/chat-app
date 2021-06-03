@@ -5,9 +5,13 @@ import {
   useState,
 } from "react";
 import Peer from "simple-peer";
+import { v4 as uuid } from "uuid";
 
 import useSocket from "socket";
 import { AccountContext } from "App";
+import { useModel } from "model";
+import Message from "entities/Message";
+import Notification from "entities/Notification";
 
 const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
   const socket = useSocket();
@@ -19,6 +23,7 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
   const [remoteStreamVideo, setRemoteStreamVideo] = useState(null);
   const [hasReceivedACall, setHasReceivedACall] = useState(false);
   const [acceptedCall, setAcceptedCall] = useState();
+  const [, { sendMessage }] = useModel("message", () => ({}));
 
   const currentStreamVideoRef = useRef();
   const connectionRef = useRef();
@@ -56,6 +61,15 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
         connectionRef.current?.destroy();
         stopStreamedVideo(currentStreamVideoRef.current);
         setAcceptedCall(false);
+        sendMessage({
+          roomId,
+          contentType: Message.CONTENT_TYPE_NOTIFICATION,
+          content: Notification.NOTIFICATION_DECLINE_CALL,
+          keyMsg: uuid(),
+          createAt: Date.now(),
+          senderId: account._id,
+          hadSeenMessageUsers: [account._id],
+        });
       }
     });
     return () => {
@@ -144,6 +158,16 @@ const useVideoChat = (initRoomId, opts = { activeDevice: false }) => {
     socket.emit("callended", { userId: account._id, roomId });
     setAcceptedCall();
     connectionRef.current?.destroy();
+    remoteStreamVideo &&
+      sendMessage({
+        roomId,
+        contentType: Message.CONTENT_TYPE_NOTIFICATION,
+        content: Notification.NOTIFICATION_ENDED_CALL,
+        keyMsg: uuid(),
+        createAt: Date.now(),
+        senderId: account._id,
+        hadSeenMessageUsers: [account._id],
+      });
   };
 
   const stopStreamedVideo = (stream) => {
