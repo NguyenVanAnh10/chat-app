@@ -8,37 +8,35 @@ import { Flex, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
 import classNames from "classnames";
 
 import { AccountContext } from "App";
-import useSocket from "socket";
 import { useModel } from "model";
 import SubSideNav from "components/SubSideNav";
 import ChatBox from "components/ChatBox";
 import MainSideNav from "layouts/ChatView/MainSideNav";
 
 import styles from "./ChatView.module.scss";
-import useVideoChat from "hooks/useVideoChat";
+import useChat from "hooks/useChat";
 import CallingAlertModal from "components/CallingAlertModal";
 import VideoCallModal from "components/VideoCallModal";
 
-export const SocketContext = createContext({});
+export const ChatContext = createContext({});
 
 const ChatView = () => {
   const { account } = useContext(AccountContext);
   const [, { getMessages }] = useModel("message", () => ({}));
   const [selectedRoomId, setSelectedRoomId] = useState();
   const [showMainSideNav, setShowMainSideNav] = useState(true);
-  const isMobileScreen = useBreakpointValue({ base: true, md: false });
-  const socket = useSocket();
-  const [
-    { callerId, hasReceivedACall },
-    { onDeclineCall, setHasReceivedACall },
-  ] = useVideoChat();
   const { isOpen, onClose, onOpen: onOpenConversationModal } = useDisclosure();
+  const isMobileScreen = useBreakpointValue({ base: true, md: false });
+  const { state: chatState, actions: chatActions } = useChat();
+
+  const { caller, callState } = chatState;
+  const { onDeclineCall, setCallState, onAnswerCall } = chatActions;
 
   useReactEffect(() => {
     getMessages({ userId: account._id });
   }, []);
   return (
-    <SocketContext.Provider value={{ socket }}>
+    <ChatContext.Provider value={{ state: chatState, actions: chatActions }}>
       <Flex className={styles.ChatView}>
         <Flex className="nav-bar">
           <SubSideNav
@@ -70,16 +68,17 @@ const ChatView = () => {
         )}
       </Flex>
       <CallingAlertModal
-        callerId={callerId}
-        isOpen={hasReceivedACall}
-        onDecline={() => onDeclineCall(callerId)}
+        callerId={caller.id}
+        isOpen={callState.hasReceived}
+        onDecline={() => onDeclineCall(caller.id)}
         onAnswer={() => {
           onOpenConversationModal();
-          setHasReceivedACall(false);
+          setCallState({ hasReceived: false, accepted: true });
+          onAnswerCall();
         }}
       />
       <VideoCallModal isOpen={isOpen} onClose={onClose} />
-    </SocketContext.Provider>
+    </ChatContext.Provider>
   );
 };
 

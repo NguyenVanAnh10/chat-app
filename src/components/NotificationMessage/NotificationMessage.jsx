@@ -46,13 +46,8 @@ const NotificationMessage = ({
     case Notification.NOTIFICATION_ENDED_CALL:
       return (
         <BubbleMessage message={message}>
-          <Text fontWeight="bold">
-            <Icon
-              as={VideoCallIcon}
-              mr="2"
-              fontSize="1.5rem"
-              color="blue.900"
-            />
+          <Text fontWeight="bold" color="gray.700" fontStyle="italic">
+            <Icon as={VideoCallIcon} mr="2" fontSize="1.2rem" />
             The video chat ended
           </Text>
           )
@@ -71,7 +66,7 @@ const NotificationMessage = ({
       return (
         <BubbleMessage message={message}>
           {account._id === message.senderId ? (
-            <Text color="blue.500" fontWeight="bold">
+            <Text color="blue" fontWeight="bold" fontStyle="italic">
               <Icon as={MissedCallIcon} mr="2" />
               {room.otherMembers?.length > 1
                 ? room.name
@@ -79,7 +74,7 @@ const NotificationMessage = ({
               &nbsp; missed your video chat
             </Text>
           ) : (
-            <Text color="red" fontWeight="bold">
+            <Text color="red.500" fontWeight="bold" fontStyle="italic">
               <Icon as={MissedCallIcon} mr="2" />
               you missed a video chat with &nbsp;
               {room.otherMembers?.length > 1

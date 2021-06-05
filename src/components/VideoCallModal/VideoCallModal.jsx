@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useUpdateEffect } from "react-use";
 import {
   Modal,
@@ -14,37 +14,31 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 
-import useVideoChat from "hooks/useVideoChat";
 import VideoPlayer from "./VideoPlayer";
 import { HangoutPhoneIcon } from "components/CustomIcons";
+import { ChatContext } from "pages/ChatView";
 
 import styles from "./VideoCallModal.module.scss";
 
-const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
-  const [
-    { currentVideo, remoteVideo, acceptedCall },
-    { onCallUser, onAnswerCall, onLeaveCall, setAcceptedCall },
-  ] = useVideoChat(room._id, { activeDevice: isOpen });
-  const isDeclinedCall = typeof acceptedCall === "boolean" && !acceptedCall;
+const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
+  const {
+    state: { streamVideos, callState, caller },
+    actions: { onLeaveCall, setCallState },
+  } = useContext(ChatContext);
 
   useUpdateEffect(() => {
     // finish call
-    !remoteVideo && typeof acceptedCall === "undefined" && onClose();
-  }, [remoteVideo, typeof acceptedCall]);
+    !callState.accepted && !callState.declined && onClose();
+  }, [callState.accepted]);
 
   useUpdateEffect(() => {
-    // declined call
-    if (!isDeclinedCall) return;
-    setTimeout(() => {
-      onClose();
-      setAcceptedCall();
-    }, 300);
-  }, [typeof acceptedCall]);
+    callState.declined && onClose();
+  }, [callState.declined]);
 
   useUpdateEffect(() => {
-    if (!currentVideo) return;
-    caller ? onCallUser() : onAnswerCall();
-  }, [currentVideo]);
+    !isOpen && setCallState({});
+  }, [isOpen]);
+
   return (
     <Modal size="full" isOpen={isOpen} closeOnOverlayClick={false} isCentered>
       <ModalOverlay />
@@ -56,7 +50,7 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
           justifyContent="center"
           className={styles.VideoCallModal}
         >
-          {!!currentVideo && (
+          {!!streamVideos.current && (
             <AspectRatio
               ratio={4 / 3}
               w="100%"
@@ -68,10 +62,10 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
               overflow="hidden"
               zIndex="1"
             >
-              <VideoPlayer videoSrc={currentVideo} />
+              <VideoPlayer videoSrc={streamVideos.current} />
             </AspectRatio>
           )}
-          {acceptedCall && !!remoteVideo && (
+          {callState.accepted && !!streamVideos.remote && (
             <AspectRatio
               ratio={1}
               w="100%"
@@ -85,13 +79,13 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
               className="is-full-screen"
             >
               <VideoPlayer
-                videoSrc={remoteVideo}
+                videoSrc={streamVideos.remote}
                 isFullScreen
                 options={{ muted: false }}
               />
             </AspectRatio>
           )}
-          {caller && !acceptedCall && (
+          {!!receiver && !callState.accepted && (
             <VStack mx="auto" zIndex="1">
               <AvatarGroup size="xl" max={3}>
                 {room.otherMembers.length > 1
@@ -102,8 +96,8 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
                       <Avatar key={o._id} name={o.userName}></Avatar>
                     ))}
               </AvatarGroup>
-              <Heading size="md">{caller.userName} </Heading>
-              <Text>{isDeclinedCall ? "Busy" : "Call..."}</Text>
+              <Heading size="md">{receiver.userName} </Heading>
+              <Text>{callState.declined ? "Busy" : "Call..."}</Text>
             </VStack>
           )}
           <IconButton
@@ -123,7 +117,7 @@ const VideoCallModal = ({ caller = null, isOpen, onClose, room = {} }) => {
             icon={<HangoutPhoneIcon />}
             m="0 auto"
             onClick={() => {
-              onLeaveCall();
+              onLeaveCall(caller.roomId || room._id);
               onClose();
             }}
           />

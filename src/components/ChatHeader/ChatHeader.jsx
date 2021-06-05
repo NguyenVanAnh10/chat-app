@@ -12,10 +12,14 @@ import { PhoneIcon } from "@chakra-ui/icons";
 
 import { AccountContext } from "App";
 import VideoCallModal from "components/VideoCallModal";
+import { ChatContext } from "pages/ChatView";
 
 const ChatHeader = ({ room }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { account } = useContext(AccountContext);
+  const {
+    actions: { onCallUser },
+  } = useContext(ChatContext);
 
   return (
     <>
@@ -44,7 +48,10 @@ const ChatHeader = ({ room }) => {
           <Text>{room.name || room.userName}</Text>
         </HStack>
         <IconButton
-          onClick={onOpen}
+          onClick={() => {
+            onOpen();
+            onCallUser(room._id);
+          }}
           size="lg"
           fontSize="1.5rem"
           colorScheme="green"
@@ -56,7 +63,7 @@ const ChatHeader = ({ room }) => {
           isOpen={isOpen}
           onClose={onClose}
           room={room}
-          caller={room?.members?.find((u) => u._id !== account._id)}
+          receiver={room?.members?.find((u) => u._id !== account._id)}
         />
       )}
     </>

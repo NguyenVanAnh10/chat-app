@@ -1,1 +1,1 @@
-export { default, SocketContext } from "./ChatView";
+export { default, ChatContext } from "./ChatView";
