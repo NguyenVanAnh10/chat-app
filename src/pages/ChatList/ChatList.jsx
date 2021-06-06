@@ -5,68 +5,46 @@ import React, {
   createContext,
 } from "react";
 import { Flex, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
-import classNames from "classnames";
 
 import { AccountContext } from "App";
 import { useModel } from "model";
 import SubSideNav from "components/SubSideNav";
 import ChatBox from "components/ChatBox";
-import MainSideNav from "layouts/ChatView/MainSideNav";
+import MainSideNav from "layouts/ChatList/MainSideNav";
 
-import styles from "./ChatView.module.scss";
 import useChat from "hooks/useChat";
 import CallingAlertModal from "components/CallingAlertModal";
 import VideoCallModal from "components/VideoCallModal";
 
 export const ChatContext = createContext({});
 
-const ChatView = () => {
+const ChatList = () => {
   const { account } = useContext(AccountContext);
   const [, { getMessages }] = useModel("message", () => ({}));
   const [selectedRoomId, setSelectedRoomId] = useState();
-  const [showMainSideNav, setShowMainSideNav] = useState(true);
   const { isOpen, onClose, onOpen: onOpenConversationModal } = useDisclosure();
-  const isMobileScreen = useBreakpointValue({ base: true, md: false });
   const { state: chatState, actions: chatActions } = useChat();
 
   const { caller, callState } = chatState;
   const { onDeclineCall, setCallState, onAnswerCall } = chatActions;
+  const isMobileScreen = useBreakpointValue({ base: true, md: false });
 
   useReactEffect(() => {
     getMessages({ userId: account._id });
   }, []);
   return (
     <ChatContext.Provider value={{ state: chatState, actions: chatActions }}>
-      <Flex className={styles.ChatView}>
-        <Flex className="nav-bar">
-          <SubSideNav
-            isActive={showMainSideNav || !isMobileScreen}
-            onShowMainSideNav={() =>
-              isMobileScreen && setShowMainSideNav(!showMainSideNav)
-            }
-          />
-          {(showMainSideNav || !isMobileScreen) && (
-            <MainSideNav
-              isMobileScreen={isMobileScreen}
-              selectedRoomId={selectedRoomId}
-              onSelectRoom={(id) => {
-                setSelectedRoomId(id);
-                setShowMainSideNav(false);
-              }}
-            />
-          )}
-        </Flex>
-        {selectedRoomId && (
-          <Flex
-            width={isMobileScreen ? "calc(100vw - 66px)" : "100%"}
-            className={classNames({
-              "main-content-mobile-screen": isMobileScreen,
-            })}
-          >
-            <ChatBox roomId={selectedRoomId} />
-          </Flex>
-        )}
-      </Flex>
+      {!isMobileScreen ? (
+        <MainLayout
+          selectedRoomId={selectedRoomId}
+          setSelectedRoomId={setSelectedRoomId}
+        />
+      ) : (
+        <MobileLayout
+          selectedRoomId={selectedRoomId}
+          setSelectedRoomId={setSelectedRoomId}
+        />
+      )}
       <CallingAlertModal
         callerId={caller.id}
         isOpen={callState.hasReceived}
@@ -82,4 +60,37 @@ const ChatView = () => {
   );
 };
 
-export default ChatView;
+const MainLayout = ({ selectedRoomId, setSelectedRoomId, children }) => {
+  return (
+    <Flex minH="100vh" w="100%">
+      <Flex borderRight="1px solid rgba(0, 0, 0, 0.08)">
+        <SubSideNav />
+        <MainSideNav
+          selectedRoomId={selectedRoomId}
+          onSelectRoomId={(roomId) => setSelectedRoomId(roomId)}
+        />
+      </Flex>
+      <ChatBox roomId={selectedRoomId} />
+    </Flex>
+  );
+};
+
+const MobileLayout = ({ selectedRoomId, setSelectedRoomId }) => {
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  return (
+    <Flex w="100%">
+      {!isOpen ? (
+        <MainSideNav
+          selectedRoomId={selectedRoomId}
+          onSelectRoomId={(roomId) => {
+            setSelectedRoomId(roomId);
+            onOpen();
+          }}
+        />
+      ) : (
+        <ChatBox roomId={selectedRoomId} onBack={onClose} />
+      )}
+    </Flex>
+  );
+};
+export default ChatList;

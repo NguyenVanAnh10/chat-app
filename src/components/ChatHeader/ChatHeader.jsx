@@ -8,13 +8,13 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { PhoneIcon } from "@chakra-ui/icons";
+import { PhoneIcon, ArrowBackIcon } from "@chakra-ui/icons";
 
 import { AccountContext } from "App";
 import VideoCallModal from "components/VideoCallModal";
-import { ChatContext } from "pages/ChatView";
+import { ChatContext } from "pages/ChatList";
 
-const ChatHeader = ({ room }) => {
+const ChatHeader = ({ room, onBack }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { account } = useContext(AccountContext);
   const {
@@ -26,12 +26,24 @@ const ChatHeader = ({ room }) => {
       <HStack
         w="100%"
         bg="white"
-        px="5"
-        py="3.5"
+        px="2"
+        py="3"
         borderBottom="1px solid #EDF2F7"
         justifyContent="space-between"
       >
-        <HStack>
+        <HStack spacing="1">
+          {onBack && (
+            <IconButton
+              size="sm"
+              _focus="none"
+              _active="none"
+              bg="transparent !important"
+              variant="ghost"
+              fontSize="1.4rem"
+              onClick={onBack}
+              icon={<ArrowBackIcon />}
+            />
+          )}
           <AvatarGroup size="md" max={3}>
             {room.otherMembers.length > 1
               ? room.members.map((o) => (
@@ -45,18 +57,20 @@ const ChatHeader = ({ room }) => {
                   </Avatar>
                 ))}
           </AvatarGroup>
-          <Text>{room.name || room.userName}</Text>
+          <Text ml="2">{room.name || room.userName}</Text>
         </HStack>
-        <IconButton
-          onClick={() => {
-            onOpen();
-            onCallUser(room._id);
-          }}
-          size="lg"
-          fontSize="1.5rem"
-          colorScheme="green"
-          icon={<PhoneIcon />}
-        />
+        {room.otherMembers.length === 1 && (
+          <IconButton
+            onClick={() => {
+              onOpen();
+              onCallUser(room._id);
+            }}
+            size="lg"
+            fontSize="1.5rem"
+            colorScheme="green"
+            icon={<PhoneIcon />}
+          />
+        )}
       </HStack>
       {room && (
         <VideoCallModal

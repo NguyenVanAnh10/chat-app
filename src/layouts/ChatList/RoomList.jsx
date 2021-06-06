@@ -20,7 +20,7 @@ import CreateChatGroupModal from "components/CreateChatGroupModal";
 
 import styles from "./RoomList.module.scss";
 
-const RoomList = ({ selectedRoomId, onSelectRoom }) => {
+const RoomList = ({ selectedRoomId, onSelectRoomId }) => {
   const { account } = useContext(AccountContext);
   const [{ roomIds }, { getRooms }] = useModel(
     "message",
@@ -53,14 +53,14 @@ const RoomList = ({ selectedRoomId, onSelectRoom }) => {
             key={roomId}
             roomId={roomId}
             active={selectedRoomId === roomId}
-            onClick={() => onSelectRoom(roomId)}
+            onClick={() => onSelectRoomId(roomId)}
           />
         ))}
       </VStack>
       <CreateChatGroupModal
         isOpen={isOpen}
         onClose={onClose}
-        onSelectRoom={onSelectRoom}
+        onSelectRoomId={onSelectRoomId}
       />
     </Box>
   );

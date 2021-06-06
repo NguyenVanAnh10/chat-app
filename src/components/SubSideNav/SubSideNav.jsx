@@ -5,9 +5,9 @@ import {
   AlertIcon,
   Avatar,
   AvatarBadge,
-  Box,
+  Badge,
   Button,
-  IconButton,
+  Icon,
   Menu,
   MenuButton,
   MenuDivider,
@@ -20,7 +20,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
@@ -29,7 +28,7 @@ import { ChatIcon } from "@chakra-ui/icons";
 import { AccountContext } from "App";
 import { useModel } from "model";
 
-const SubSideNav = ({ isActive, onShowMainSideNav }) => {
+const SubSideNav = () => {
   const { account } = useContext(AccountContext);
   const [{ messages }] = useModel("message", ({ messages }) => ({ messages }));
   let newMessageNumber = 0;
@@ -41,44 +40,37 @@ const SubSideNav = ({ isActive, onShowMainSideNav }) => {
     ).length;
   }
   return (
-    <VStack bg="red.100" w="65px" py="4" zIndex="4">
+    <VStack bg="orange.200" w="65px" py="4" zIndex="4">
       <AvatarMenu />
-      <Box
+      <Button
+        isActive
         w="100%"
-        py="4"
-        position="relative"
-        bg={isActive ? "pink.200" : "transparent"}
+        d="block"
+        h="auto"
+        borderRadius="none"
+        py="5"
+        _focus="none"
+        _active={{ bg: "orange.300" }}
+        bg="orange.200 !important"
+        colorScheme="orange"
       >
-        <IconButton
-          margin="0 auto !important"
-          display="block"
-          _focus="none"
-          _active="none"
-          _hover="none"
-          bg="transparent !important"
-          variant="ghost"
-          borderRadius="none"
-          onClick={onShowMainSideNav}
-          icon={<ChatIcon boxSize="7" color="pink.500" />}
-        />
+        <Icon fontSize="1.7rem" as={ChatIcon} />
         {!!newMessageNumber && (
-          <Text
-            position="absolute"
-            left="10"
-            top="2"
-            borderRadius="100%"
-            bg="red.500"
+          <Badge
+            bg="red"
             color="white"
-            fontSize="sm"
+            padding="1px 3px"
             fontWeight="bold"
-            width="5"
-            height="5"
             textAlign="center"
+            borderRadius="100%"
+            fontSize="0.7rem"
+            top="-3"
+            pos="relative"
           >
-            {newMessageNumber}
-          </Text>
+            {newMessageNumber > 9 ? "+9" : newMessageNumber}
+          </Badge>
         )}
-      </Box>
+      </Button>
     </VStack>
   );
 };

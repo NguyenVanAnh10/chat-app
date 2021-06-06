@@ -16,7 +16,7 @@ import debounce from "lodash.debounce";
 import { useModel } from "model";
 import { AccountContext } from "App";
 
-const SearchUser = ({
+const SearchUserInput = ({
   placeholder,
   hasSearchIcon = true,
   onUserClick,
@@ -93,4 +93,4 @@ const SearchUser = ({
   );
 };
 
-export default SearchUser;
+export default SearchUserInput;

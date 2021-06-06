@@ -23,7 +23,7 @@ import isEqual from "lodash.isequal";
 
 import { useModel } from "model";
 import { AccountContext } from "App";
-import SearchUser from "components/SearchUser";
+import SearchUserInput from "components/SearchUserInput";
 
 const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
   const [{ createRoomState, rooms }, { createRoom }] = useModel(
@@ -121,7 +121,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
                   {error && (
                     <FormErrorMessage>{error.message}</FormErrorMessage>
                   )}
-                  <SearchUser
+                  <SearchUserInput
                     mt="5"
                     hasSearchIcon={false}
                     placeholder="Add user..."

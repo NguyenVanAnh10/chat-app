@@ -10,7 +10,7 @@ import useRoom from "hooks/useRoom";
 import useMessages from "hooks/useMessages";
 import ChatHeader from "components/ChatHeader";
 
-const ChatBox = ({ roomId }) => {
+const ChatBox = ({ roomId, onBack }) => {
   const { account } = useContext(AccountContext);
   const [, { haveSeenNewMessages }] = useMessages(roomId, account._id);
   const [{ room }] = useRoom(roomId);
@@ -19,16 +19,18 @@ const ChatBox = ({ roomId }) => {
     if (!room.newMessageNumber) return;
     haveSeenNewMessages({ roomId: room._id, userId: account._id });
   };
+  if (!roomId) return null;
   return (
     <VStack
       className={styles.ChatBox}
       flex="1"
+      w="100%"
       alignItems="flex-start"
       justifyContent="space-between"
     >
       {room._id && (
         <>
-          <ChatHeader room={room} />
+          <ChatHeader room={room} onBack={onBack}/>
           <MessageList
             className="show-message-box"
             roomId={room._id}

@@ -16,7 +16,7 @@ import {
 
 import VideoPlayer from "./VideoPlayer";
 import { HangoutPhoneIcon } from "components/CustomIcons";
-import { ChatContext } from "pages/ChatView";
+import { ChatContext } from "pages/ChatList";
 
 import styles from "./VideoCallModal.module.scss";
 
@@ -40,7 +40,14 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
   }, [isOpen]);
 
   return (
-    <Modal size="full" isOpen={isOpen} closeOnOverlayClick={false} isCentered>
+    <Modal
+      size="full"
+      isOpen={isOpen}
+      closeOnOverlayClick={false}
+      isCentered
+      blockScrollOnMount={true}
+      preserveScrollBarGap={true}
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalBody

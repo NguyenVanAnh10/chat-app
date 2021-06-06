@@ -7,7 +7,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import { ChakraProvider, Text } from "@chakra-ui/react";
 
 import { useModel } from "model";
-import ChatView from "pages/ChatView";
+import ChatList from "pages/ChatList";
 import Login from "pages/Login";
 import Register from "pages/Register";
 
@@ -22,7 +22,7 @@ function App() {
     <ChakraProvider>
       <AccountContext.Provider value={{ account }}>
         <Switch>
-          <R authorize exact path="/" component={ChatView} />
+          <R authorize exact path="/" component={ChatList} />
           <R path="/login" component={Login} />
           <R path="/register" component={Register} />
         </Switch>
