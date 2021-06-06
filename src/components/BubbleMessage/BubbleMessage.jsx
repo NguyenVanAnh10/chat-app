@@ -13,6 +13,7 @@ const BubbleMessage = ({ children, message }) => {
       borderRadius="xl"
       px="3"
       py="1"
+      wordBreak="break-all"
     >
       {children}
     </VStack>

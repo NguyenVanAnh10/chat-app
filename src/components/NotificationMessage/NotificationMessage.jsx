@@ -95,7 +95,11 @@ const NotificationMessage = ({
         </BubbleMessage>
       );
     default:
-      return <Text>{Notification.NOTIFICATION_INCOMING_CALL}</Text>;
+      return (
+        <BubbleMessage message={message}>
+          <Text>{Notification.NOTIFICATION_INCOMING_CALL}</Text>
+        </BubbleMessage>
+      );
   }
 };
 

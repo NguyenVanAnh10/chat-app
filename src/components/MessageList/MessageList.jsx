@@ -66,7 +66,7 @@ const MessageList = ({ roomId, className, userId }) => {
               size="sm"
               zIndex="2"
             ></Avatar>
-            <HStack spacing="1">
+            <HStack spacing="1" maxW="70%">
               {!!m.error && (
                 <IconButton
                   bg="transparent"
