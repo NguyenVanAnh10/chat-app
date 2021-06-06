@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, useEffect as useReactEffect } from "react";
 import {
   Box,
   HStack,
@@ -29,7 +29,12 @@ const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
 
   const [, { sendMessage }] = useModel("message", () => ({}));
 
-  const { control, handleSubmit, reset } = useForm({ message: "" });
+  const { control, handleSubmit, reset, setFocus } = useForm({ message: "" });
+
+  useReactEffect(() => {
+    setFocus("message");
+  }, []);
+
   const handleSubmitMessage = handleSubmit((data) => {
     if (!data.message) return;
     sendMessage({
@@ -42,6 +47,7 @@ const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
       hadSeenMessageUsers: [account._id],
     });
     reset({ message: "" });
+    setFocus("message");
   });
   const handleSendImage = async (imageUrls) => {
     if (!imageUrls.length) return;
@@ -72,6 +78,7 @@ const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
     <HStack
       w="100%"
       pb="2"
+      pt="1"
       pr="3"
       mt="0"
       spacing="2"
