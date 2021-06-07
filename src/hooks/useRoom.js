@@ -1,6 +1,7 @@
+import { useContext, useEffect as useReactEffect } from "react";
+
 import { AccountContext } from "App";
 import { useModel } from "model";
-import { useContext } from "react";
 
 // TODO refactor
 const useRoom = (roomId) => {
@@ -35,6 +36,22 @@ const useRoom = (roomId) => {
     },
     { haveSeenNewMessages },
   ];
+};
+
+export const useRooms = () => {
+  const { account } = useContext(AccountContext);
+  const [{ roomIds }, { getRooms }] = useModel(
+    "message",
+    ({ messages, getRooms }) => ({
+      messages,
+      roomIds: getRooms.ids || [],
+    })
+  );
+
+  useReactEffect(() => {
+    account._id && !roomIds.length && getRooms(account._id);
+  }, [account._id]);
+  return roomIds;
 };
 
 export default useRoom;

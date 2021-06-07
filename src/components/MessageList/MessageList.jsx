@@ -17,8 +17,8 @@ import ReviewImageModal from "components/ReviewImageModal";
 import MessageContent from "components/MessageContent";
 import Message from "entities/Message";
 
-const MessageList = ({ roomId, className, userId }) => {
-  const [{ messages, loading }] = useMessages(roomId, userId, {
+const MessageList = ({ roomId, className }) => {
+  const [{ messages, loading }] = useMessages(roomId, {
     fetchData: true,
   });
 

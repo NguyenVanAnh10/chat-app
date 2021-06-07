@@ -22,22 +22,23 @@ import styles from "./VideoCallModal.module.scss";
 
 const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
   const {
-    state: { streamVideos, callState, caller },
-    actions: { onLeaveCall, setCallState },
+    state: { streamVideos, callState, caller, roomId },
+    actions: { onLeaveCall },
   } = useContext(ChatContext);
 
   useUpdateEffect(() => {
     // finish call
-    !callState.accepted && !callState.declined && onClose();
+    if (!callState.accepted && !callState.declined) {
+      onClose();
+    }
   }, [callState.accepted]);
 
   useUpdateEffect(() => {
-    callState.declined && onClose();
+    // decline call
+    if (callState.declined) {
+      onClose();
+    }
   }, [callState.declined]);
-
-  useUpdateEffect(() => {
-    !isOpen && setCallState({});
-  }, [isOpen]);
 
   return (
     <Modal
@@ -124,7 +125,7 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
             icon={<HangoutPhoneIcon />}
             m="0 auto"
             onClick={() => {
-              onLeaveCall(caller.roomId || room._id);
+              onLeaveCall(roomId || room._id);
               onClose();
             }}
           />

@@ -1,11 +1,16 @@
-import { useEffect as useReactEffect } from "react";
+import { useContext, useEffect as useReactEffect } from "react";
 import qs from "query-string";
 
 import { useModel } from "model";
+import { AccountContext } from "App";
 
 const opts = { fetchData: false };
 
-const useMessages = (roomId, userId, options = opts) => {
+const useMessages = (roomId, options = opts) => {
+  const {
+    account: { _id: userId },
+  } = useContext(AccountContext);
+
   const cachedKey = qs.stringify({ roomId, userId });
   const [
     { messages, mesagesState },

@@ -21,14 +21,23 @@ import { useModel } from "model";
 import { getBase64 } from "utils";
 import { AccountContext } from "App";
 import { ImageIcon, EmojiIcon, PaperPlaneIcon } from "components/CustomIcons";
+import useRoom from "hooks/useRoom";
 
 import styles from "./MessageInput.module.scss";
 
-const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
+const MessageInput = ({ roomId, ...rest }) => {
   const { account } = useContext(AccountContext);
+  const [{ room }] = useRoom(roomId);
 
-  const [, { sendMessage }] = useModel("message", () => ({}));
+  const [, { sendMessage, haveSeenNewMessages }] = useModel(
+    "message",
+    () => ({})
+  );
 
+  const onHandleFocusInput = () => {
+    if (!room.newMessageNumber) return;
+    haveSeenNewMessages({ roomId, userId: account._id });
+  };
   const { control, handleSubmit, reset, setFocus } = useForm({ message: "" });
 
   useReactEffect(() => {
@@ -130,7 +139,7 @@ const MessageInput = ({ roomId, onFocusInput, ...rest }) => {
               </InputRightElement>
               <Input
                 placeholder="Type message..."
-                onFocus={onFocusInput}
+                onFocus={onHandleFocusInput}
                 onKeyDown={hanleKeyDown}
                 {...field}
               />

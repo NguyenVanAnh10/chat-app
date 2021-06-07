@@ -14,7 +14,7 @@ import { AddUsersIcon } from "components/CustomIcons";
 import classNames from "classnames";
 
 import { AccountContext } from "App";
-import useRoom from "hooks/useRoom";
+import useRoom, { useRooms } from "hooks/useRoom";
 import { useModel } from "model";
 import CreateChatGroupModal from "components/CreateChatGroupModal";
 
@@ -22,18 +22,8 @@ import styles from "./RoomList.module.scss";
 
 const RoomList = ({ selectedRoomId, onSelectRoomId }) => {
   const { account } = useContext(AccountContext);
-  const [{ roomIds }, { getRooms }] = useModel(
-    "message",
-    ({ messages, getRooms }) => ({
-      messages,
-      roomIds: getRooms.ids || [],
-    })
-  );
+  const roomIds = useRooms();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  useReactEffect(() => {
-    account._id && getRooms(account._id);
-  }, [account._id]);
 
   return (
     <Box pt="5" className={styles.RoomList}>
@@ -48,7 +38,7 @@ const RoomList = ({ selectedRoomId, onSelectRoomId }) => {
         />
       </HStack>
       <VStack marginTop="5" alignItems="flex-start">
-        {roomIds.map((roomId, _, arr) => (
+        {roomIds.map((roomId) => (
           <RoomItem
             key={roomId}
             roomId={roomId}

@@ -26,7 +26,7 @@ const ChatList = () => {
   const { state: chatState, actions: chatActions } = useChat();
 
   const { caller, callState } = chatState;
-  const { onDeclineCall, setCallState, onAnswerCall } = chatActions;
+  const { onDeclineCall, onAnswerCall } = chatActions;
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
 
   useReactEffect(() => {
@@ -51,7 +51,6 @@ const ChatList = () => {
         onDecline={() => onDeclineCall(caller.id)}
         onAnswer={() => {
           onOpenConversationModal();
-          setCallState({ hasReceived: false, accepted: true });
           onAnswerCall();
         }}
       />

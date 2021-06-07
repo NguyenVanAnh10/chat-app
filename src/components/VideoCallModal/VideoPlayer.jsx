@@ -59,7 +59,7 @@ const VideoPlayer = ({
     return () => {
       playerRef.current.dispose();
     };
-  }, []);
+  }, [videoSrc]);
   // wrap the player in a div with a `data-vjs-player` attribute
   // so videojs won't create additional wrapper in the DOM
   // see https://github.com/videojs/video.js/pull/3856

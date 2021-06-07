@@ -5,20 +5,16 @@ import { AccountContext } from "App";
 import MessageList from "components/MessageList";
 import MessageInput from "components/MessageInput";
 
-import styles from "./ChatBox.module.scss";
 import useRoom from "hooks/useRoom";
 import useMessages from "hooks/useMessages";
 import ChatHeader from "components/ChatHeader";
+import { useModel } from "model";
+
+import styles from "./ChatBox.module.scss";
 
 const ChatBox = ({ roomId, onBack }) => {
   const { account } = useContext(AccountContext);
-  const [, { haveSeenNewMessages }] = useMessages(roomId, account._id);
-  const [{ room }] = useRoom(roomId);
 
-  const onHandleFocusInput = () => {
-    if (!room.newMessageNumber) return;
-    haveSeenNewMessages({ roomId: room._id, userId: account._id });
-  };
   if (!roomId) return null;
   return (
     <VStack
@@ -28,20 +24,9 @@ const ChatBox = ({ roomId, onBack }) => {
       alignItems="flex-start"
       justifyContent="space-between"
     >
-      {room._id && (
-        <>
-          <ChatHeader room={room} onBack={onBack}/>
-          <MessageList
-            className="show-message-box"
-            roomId={room._id}
-            userId={account._id}
-          />
-          <MessageInput
-            roomId={roomId}
-            onFocusInput={onHandleFocusInput}
-            pl="3"
-          />
-        </>
+      <ChatHeader roomId={roomId} onBack={onBack} />
+      <MessageList className="show-message-box" roomId={roomId} />
+      <MessageInput roomId={roomId} pl="3" />
       )}
     </VStack>
   );

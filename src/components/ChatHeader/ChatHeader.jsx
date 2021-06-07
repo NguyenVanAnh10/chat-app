@@ -13,14 +13,17 @@ import { PhoneIcon, ArrowBackIcon } from "@chakra-ui/icons";
 import { AccountContext } from "App";
 import VideoCallModal from "components/VideoCallModal";
 import { ChatContext } from "pages/ChatList";
+import useRoom from "hooks/useRoom";
 
-const ChatHeader = ({ room, onBack }) => {
+const ChatHeader = ({ roomId, onBack }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { account } = useContext(AccountContext);
+  const [{ room }] = useRoom(roomId);
+
   const {
     actions: { onCallUser },
   } = useContext(ChatContext);
-
+  if (!roomId) return null;
   return (
     <>
       <HStack
@@ -72,14 +75,12 @@ const ChatHeader = ({ room, onBack }) => {
           />
         )}
       </HStack>
-      {room && (
-        <VideoCallModal
-          isOpen={isOpen}
-          onClose={onClose}
-          room={room}
-          receiver={room?.members?.find((u) => u._id !== account._id)}
-        />
-      )}
+      <VideoCallModal
+        isOpen={isOpen}
+        onClose={onClose}
+        room={room}
+        receiver={room?.members?.find((u) => u._id !== account._id)}
+      />
     </>
   );
 };

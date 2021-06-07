@@ -20,44 +20,41 @@ const useChat = () => {
     ,
     { getMessages, getRoom, getMessage, getHaveSeenNewMessages, sendMessage },
   ] = useModel("message", () => ({}));
-
-  const [caller, setCaller] = useState({}); // caller, roomId
-  const [streamVideos, setStreamVideos] = useState({}); // {current, remote}
-  const [callState, setCallState] = useState({}); // {hasReceived, accepted, declined}
+  const initChat = {
+    roomId: "",
+    caller: {},
+    streamVideos: {}, // {current, remote}
+    callState: {}, // {hasReceived, accepted, declined}
+  };
+  const [chat, setChat] = useState(initChat);
 
   const connectionRef = useRef();
 
   const [socket] = registerSocket({
     a_call_from: ({ signal, id, roomId }) => {
       if (id === account._id) return;
-      setCallState({ hasReceived: true });
-      setCaller({ signal, id, roomId });
+      setChat({
+        ...initChat,
+        roomId,
+        caller: { signal, id },
+        callState: { hasReceived: true },
+      });
     },
     callended: () => {
-      setCallState({});
-      setStreamVideos({});
+      setChat(initChat);
       destroyCall();
     },
     decline_incoming_call: ({ callerId, roomId }) => {
-      destroyCall();
       if (callerId === account._id) {
-        setCallState({ declined: true });
-        sendMessage({
-          roomId,
-          contentType: Message.CONTENT_TYPE_NOTIFICATION,
-          content: Notification.NOTIFICATION_DECLINE_CALL,
-          keyMsg: uuid(),
-          createAt: Date.now(),
-          senderId: account._id,
-          hadSeenMessageUsers: [account._id],
-        });
+        destroyCall();
+        setChat({ ...initChat, callState: { declined: true } });
       }
     },
     create_room_chat_one_to_one_success: ({ roomId }) => {
       getRoom({ roomId, userId: account._id });
     },
     user_has_added_new_room: ({ roomId, createrId }) => {
-      // TODO other peer (include person created room) auto getRoom once create room successful
+      // TODO other peer (include person created room) auto getRoom once create a room successful
       // if (account._id !== createrId) return;
       getRoom({ roomId, userId: account._id });
     },
@@ -90,7 +87,11 @@ const useChat = () => {
   const onAnswerCall = async () => {
     try {
       const currentStream = await turnOnCameraAndAudio();
-      setStreamVideos({ current: currentStream });
+      setChat({
+        ...chat,
+        streamVideos: { current: currentStream },
+        callState: { hasReceived: false, accepted: true },
+      });
 
       const peer = new Peer({
         initiator: false,
@@ -98,14 +99,21 @@ const useChat = () => {
         stream: currentStream,
       });
       peer.on("signal", (signal) => {
-        socket.emit("answer_call", { ...caller, signal });
+        socket.emit("answer_call", {
+          roomId: chat.roomId,
+          ...chat.caller,
+          signal,
+        });
       });
 
       peer.on("stream", (remoteStream) => {
-        setStreamVideos((prev) => ({ ...prev, remote: remoteStream }));
+        setChat((prev) => ({
+          ...prev,
+          streamVideos: { ...prev.streamVideos, remote: remoteStream },
+        }));
       });
 
-      peer.signal(caller.signal);
+      peer.signal(chat.caller.signal);
       peer._debug = console.log;
       connectionRef.current = peer;
     } catch (error) {
@@ -116,7 +124,7 @@ const useChat = () => {
   const onCallUser = async (roomId) => {
     try {
       const currentStream = await turnOnCameraAndAudio();
-      setStreamVideos({ current: currentStream });
+      setChat({ ...initChat, streamVideos: { current: currentStream } });
       const peer = new Peer({
         initiator: true,
         trickle: false,
@@ -140,7 +148,6 @@ const useChat = () => {
         stream: currentStream,
       });
       peer.on("signal", (signal) => {
-        // if (signal.renegotiate || signal.transceiverRequest) return;
         socket.emit("call_to", {
           signal,
           id: account._id,
@@ -149,11 +156,17 @@ const useChat = () => {
       });
 
       peer.on("stream", (remoteStream) => {
-        setStreamVideos((prev) => ({ ...prev, remote: remoteStream }));
+        setChat((prev) => ({
+          ...prev,
+          streamVideos: { ...prev.streamVideos, remote: remoteStream },
+        }));
       });
       socket.removeAllListeners("call_accepted");
       socket.on("call_accepted", ({ signal }) => {
-        setCallState({ accepted: true });
+        setChat((prev) => ({
+          ...prev,
+          callState: { accepted: true },
+        }));
         peer.signal(signal);
       });
       peer._debug = console.log;
@@ -164,19 +177,27 @@ const useChat = () => {
   };
 
   const onDeclineCall = (callerId) => {
-    setCallState({ ...callState, hasReceived: false });
+    setChat({ ...chat, callState: { ...chat.callState, hasReceived: false } });
     socket.emit("decline_incoming_call", {
       callerId,
-      roomId: caller.roomId,
+      roomId: chat.roomId,
+    });
+    sendMessage({
+      roomId: chat.roomId,
+      contentType: Message.CONTENT_TYPE_NOTIFICATION,
+      content: Notification.NOTIFICATION_DECLINE_CALL,
+      keyMsg: uuid(),
+      createAt: Date.now(),
+      senderId: account._id,
+      hadSeenMessageUsers: [account._id],
     });
   };
 
   const onLeaveCall = (roomId) => {
-    setStreamVideos({});
-    setCallState({});
     destroyCall();
+    setChat(initChat);
     socket.emit("callended", { userId: account._id, roomId });
-    streamVideos.remote &&
+    chat.callState.accepted &&
       sendMessage({
         roomId,
         contentType: Message.CONTENT_TYPE_NOTIFICATION,
@@ -189,22 +210,19 @@ const useChat = () => {
   };
   const destroyCall = () => {
     connectionRef.current?.destroy();
-    stopStreame(streamVideos.current);
+    stopStreame(chat.streamVideos.current);
   };
 
   return {
     state: {
       socket,
-      caller,
-      callState, // {hasReceived, accepted, declined}
-      streamVideos, // {current, stream}
+      ...chat,
     },
     actions: {
       onCallUser,
       onLeaveCall,
       onAnswerCall,
       onDeclineCall,
-      setCallState,
       turnOnCameraAndAudio,
     },
   };
