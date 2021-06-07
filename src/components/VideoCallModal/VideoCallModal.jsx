@@ -22,7 +22,7 @@ import styles from "./VideoCallModal.module.scss";
 
 const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
   const {
-    state: { streamVideos, callState, caller, roomId },
+    state: { streamVideos, callState, roomId },
     actions: { onLeaveCall },
   } = useContext(ChatContext);
 

@@ -131,15 +131,15 @@ const useChat = () => {
         config: {
           iceServers: [
             {
-              urls: "stun:stun.fbsbx.com:3478",
+              urls: process.env.REACT_APP_TUN_SERVER,
             },
             {
-              urls: "turn:54.169.254.47:3478?transport=tcp",
+              urls: `${process.env.REACT_APP_TURN_SERVER}?transport=tcp`,
               username: "anhnv",
               credential: "rice",
             },
             {
-              urls: "turn:54.169.254.47:3478?transport=udp",
+              urls: `${process.env.REACT_APP_TURN_SERVER}?transport=udp`,
               username: "anhnv",
               credential: "rice",
             },

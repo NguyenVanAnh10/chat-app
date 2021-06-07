@@ -1,20 +1,14 @@
-import React, { useContext } from "react";
+import React from "react";
 import { VStack } from "@chakra-ui/react";
 
-import { AccountContext } from "App";
 import MessageList from "components/MessageList";
 import MessageInput from "components/MessageInput";
 
-import useRoom from "hooks/useRoom";
-import useMessages from "hooks/useMessages";
 import ChatHeader from "components/ChatHeader";
-import { useModel } from "model";
 
 import styles from "./ChatBox.module.scss";
 
 const ChatBox = ({ roomId, onBack }) => {
-  const { account } = useContext(AccountContext);
-
   if (!roomId) return null;
   return (
     <VStack

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect as useReactEffect } from "react";
+import React, { useContext } from "react";
 import {
   Avatar,
   AvatarBadge,
@@ -15,13 +15,11 @@ import classNames from "classnames";
 
 import { AccountContext } from "App";
 import useRoom, { useRooms } from "hooks/useRoom";
-import { useModel } from "model";
 import CreateChatGroupModal from "components/CreateChatGroupModal";
 
 import styles from "./RoomList.module.scss";
 
 const RoomList = ({ selectedRoomId, onSelectRoomId }) => {
-  const { account } = useContext(AccountContext);
   const roomIds = useRooms();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
