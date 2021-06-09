@@ -14,7 +14,6 @@ import {
 } from "@chakra-ui/react";
 import { v4 as uuid } from "uuid";
 import { useForm, Controller } from "react-hook-form";
-import { Picker } from "mr-emoji";
 import Message from "entities/Message";
 
 import { useModel } from "model";
@@ -22,6 +21,7 @@ import { getBase64 } from "utils";
 import { AccountContext } from "App";
 import { ImageIcon, EmojiIcon, PaperPlaneIcon } from "components/CustomIcons";
 import useRoom from "hooks/useRoom";
+import NimblePicker from "components/EmojiPicker";
 
 import styles from "./MessageInput.module.scss";
 
@@ -84,16 +84,7 @@ const MessageInput = ({ roomId, ...rest }) => {
     handleSubmitMessage();
   };
   return (
-    <HStack
-      w="100%"
-      pb="2"
-      pt="1"
-      pr="3"
-      mt="0"
-      spacing="2"
-      overflow="hidden"
-      {...rest}
-    >
+    <HStack w="100%" pb="2" pt="1" pr="3" mt="0" spacing="2" {...rest}>
       <form className="form" onSubmit={handleSubmitMessage}>
         <Controller
           name="message"
@@ -122,14 +113,13 @@ const MessageInput = ({ roomId, ...rest }) => {
                   </PopoverTrigger>
                   <PopoverContent
                     className={styles.Picker}
-                    w="100%"
                     _focus="none"
                     border="none"
                   >
                     <PopoverArrow />
-                    <Picker
-                      set="apple"
-                      sheetSize={32}
+                    {/* TODO: remove emoji mart, build own emoji */}
+                    <NimblePicker
+                      sheetSize="32"
                       onClick={(icon) =>
                         field.onChange(`${field.value}${icon.native}`)
                       }

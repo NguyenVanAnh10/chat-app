@@ -8,7 +8,7 @@ import {
   ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash.isequal";
 import { SearchIcon } from "@chakra-ui/icons";
 
 import { useModel } from "model";
