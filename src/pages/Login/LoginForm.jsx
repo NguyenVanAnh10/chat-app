@@ -29,7 +29,7 @@ const LoginForm = ({ onOpenRegister }) => {
   const onHandleLogin = handleSubmit((user) => login(user));
   return (
     <>
-      <Heading size="lg">RiceLo</Heading>
+      <Heading size="lg">AloRice</Heading>
       <form className="form">
         <Controller
           name="userName"

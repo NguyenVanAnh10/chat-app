@@ -1,15 +1,18 @@
 import React from "react";
-import { Box, SkeletonText } from "@chakra-ui/react";
+import { Box, Center, Spinner } from "@chakra-ui/react";
 
 const MessageListCard = ({ loading, className, children, ...rest }) => {
   if (loading)
     return (
-      <Box className={className} {...rest}>
-        <SkeletonText mt="8" w="40%" noOfLines={3} spacing="3" />
-        <SkeletonText mt="8" ml="auto" w="40%" noOfLines={3} spacing="3" />
-        <SkeletonText mt="8" w="40%" noOfLines={3} spacing="3" />
-        <SkeletonText mt="8" ml="auto" w="40%" noOfLines={3} spacing="3" />
-      </Box>
+      <Center className={className} {...rest}>
+        <Spinner
+          thickness="3px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="orange.300"
+          size="lg"
+        />
+      </Center>
     );
   return (
     <Box className={className} {...rest}>

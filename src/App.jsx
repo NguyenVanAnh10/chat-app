@@ -4,12 +4,13 @@ import React, {
   useEffect as useReactEffect,
 } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
-import { ChakraProvider, Text } from "@chakra-ui/react";
+import { Center, ChakraProvider, Spinner } from "@chakra-ui/react";
 
 import { useModel } from "model";
 import ChatList from "pages/ChatList";
 import Login from "pages/Login";
 import Register from "pages/Register";
+import ExceptionPage from "pages/ExceptionPage";
 
 export const AccountContext = createContext({});
 
@@ -25,6 +26,7 @@ function App() {
           <R authorize exact path="/" component={ChatList} />
           <R path="/login" component={Login} />
           <R path="/register" component={Register} />
+          <R path="*" component={ExceptionPage} />
         </Switch>
       </AccountContext.Provider>
     </ChakraProvider>
@@ -41,7 +43,17 @@ const R = ({ authorize, location, ...rest }) => {
     getMe();
   }, []);
   if (loading) {
-    return <Text>Loading...</Text>;
+    return (
+      <Center minH="100vh">
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="orange.400"
+          size="xl"
+        />
+      </Center>
+    );
   }
   if (!authorize) {
     return <Route {...rest} />;

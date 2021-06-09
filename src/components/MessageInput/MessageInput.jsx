@@ -103,7 +103,6 @@ const MessageInput = ({ roomId, ...rest }) => {
                       _focus="none"
                       icon={
                         <EmojiIcon
-                          color="pink.700"
                           fontSize="1.8rem"
                           borderRadius="full"
                           bg="yellow.300"
@@ -140,14 +139,12 @@ const MessageInput = ({ roomId, ...rest }) => {
       <UploadImage onSendImage={handleSendImage} />
       <IconButton
         bg="transparent"
-        color="pink.500"
-        fontSize="1.5rem"
-        _hover={{ bg: "pink.100" }}
+        color="blue.400"
+        fontSize="1.6rem"
+        _hover={{ bg: "blue.50" }}
         icon={<PaperPlaneIcon />}
         onClick={handleSubmitMessage}
-      >
-        Send
-      </IconButton>
+      />
     </HStack>
   );
 };
@@ -181,10 +178,10 @@ const UploadImage = ({ onSendImage, maxSize = 1 }) => {
   return (
     <Box>
       <IconButton
-        bg="pink.50"
-        _hover={{ bg: "pink.100" }}
+        bg="transparent"
+        _hover={{ bg: "blue.100" }}
         onClick={handleClick}
-        icon={<ImageIcon color="pink.400" fontSize="2rem" />}
+        icon={<ImageIcon color="blue.400" fontSize="2rem" />}
       />
       <Input
         ref={inputImageRef}
