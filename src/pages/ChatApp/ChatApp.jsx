@@ -1,7 +1,6 @@
 import React, {
   useContext,
   useEffect as useReactEffect,
-  useState,
   createContext,
 } from "react";
 import { Flex, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
@@ -10,18 +9,19 @@ import { AccountContext } from "App";
 import { useModel } from "model";
 import SubSideNav from "components/SubSideNav";
 import ChatBox from "components/ChatBox";
-import MainSideNav from "layouts/ChatList/MainSideNav";
+import MainSideNav from "layouts/ChatApp/MainSideNav";
 
 import useChat from "hooks/useChat";
 import CallingAlertModal from "components/CallingAlertModal";
 import VideoCallModal from "components/VideoCallModal";
+import useMenuContext, { MenuContext } from "contexts/menuContext";
+import MainContent from "components/MainContent";
 
 export const ChatContext = createContext({});
 
-const ChatList = () => {
+const ChatApp = () => {
   const { account } = useContext(AccountContext);
   const [, { getMessages }] = useModel("message", () => ({}));
-  const [selectedRoomId, setSelectedRoomId] = useState();
   const { isOpen, onClose, onOpen: onOpenConversationModal } = useDisclosure();
   const { state: chatState, actions: chatActions } = useChat();
 
@@ -34,17 +34,8 @@ const ChatList = () => {
   }, []);
   return (
     <ChatContext.Provider value={{ state: chatState, actions: chatActions }}>
-      {!isMobileScreen ? (
-        <MainLayout
-          selectedRoomId={selectedRoomId}
-          setSelectedRoomId={setSelectedRoomId}
-        />
-      ) : (
-        <MobileLayout
-          selectedRoomId={selectedRoomId}
-          setSelectedRoomId={setSelectedRoomId}
-        />
-      )}
+      {/* {!isMobileScreen ? <MainLayout /> : <MobileLayout />} */}
+      <MainLayout />
       <CallingAlertModal
         callerId={caller.id}
         isOpen={callState.hasReceived}
@@ -59,18 +50,18 @@ const ChatList = () => {
   );
 };
 
-const MainLayout = ({ selectedRoomId, setSelectedRoomId, children }) => {
+const MainLayout = ({ children }) => {
+  const [menuState, setMenuState] = useMenuContext();
   return (
-    <Flex minH="100vh" w="100%">
-      <Flex borderRight="1px solid rgba(0, 0, 0, 0.08)">
-        <SubSideNav />
-        <MainSideNav
-          selectedRoomId={selectedRoomId}
-          onSelectRoomId={(roomId) => setSelectedRoomId(roomId)}
-        />
+    <MenuContext.Provider value={{ menuState, setMenuState }}>
+      <Flex minH="100vh" w="100%">
+        <Flex borderRight="1px solid rgba(0, 0, 0, 0.08)">
+          <SubSideNav />
+          <MainSideNav />
+        </Flex>
+        <MainContent />
       </Flex>
-      <ChatBox roomId={selectedRoomId} />
-    </Flex>
+    </MenuContext.Provider>
   );
 };
 
@@ -92,4 +83,4 @@ const MobileLayout = ({ selectedRoomId, setSelectedRoomId }) => {
     </Flex>
   );
 };
-export default ChatList;
+export default ChatApp;

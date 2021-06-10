@@ -21,9 +21,9 @@ const ImageMessage = ({ message, members, account, containerRef, onClick }) => {
         display={!visible ? "block" : "none"}
         objectPosition={message.senderId === account._id ? "right" : "left"}
         src={message.contentBlob}
-        onLoad={() => {
-          containerRef.current.scrollIntoView(false);
-        }}
+        // onLoad={() => {
+        //   containerRef.current.scrollIntoView(false);
+        // }}
       />
       <Image
         maxW="100%"
@@ -35,7 +35,7 @@ const ImageMessage = ({ message, members, account, containerRef, onClick }) => {
         src={message.content}
         onLoad={() => {
           setVisible(true);
-          containerRef.current.scrollIntoView(false);
+          // containerRef.current.scrollIntoView(false);
           URL.revokeObjectURL(message.contentBlob);
           // containerRef.current.scrollIntoView(false);
           // setTimeout(() => URL.revokeObjectURL(message.contentBlob), 100);

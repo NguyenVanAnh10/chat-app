@@ -118,7 +118,7 @@ const MessageInput = ({ roomId, ...rest }) => {
                     <PopoverArrow />
                     {/* TODO: remove emoji mart, build own emoji */}
                     <NimblePicker
-                      sheetSize="32"
+                      sheetSize={32}
                       onClick={(icon) =>
                         field.onChange(`${field.value}${icon.native}`)
                       }

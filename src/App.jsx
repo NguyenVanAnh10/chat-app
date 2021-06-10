@@ -7,7 +7,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import { Center, ChakraProvider, Spinner } from "@chakra-ui/react";
 
 import { useModel } from "model";
-import ChatList from "pages/ChatList";
+import ChatList from "pages/ChatApp";
 import Login from "pages/Login";
 import Register from "pages/Register";
 import ExceptionPage from "pages/ExceptionPage";

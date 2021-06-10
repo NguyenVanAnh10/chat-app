@@ -12,7 +12,7 @@ import { PhoneIcon, ArrowBackIcon } from "@chakra-ui/icons";
 
 import { AccountContext } from "App";
 import VideoCallModal from "components/VideoCallModal";
-import { ChatContext } from "pages/ChatList";
+import { ChatContext } from "pages/ChatApp";
 import useRoom from "hooks/useRoom";
 
 const ChatHeader = ({ roomId, onBack }) => {

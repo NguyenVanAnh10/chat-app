@@ -16,7 +16,7 @@ import {
 
 import VideoPlayer from "./VideoPlayer";
 import { HangoutPhoneIcon } from "components/CustomIcons";
-import { ChatContext } from "pages/ChatList";
+import { ChatContext } from "pages/ChatApp";
 
 import styles from "./VideoCallModal.module.scss";
 

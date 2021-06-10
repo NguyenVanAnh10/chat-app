@@ -48,7 +48,8 @@ const MessageList = ({ roomId, className }) => {
 
   const members = room.members.reduce((s, m) => ({ ...s, [m._id]: m }), {});
   useEffect(() => {
-    !loading && containerRef.current.scrollIntoView(false);
+    // TODO scroll to bottom list
+    // !loading && containerRef.current.scrollIntoView(false);
   }, [messages, loading]);
 
   return (

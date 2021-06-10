@@ -5,7 +5,7 @@ import {
   AlertIcon,
   Avatar,
   AvatarBadge,
-  Badge,
+  Box,
   Button,
   Icon,
   Menu,
@@ -23,64 +23,61 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { ChatIcon } from "@chakra-ui/icons";
 
 import { AccountContext } from "App";
 import { useModel } from "model";
+import configs from "configs/configs";
+import NewMessageBadge from "components/NewMessageBadge";
+import { MenuContext } from "contexts/menuContext";
+import { menuKeys } from "configs/configs";
+
+const badges = {
+  [menuKeys.MESSAGES]: <NewMessageBadge />,
+};
 
 const SubSideNav = () => {
-  const { account } = useContext(AccountContext);
-  const [{ messages }] = useModel("message", ({ messages }) => ({ messages }));
-  let newMessageNumber = 0;
-  if (account._id) {
-    newMessageNumber = Object.keys(messages).filter(
-      (id) =>
-        messages[id]?.hadSeenMessageUsers &&
-        !messages[id].hadSeenMessageUsers?.includes(account._id)
-    ).length;
-  }
+  const { menuState, setMenuState } = useContext(MenuContext);
+  const menus = configs.menus.map((m) => ({ ...m, badge: badges[m.id] }));
   return (
-    <VStack bg="orange.200" w="65px" py="4" zIndex="4">
+    <Box bg="orange.200" w="65px" py="4" zIndex="4">
       <AvatarMenu />
-      <Button
-        isActive
-        w="100%"
-        d="block"
-        h="auto"
-        borderRadius="none"
-        py="5"
-        _focus="none"
-        _active={{ bg: "orange.300" }}
-        bg="orange.200 !important"
-        colorScheme="orange"
-      >
-        <Icon fontSize="1.7rem" as={ChatIcon} />
-        {!!newMessageNumber && (
-          <Badge
-            bg="red"
-            color="white"
-            padding="1px 3px"
-            fontWeight="bold"
-            textAlign="center"
-            borderRadius="100%"
-            fontSize="0.7rem"
-            top="-3"
-            pos="relative"
-          >
-            {newMessageNumber > 9 ? "+9" : newMessageNumber}
-          </Badge>
-        )}
-      </Button>
-    </VStack>
+      <VStack spacing="0" mt="10">
+        {menus.map((m) => {
+          return (
+            <Button
+              key={m.id}
+              py="5"
+              w="100%"
+              h="auto"
+              color="white"
+              _focus="none"
+              bg="transparent"
+              borderRadius="none"
+              _active={{ bg: "orange.400" }}
+              _hover={{ bg: "orange.300" }}
+              isActive={menuState.active === m.id}
+              onClick={() =>
+                menuState.active !== m.id &&
+                setMenuState((prev) => ({ ...prev, active: m.id }))
+              }
+            >
+              <Icon fontSize="1.7rem" as={m.icon} />
+              {!!m.badge && m.badge}
+            </Button>
+          );
+        })}
+      </VStack>
+    </Box>
   );
 };
+
 const AvatarMenu = () => {
   const { account } = useContext(AccountContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
       <Menu>
-        <MenuButton h="fit-content">
+        <MenuButton h="fit-content" d="block" mx="auto">
           <Avatar name={account.userName} onClick={onOpen}>
             <AvatarBadge boxSize="0.8em" bg="green.500" />
           </Avatar>
