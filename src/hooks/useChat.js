@@ -45,7 +45,7 @@ const useChat = () => {
       setChat(initChat);
       destroyCall();
     },
-    decline_incoming_call: ({ callerId, roomId }) => {
+    decline_incoming_call: ({ callerId }) => {
       if (callerId === account._id) {
         destroyCall();
         setChat({ ...initChat, callState: { declined: true } });
@@ -54,7 +54,7 @@ const useChat = () => {
     create_room_chat_one_to_one_success: ({ roomId }) => {
       getRoom({ roomId, userId: account._id });
     },
-    user_has_added_new_room: ({ roomId, createrId }) => {
+    user_has_added_new_room: ({ roomId }) => {
       // TODO other peer (include person created room) auto getRoom once create a room successful
       // if (account._id !== createrId) return;
       getRoom({ roomId, userId: account._id });

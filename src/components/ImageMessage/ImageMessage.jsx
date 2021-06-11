@@ -5,7 +5,7 @@ import MessageStatus from 'components/MessageStatus';
 
 // TODO blink image (blob local image - url server image)
 const ImageMessage = ({
-  message, members, account, containerRef, onClick,
+  message, members, account, onClick,
 }) => {
   const [visible, setVisible] = useState(false);
   return (

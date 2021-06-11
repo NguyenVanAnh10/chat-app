@@ -26,8 +26,8 @@ const SearchUserInput = ({
   ...rest
 }) => {
   const [{ users, loading }, { getUsers }] = useModel(
-    'user',
-    ({ getUsers, users: usersModel, loading }) => ({
+    'account',
+    ({ getUsers, users: usersModel }) => ({
       users: (getUsers.ids || []).map(id => usersModel[id]),
       loading: getUsers.loading,
     }),

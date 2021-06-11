@@ -152,7 +152,7 @@ const UploadImage = ({ onSendImage, maxSize = 1 }) => {
 
   const inputImageRef = useRef();
   const handleClick = () => inputImageRef.current.click();
-  const handleChange = e => {
+  const handleChange = () => {
     if (!inputImageRef.current.files.length) return;
     const imageUrls = [];
     const images = inputImageRef.current.files;

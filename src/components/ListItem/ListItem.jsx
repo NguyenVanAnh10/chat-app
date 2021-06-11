@@ -5,7 +5,7 @@ const ListItem = ({
   header,
   footer,
   data = [],
-  onClickItem,
+  // onClickItem,
   spacing,
   mt,
   renderItem = () => {},

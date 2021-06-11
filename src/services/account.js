@@ -1,8 +1,6 @@
 import api from './api';
 
-const getMe = () => api.GET('/me');
-const login = params => api.POST('/login', params);
-const logout = () => api.POST('/logout');
-
-const services = { getMe, login, logout };
-export default services;
+export const getMe = () => api.GET('/me');
+export const login = params => api.POST('/login', params);
+export const logout = () => api.POST('/logout');
+export const addFriend = ({ userId, ...params }) => api.POST(`/${userId}/friends`, params);

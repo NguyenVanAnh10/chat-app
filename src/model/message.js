@@ -9,7 +9,7 @@ import {
   haveSeenMessages,
   createRoom,
 } from 'services/message';
-import serviceAccount from 'services/account';
+import { getMe } from 'services/account';
 
 const messageModel = {
   name: 'message',
@@ -286,7 +286,7 @@ const messageModel = {
     getRooms: async (payload, onSuccess, onError) => {
       try {
         if (!payload.userId) {
-          payload.userId = (await serviceAccount.getMe())._id;
+          payload.userId = (await getMe())._id;
         }
         onSuccess(await getRooms(payload.userId));
       } catch (error) {
@@ -303,7 +303,7 @@ const messageModel = {
     getRoom: async (payload, onSuccess, onError) => {
       try {
         if (!payload.userId) {
-          payload.userId = (await serviceAccount.getMe())._id;
+          payload.userId = (await getMe())._id;
         }
         onSuccess(await getRoom(payload));
       } catch (error) {

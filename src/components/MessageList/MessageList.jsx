@@ -55,7 +55,7 @@ const MessageList = ({ roomId, className }) => {
   return (
     <MessageListCard w="100%" className={className} loading={loading}>
       <VStack mt="5" spacing="3" ref={containerRef} alignItems="flex-start">
-        {aggregateMessages.map((m, index, arrMsg) => (
+        {aggregateMessages.map(m => (
           <Stack
             key={m._id || m.keyMsg}
             spacing="1"

@@ -3,12 +3,12 @@ import React, {
   useEffect as useReactEffect,
   createContext,
 } from 'react';
-import { Flex, useBreakpointValue, useDisclosure } from '@chakra-ui/react';
+import { Flex, useDisclosure } from '@chakra-ui/react';
 
 import { AccountContext } from 'App';
 import { useModel } from 'model';
 import SubSideNav from 'components/SubSideNav';
-import ChatBox from 'components/ChatBox';
+// import ChatBox from 'components/ChatBox';
 import MainSideNav from 'layouts/ChatApp/MainSideNav';
 
 import useChat from 'hooks/useChat';
@@ -27,7 +27,7 @@ const ChatApp = () => {
 
   const { caller, callState } = chatState;
   const { onDeclineCall, onAnswerCall } = chatActions;
-  const isMobileScreen = useBreakpointValue({ base: true, md: false });
+  // const isMobileScreen = useBreakpointValue({ base: true, md: false });
 
   useReactEffect(() => {
     getMessages({ userId: account._id });
@@ -50,7 +50,7 @@ const ChatApp = () => {
   );
 };
 
-const MainLayout = ({ children }) => {
+const MainLayout = () => {
   const [menuState, setMenuState] = useMenuContext();
   return (
     <MenuContext.Provider value={{ menuState, setMenuState }}>
@@ -65,22 +65,22 @@ const MainLayout = ({ children }) => {
   );
 };
 
-const MobileLayout = ({ selectedRoomId, setSelectedRoomId }) => {
-  const { isOpen, onClose, onOpen } = useDisclosure();
-  return (
-    <Flex w="100%">
-      {!isOpen ? (
-        <MainSideNav
-          selectedRoomId={selectedRoomId}
-          onSelectRoomId={roomId => {
-            setSelectedRoomId(roomId);
-            onOpen();
-          }}
-        />
-      ) : (
-        <ChatBox roomId={selectedRoomId} onBack={onClose} />
-      )}
-    </Flex>
-  );
-};
+// const MobileLayout = ({ selectedRoomId, setSelectedRoomId }) => {
+//   const { isOpen, onClose, onOpen } = useDisclosure();
+//   return (
+//     <Flex w="100%">
+//       {!isOpen ? (
+//         <MainSideNav
+//           selectedRoomId={selectedRoomId}
+//           onSelectRoomId={roomId => {
+//             setSelectedRoomId(roomId);
+//             onOpen();
+//           }}
+//         />
+//       ) : (
+//         <ChatBox roomId={selectedRoomId} onBack={onClose} />
+//       )}
+//     </Flex>
+//   );
+// };
 export default ChatApp;

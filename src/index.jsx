@@ -7,11 +7,10 @@ import reportWebVitals from './reportWebVitals';
 import { initRegisters } from 'model';
 import messageModel from 'model/message';
 import accountModel from 'model/account';
-import userModel from 'model/user';
 
 import './index.scss';
 
-initRegisters({ messageModel, accountModel, userModel });
+initRegisters({ messageModel, accountModel });
 
 ReactDOM.render(
   <React.StrictMode>

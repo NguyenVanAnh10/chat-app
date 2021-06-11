@@ -10,7 +10,7 @@ import { MissedCallIcon, VideoCallIcon } from 'components/CustomIcons';
 
 const NotificationMessage = ({
   message,
-  numbers,
+  // numbers,
   roomId,
   members,
   showStatusMessage,

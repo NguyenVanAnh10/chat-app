@@ -1,4 +1,5 @@
-import services from 'services/account';
+import { getMe, login, logout, addFriend } from 'services/account';
+import { getUsers, getUser } from 'services/user';
 
 const accountModel = {
   name: 'account',
@@ -7,6 +8,15 @@ const accountModel = {
     getMe: {}, // { loading: Boolean, error: {}}
     login: {},
     logout: {},
+    users: {}, // {[id]: message}
+    getUsers: {}, // { loading: Boolean, error: {}}
+    getUser: {}, // { loading: Boolean, error: {}}
+    addFriends: {
+      ids: [],
+    },
+    friendRequests: {
+      ids: [],
+    },
   },
   reducers: {
     getMe: (state, { status, payload }) => {
@@ -47,28 +57,107 @@ const accountModel = {
           return { ...state, logout: { loading: true } };
       }
     },
+    getUsers: (state, { status, payload }) => {
+      switch (status) {
+        case 'success':
+          return {
+            ...state,
+            users: payload.reduce(
+              (s, u) => ({ ...s, [u._id]: u }),
+              state.users,
+            ),
+            getUsers: { ids: payload.map(u => u._id) },
+          };
+        case 'error':
+          return { ...state, getUsers: { error: payload } };
+        default:
+          return { ...state, getUsers: { loading: true } };
+      }
+    },
+    getUser: (state, { status, payload }) => {
+      switch (status) {
+        case 'success':
+          return {
+            ...state,
+            users: {
+              ...state.users,
+              [payload._id]: payload,
+            },
+            getUser: { id: payload._id },
+          };
+        case 'error':
+          return { ...state, getUser: { error: payload } };
+        default:
+          return { ...state, getUser: { loading: true } };
+      }
+    },
+    addFriend: (state, { status, payload }) => {
+      switch (status) {
+        case 'success':
+          return {
+            ...state,
+            addFriends: {
+              ids: [...state.addFriends.ids, payload._id],
+            },
+          };
+        case 'error':
+          return {
+            ...state,
+            addFriends: { ...state.addFriends, [payload.friendId]: { error: payload } },
+          };
+        default:
+          return {
+            ...state,
+            addFriends: {
+              ...state.addFriends,
+              [payload.friendId]: { loading: true },
+            },
+          };
+      }
+    },
   },
   effects: {
     getMe: async (payload, onSuccess, onError) => {
       try {
-        onSuccess(await services.getMe(payload));
+        onSuccess(await getMe(payload));
       } catch (error) {
         onError(error);
       }
     },
     login: async (payload, onSuccess, onError) => {
       try {
-        onSuccess(await services.login(payload));
+        onSuccess(await login(payload));
       } catch (error) {
         onError(error);
       }
     },
     logout: async (_, onSuccess, onError) => {
       try {
-        onSuccess(await services.logout());
+        onSuccess(await logout());
         window.location.reload();
       } catch (error) {
         onError(error);
+      }
+    },
+    getUsers: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await getUsers(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
+    getUser: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await getUser(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
+    addFriend: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await addFriend(payload));
+      } catch (error) {
+        onError({ ...error, friendId: payload.friendId });
       }
     },
   },
@@ -76,6 +165,9 @@ const accountModel = {
     getMe: () => ({}),
     login: params => params,
     logout: () => ({}),
+    getUsers: keyword => ({ keyword }),
+    getUser: id => ({ userId: id }),
+    addFriend: params => params,
   },
 };
 

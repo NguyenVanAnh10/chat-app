@@ -4,7 +4,7 @@ import { Badge } from '@chakra-ui/react';
 import { AccountContext } from 'App';
 import { useModel } from 'model';
 
-const NewMessageBadge = ({ icon }) => {
+const NewMessageBadge = () => {
   const { account } = useContext(AccountContext);
 
   const [{ messages }] = useModel('message', ({ messages }) => ({ messages }));

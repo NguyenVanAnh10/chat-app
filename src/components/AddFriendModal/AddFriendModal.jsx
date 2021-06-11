@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Avatar,
   Button,
@@ -15,43 +15,54 @@ import {
 
 import ListItem from 'components/ListItem';
 import SearchUserInput from 'components/SearchUserInput';
+import { useModel } from 'model';
+import { AccountContext } from 'App';
 
-const AddFriendModal = ({ isOpen, onClose }) => (
-  <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
-    <ModalOverlay />
-    <ModalContent>
-      <ModalHeader>Add friend</ModalHeader>
-      <ModalBody>
-        <SearchUserInput
-          mt="0"
-          hasSearchIcon={false}
-          placeholder="Find friend..."
-          renderResultList={data => (
-            <ListItem
-              mt="3"
-              spacing="7"
-              data={data}
-              renderItem={user => (
-                <FriendItem
-                  key={user._id}
-                  user={user}
-                  onAddfriend={() => console.log(user)}
-                />
-              )}
-            />
-          )}
-        />
-      </ModalBody>
-      <ModalFooter>
-        <Button colorScheme="blue" size="sm" onClick={onClose}>
-          Close
-        </Button>
-      </ModalFooter>
-    </ModalContent>
-  </Modal>
-);
+const AddFriendModal = ({ isOpen, onClose }) => {
+  const [{ addFriendState }, { addFriend }] = useModel('account', ({ addFriends }) => ({
+    addFriendState: addFriends,
+  }));
+  const { account } = useContext(AccountContext);
 
-const FriendItem = ({ user, onAddfriend }) => (
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Add friend</ModalHeader>
+        <ModalBody>
+          <SearchUserInput
+            mt="0"
+            hasSearchIcon={false}
+            placeholder="Find friend..."
+            renderResultList={data => (
+              <ListItem
+                mt="3"
+                spacing="7"
+                data={data}
+                renderItem={user => (
+                  <FriendItem
+                    loading={addFriendState[user._id]?.loading}
+                    isFriendRequest={addFriendState.ids.includes(user._id)}
+                    key={user._id}
+                    user={user}
+                    onAddfriend={() => addFriend({ userId: account._id, friendId: user._id })}
+                  />
+                )}
+              />
+            )}
+          />
+        </ModalBody>
+        <ModalFooter>
+          <Button colorScheme="blue" size="sm" onClick={onClose}>
+            Close
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+const FriendItem = ({ user, onAddfriend, loading, isFriendRequest }) => (
   <HStack spacing="4" w="100%">
     <Avatar name={user.userName} />
     <VStack align="flex-start" spacing="1">
@@ -65,9 +76,11 @@ const FriendItem = ({ user, onAddfriend }) => (
       size="sm"
       ml="auto !important"
       d="block"
+      isLoading={loading}
       onClick={onAddfriend}
+      disabled={isFriendRequest || loading}
     >
-      Add friend
+      {!isFriendRequest ? 'Add friend' : 'Sent friend request'}
     </Button>
   </HStack>
 );
