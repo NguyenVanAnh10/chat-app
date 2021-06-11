@@ -2,26 +2,26 @@ import React, {
   useContext,
   useEffect as useReactEffect,
   createContext,
-} from "react";
-import { Flex, useBreakpointValue, useDisclosure } from "@chakra-ui/react";
+} from 'react';
+import { Flex, useBreakpointValue, useDisclosure } from '@chakra-ui/react';
 
-import { AccountContext } from "App";
-import { useModel } from "model";
-import SubSideNav from "components/SubSideNav";
-import ChatBox from "components/ChatBox";
-import MainSideNav from "layouts/ChatApp/MainSideNav";
+import { AccountContext } from 'App';
+import { useModel } from 'model';
+import SubSideNav from 'components/SubSideNav';
+import ChatBox from 'components/ChatBox';
+import MainSideNav from 'layouts/ChatApp/MainSideNav';
 
-import useChat from "hooks/useChat";
-import CallingAlertModal from "components/CallingAlertModal";
-import VideoCallModal from "components/VideoCallModal";
-import useMenuContext, { MenuContext } from "contexts/menuContext";
-import MainContent from "components/MainContent";
+import useChat from 'hooks/useChat';
+import CallingAlertModal from 'components/CallingAlertModal';
+import VideoCallModal from 'components/VideoCallModal';
+import useMenuContext, { MenuContext } from 'contexts/menuContext';
+import MainContent from 'components/MainContent';
 
 export const ChatContext = createContext({});
 
 const ChatApp = () => {
   const { account } = useContext(AccountContext);
-  const [, { getMessages }] = useModel("message", () => ({}));
+  const [, { getMessages }] = useModel('message', () => ({}));
   const { isOpen, onClose, onOpen: onOpenConversationModal } = useDisclosure();
   const { state: chatState, actions: chatActions } = useChat();
 
@@ -72,7 +72,7 @@ const MobileLayout = ({ selectedRoomId, setSelectedRoomId }) => {
       {!isOpen ? (
         <MainSideNav
           selectedRoomId={selectedRoomId}
-          onSelectRoomId={(roomId) => {
+          onSelectRoomId={roomId => {
             setSelectedRoomId(roomId);
             onOpen();
           }}

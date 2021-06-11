@@ -1,1 +1,1 @@
-export { default } from "./RegisterModal";
+export { default } from './RegisterModal';

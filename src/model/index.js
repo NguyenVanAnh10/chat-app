@@ -1,17 +1,17 @@
-import { useEffect as useReactEffect, useState, useRef } from "react";
-import { createStore, applyMiddleware, combineReducers, compose } from "redux";
-import isEqual from "lodash.isequal";
+import { useEffect as useReactEffect, useState, useRef } from 'react';
+import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
+import isEqual from 'lodash.isequal';
 
 const models = {
   modelNames: [],
   states: {},
-  initStore: function () {
+  initStore() {
     const allReducers = this.modelNames.reduce((s, modelName) => {
       const model = this[modelName];
       return {
         ...s,
         [modelName]: (state = model.state, { type, payload }) => {
-          const [prefix, actionName, status] = type.split("/");
+          const [prefix, actionName, status] = type.split('/');
           if (prefix !== modelName) {
             return state;
           }
@@ -26,29 +26,26 @@ const models = {
     this.actions = this.modelNames.reduce((s, modelName) => {
       const model = this[modelName];
       const actionsModel = Object.keys(model.actions).reduce(
-        (ss, actionName) => {
-          return {
-            ...ss,
-            [actionName]: (...args) =>
-              this.store.dispatch({
-                type: `${modelName}/${actionName}`,
-                payload: model.actions[actionName](...args),
-              }),
-          };
-        },
-        {}
+        (ss, actionName) => ({
+          ...ss,
+          [actionName]: (...args) => this.store.dispatch({
+            type: `${modelName}/${actionName}`,
+            payload: model.actions[actionName](...args),
+          }),
+        }),
+        {},
       );
       return { ...s, ...actionsModel };
     }, {});
 
-    const middleware = (store) => (next) => (action) => {
+    const middleware = store => next => action => {
       const state = next(action);
-      const [prefix, actionName, status] = action.type.split("/");
+      const [prefix, actionName, status] = action.type.split('/');
 
-      if (!!status) {
+      if (status) {
         return state;
       }
-      const onFinish = (status) => (payload) => {
+      const onFinish = status => payload => {
         store.dispatch({
           type: `${prefix}/${actionName}/${status}`,
           payload,
@@ -56,29 +53,26 @@ const models = {
       };
       models[prefix].effects[actionName](
         action.payload,
-        onFinish("success"),
-        onFinish("error")
+        onFinish('success'),
+        onFinish('error'),
       );
       return state;
     };
-    const composeEnhancers =
-      (typeof window !== "undefined" &&
-        window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
-      compose;
+    const composeEnhancers = (typeof window !== 'undefined'
+        && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__)
+      || compose;
 
     const enhancer = composeEnhancers(applyMiddleware(middleware));
     this.store = createStore(combineReducers(allReducers), enhancer);
   },
 };
 
-export const initRegisters = (registerModels) => {
-  return Object.keys(registerModels).forEach((m) => {
-    // TODO delete registerModels[m].state;
-    //   TODO try catch .name
-    models[registerModels[m].name] = registerModels[m];
-    models.modelNames.push(registerModels[m].name);
-  });
-};
+export const initRegisters = registerModels => Object.keys(registerModels).forEach(m => {
+  // TODO delete registerModels[m].state;
+  //   TODO try catch .name
+  models[registerModels[m].name] = registerModels[m];
+  models.modelNames.push(registerModels[m].name);
+});
 
 export const useModel = (name, selector) => {
   const [, forceRender] = useState({});

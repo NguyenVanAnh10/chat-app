@@ -1,1 +1,1 @@
-export { default } from "./CreateChatGroupModal";
+export { default } from './CreateChatGroupModal';

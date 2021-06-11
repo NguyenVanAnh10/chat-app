@@ -1,7 +1,7 @@
-import services from "services/account";
+import services from 'services/account';
 
 const accountModel = {
-  name: "account",
+  name: 'account',
   state: {
     me: {}, // {[id]: message}
     getMe: {}, // { loading: Boolean, error: {}}
@@ -11,13 +11,13 @@ const accountModel = {
   reducers: {
     getMe: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             me: payload,
             getMe: {},
           };
-        case "error":
+        case 'error':
           return { ...state, getMe: { error: payload } };
         default:
           return { ...state, getMe: { loading: true } };
@@ -25,13 +25,13 @@ const accountModel = {
     },
     login: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             me: payload,
             login: {},
           };
-        case "error":
+        case 'error':
           return { ...state, login: { error: payload } };
         default:
           return { ...state, login: { loading: true } };
@@ -39,9 +39,9 @@ const accountModel = {
     },
     logout: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return state;
-        case "error":
+        case 'error':
           return { ...state, logout: { error: payload } };
         default:
           return { ...state, logout: { loading: true } };
@@ -74,7 +74,7 @@ const accountModel = {
   },
   actions: {
     getMe: () => ({}),
-    login: (params) => params,
+    login: params => params,
     logout: () => ({}),
   },
 };

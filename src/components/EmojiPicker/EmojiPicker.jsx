@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { NimblePicker } from "emoji-mart";
+import React, { useEffect, useState } from 'react';
+import { NimblePicker } from 'emoji-mart';
 
-const EmojiPicker = (props) => {
+const EmojiPicker = props => {
   const [data, setData] = useState();
   useEffect(() => {
-    import("./data/google.json").then((d) => {
+    import('./data/google.json').then(d => {
       setData(d.default);
     });
   }, []);

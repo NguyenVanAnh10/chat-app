@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -14,17 +14,17 @@ import {
   AlertIcon,
   AlertDescription,
   FormErrorMessage,
-} from "@chakra-ui/react";
-import { useForm, Controller } from "react-hook-form";
+} from '@chakra-ui/react';
+import { useForm, Controller } from 'react-hook-form';
 
-import api from "services/api";
+import api from 'services/api';
 
 const RegisterModal = ({ isOpen, onClose }) => {
   const [{ error, success }, setStatus] = useState({});
   const { control, handleSubmit, reset } = useForm({ defaultValues: {} });
 
-  const onHandleSubmit = handleSubmit((data) => {
-    api.POST("/register", data).then(({ error }) => {
+  const onHandleSubmit = handleSubmit(data => {
+    api.POST('/register', data).then(({ error }) => {
       setStatus({ success: !error, error });
       !error && reset({});
     });
@@ -52,7 +52,7 @@ const RegisterModal = ({ isOpen, onClose }) => {
                 name="userName"
                 control={control}
                 defaultValue=""
-                rules={{ required: "User name is required" }}
+                rules={{ required: 'User name is required' }}
                 render={({ field, fieldState: { error, invalid } }) => (
                   <FormControl isInvalid={invalid}>
                     <Input placeholder="User name" {...field} />
@@ -66,7 +66,7 @@ const RegisterModal = ({ isOpen, onClose }) => {
                 name="email"
                 control={control}
                 defaultValue=""
-                rules={{ required: "Email is required" }}
+                rules={{ required: 'Email is required' }}
                 render={({ field, fieldState: { error, invalid } }) => (
                   <FormControl isInvalid={invalid} marginTop="5">
                     <Input placeholder="Email" {...field} />
@@ -82,7 +82,7 @@ const RegisterModal = ({ isOpen, onClose }) => {
             <Alert status="error" marginTop="5">
               <AlertIcon />
               <AlertDescription>
-                {error.message || "Something went wrong"}
+                {error.message || 'Something went wrong'}
               </AlertDescription>
             </Alert>
           )}

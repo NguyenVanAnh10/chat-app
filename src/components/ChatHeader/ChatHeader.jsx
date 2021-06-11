@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext } from 'react';
 import {
   Avatar,
   AvatarBadge,
@@ -7,13 +7,13 @@ import {
   IconButton,
   Text,
   useDisclosure,
-} from "@chakra-ui/react";
-import { PhoneIcon, ArrowBackIcon } from "@chakra-ui/icons";
+} from '@chakra-ui/react';
+import { PhoneIcon, ArrowBackIcon } from '@chakra-ui/icons';
 
-import { AccountContext } from "App";
-import VideoCallModal from "components/VideoCallModal";
-import { ChatContext } from "pages/ChatApp";
-import useRoom from "hooks/useRoom";
+import { AccountContext } from 'App';
+import VideoCallModal from 'components/VideoCallModal';
+import { ChatContext } from 'pages/ChatApp';
+import useRoom from 'hooks/useRoom';
 
 const ChatHeader = ({ roomId, onBack }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -49,16 +49,16 @@ const ChatHeader = ({ roomId, onBack }) => {
           )}
           <AvatarGroup size="md" max={3}>
             {room.otherMembers.length > 1
-              ? room.members.map((o) => (
-                  <Avatar key={o._id} name={o.userName}>
-                    <AvatarBadge boxSize="0.8em" bg="green.500" />
-                  </Avatar>
-                ))
-              : room.otherMembers.map((o) => (
-                  <Avatar key={o._id} name={o.userName}>
-                    <AvatarBadge boxSize="0.8em" bg="green.500" />
-                  </Avatar>
-                ))}
+              ? room.members.map(o => (
+                <Avatar key={o._id} name={o.userName}>
+                  <AvatarBadge boxSize="0.8em" bg="green.500" />
+                </Avatar>
+              ))
+              : room.otherMembers.map(o => (
+                <Avatar key={o._id} name={o.userName}>
+                  <AvatarBadge boxSize="0.8em" bg="green.500" />
+                </Avatar>
+              ))}
           </AvatarGroup>
           <Text ml="2">{room.name || room.userName}</Text>
         </HStack>
@@ -79,7 +79,7 @@ const ChatHeader = ({ roomId, onBack }) => {
         isOpen={isOpen}
         onClose={onClose}
         room={room}
-        receiver={room?.members?.find((u) => u._id !== account._id)}
+        receiver={room?.members?.find(u => u._id !== account._id)}
       />
     </>
   );

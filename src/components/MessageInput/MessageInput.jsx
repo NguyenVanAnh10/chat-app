@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect as useReactEffect } from "react";
+import React, { useContext, useRef, useEffect as useReactEffect } from 'react';
 import {
   Box,
   HStack,
@@ -11,40 +11,40 @@ import {
   PopoverContent,
   PopoverTrigger,
   useToast,
-} from "@chakra-ui/react";
-import { v4 as uuid } from "uuid";
-import { useForm, Controller } from "react-hook-form";
-import Message from "entities/Message";
+} from '@chakra-ui/react';
+import { v4 as uuid } from 'uuid';
+import { useForm, Controller } from 'react-hook-form';
+import Message from 'entities/Message';
 
-import { useModel } from "model";
-import { getBase64 } from "utils";
-import { AccountContext } from "App";
-import { ImageIcon, EmojiIcon, PaperPlaneIcon } from "components/CustomIcons";
-import useRoom from "hooks/useRoom";
-import NimblePicker from "components/EmojiPicker";
+import { useModel } from 'model';
+import { getBase64 } from 'utils';
+import { AccountContext } from 'App';
+import { ImageIcon, EmojiIcon, PaperPlaneIcon } from 'components/CustomIcons';
+import useRoom from 'hooks/useRoom';
+import NimblePicker from 'components/EmojiPicker';
 
-import styles from "./MessageInput.module.scss";
+import styles from './MessageInput.module.scss';
 
 const MessageInput = ({ roomId, ...rest }) => {
   const { account } = useContext(AccountContext);
   const [{ room }] = useRoom(roomId);
 
   const [, { sendMessage, haveSeenNewMessages }] = useModel(
-    "message",
-    () => ({})
+    'message',
+    () => ({}),
   );
 
   const onHandleFocusInput = () => {
     if (!room.newMessageNumber) return;
     haveSeenNewMessages({ roomId, userId: account._id });
   };
-  const { control, handleSubmit, reset, setFocus } = useForm({ message: "" });
+  const { control, handleSubmit, reset, setFocus } = useForm({ message: '' });
 
   useReactEffect(() => {
-    setFocus("message");
+    setFocus('message');
   }, []);
 
-  const handleSubmitMessage = handleSubmit((data) => {
+  const handleSubmitMessage = handleSubmit(data => {
     if (!data.message) return;
     sendMessage({
       roomId,
@@ -55,15 +55,15 @@ const MessageInput = ({ roomId, ...rest }) => {
       senderId: account._id,
       hadSeenMessageUsers: [account._id],
     });
-    reset({ message: "" });
-    setFocus("message");
+    reset({ message: '' });
+    setFocus('message');
   });
-  const handleSendImage = async (imageUrls) => {
+  const handleSendImage = async imageUrls => {
     if (!imageUrls.length) return;
     try {
       const base64Image = (await getBase64(imageUrls[0])).replace(
         /^data:image\/[a-z]+;base64,/,
-        ""
+        '',
       );
       sendMessage({
         roomId,
@@ -79,7 +79,7 @@ const MessageInput = ({ roomId, ...rest }) => {
       console.error(error);
     }
   };
-  const hanleKeyDown = (e) => {
+  const hanleKeyDown = e => {
     if (e.keyCode !== 13) return;
     handleSubmitMessage();
   };
@@ -101,13 +101,13 @@ const MessageInput = ({ roomId, ...rest }) => {
                       _active="none"
                       _hover="none"
                       _focus="none"
-                      icon={
+                      icon={(
                         <EmojiIcon
                           fontSize="1.8rem"
                           borderRadius="full"
                           bg="yellow.300"
                         />
-                      }
+                      )}
                     />
                   </PopoverTrigger>
                   <PopoverContent
@@ -119,9 +119,7 @@ const MessageInput = ({ roomId, ...rest }) => {
                     {/* TODO: remove emoji mart, build own emoji */}
                     <NimblePicker
                       sheetSize={32}
-                      onClick={(icon) =>
-                        field.onChange(`${field.value}${icon.native}`)
-                      }
+                      onClick={icon => field.onChange(`${field.value}${icon.native}`)}
                     />
                   </PopoverContent>
                 </Popover>
@@ -141,7 +139,7 @@ const MessageInput = ({ roomId, ...rest }) => {
         bg="transparent"
         color="blue.400"
         fontSize="1.6rem"
-        _hover={{ bg: "blue.50" }}
+        _hover={{ bg: 'blue.50' }}
         icon={<PaperPlaneIcon />}
         onClick={handleSubmitMessage}
       />
@@ -154,7 +152,7 @@ const UploadImage = ({ onSendImage, maxSize = 1 }) => {
 
   const inputImageRef = useRef();
   const handleClick = () => inputImageRef.current.click();
-  const handleChange = (e) => {
+  const handleChange = e => {
     if (!inputImageRef.current.files.length) return;
     const imageUrls = [];
     const images = inputImageRef.current.files;
@@ -163,12 +161,12 @@ const UploadImage = ({ onSendImage, maxSize = 1 }) => {
       imageUrls.push(image);
       sizeImages += image.size;
     }
-    inputImageRef.current.value = "";
+    inputImageRef.current.value = '';
     // 1B
     if (sizeImages > maxSize * 1024 * 1024) {
       return toast({
         description: `Size file has to less ${maxSize}MB`,
-        status: "error",
+        status: 'error',
         duration: 5000,
         isClosable: true,
       });
@@ -179,7 +177,7 @@ const UploadImage = ({ onSendImage, maxSize = 1 }) => {
     <Box>
       <IconButton
         bg="transparent"
-        _hover={{ bg: "blue.100" }}
+        _hover={{ bg: 'blue.100' }}
         onClick={handleClick}
         icon={<ImageIcon color="blue.400" fontSize="2rem" />}
       />

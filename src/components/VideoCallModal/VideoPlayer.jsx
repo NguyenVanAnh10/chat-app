@@ -1,11 +1,11 @@
-import React, { useEffect as useReactEffect, useRef } from "react";
-import videojs from "videojs";
+import React, { useEffect as useReactEffect, useRef } from 'react';
+// TODO: eslint
+// eslint-disable-next-line import/no-unresolved
+import videojs from 'videojs';
 
 const VideoPlayer = ({
-  isFullScreen = false,
   videoSrc,
   options = {},
-  ...rest
 }) => {
   const playerRef = useRef();
   const videoNode = useRef({});
@@ -52,9 +52,9 @@ const VideoPlayer = ({
         },
         ...options,
       },
-      function onPlayerReady() {
+      () => {
         // console.log("onPlayerReady", videoNode.current);
-      }
+      },
     );
     return () => {
       playerRef.current.dispose();
@@ -65,7 +65,7 @@ const VideoPlayer = ({
   // see https://github.com/videojs/video.js/pull/3856
   return (
     <div data-vjs-player>
-      <video ref={videoNode}></video>
+      <video ref={videoNode} />
     </div>
   );
 };

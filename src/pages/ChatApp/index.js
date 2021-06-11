@@ -1,1 +1,1 @@
-export { default, ChatContext } from "./ChatApp";
+export { default, ChatContext } from './ChatApp';

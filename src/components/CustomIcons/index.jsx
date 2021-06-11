@@ -1,8 +1,10 @@
-import { createIcon } from "@chakra-ui/icons";
+/* eslint-disable no-tabs */
+/* eslint-disable react/react-in-jsx-scope */
+import { createIcon } from '@chakra-ui/icons';
 
 export const AddUsersIcon = createIcon({
-  displayName: "AddUsersIcon",
-  viewBox: "0 0 511.99981 511",
+  displayName: 'AddUsersIcon',
+  viewBox: '0 0 511.99981 511',
   path: (
     <path
       fill="currentColor"
@@ -11,8 +13,8 @@ export const AddUsersIcon = createIcon({
   ),
 });
 export const ImageIcon = createIcon({
-  displayName: "ImageIcon",
-  viewBox: "-77 20 700 500",
+  displayName: 'ImageIcon',
+  viewBox: '-77 20 700 500',
   path: (
     <path
       fill="currentColor"
@@ -26,8 +28,8 @@ export const ImageIcon = createIcon({
 });
 
 export const EmojiIcon = createIcon({
-  displayName: "EmojiIcon",
-  viewBox: "-77 20 700 500",
+  displayName: 'EmojiIcon',
+  viewBox: '-77 20 700 500',
   path: (
     <>
       <g>
@@ -40,28 +42,28 @@ export const EmojiIcon = createIcon({
 		C338.912,399.328,298.752,416,256,416z"
         />
       </g>
-      <g fill="currentColor"></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
+      <g fill="currentColor" />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
     </>
   ),
 });
 
 export const HangoutPhoneIcon = createIcon({
-  displayName: "HangoutPhoneIcon",
-  viewBox: "-90 20 700 450",
+  displayName: 'HangoutPhoneIcon',
+  viewBox: '-90 20 700 450',
   path: (
     <path
       fill="currentColor"
@@ -77,8 +79,8 @@ export const HangoutPhoneIcon = createIcon({
 });
 
 export const PaperPlaneIcon = createIcon({
-  displayName: "PaperPlaneIcon",
-  viewBox: "0 0 24 24",
+  displayName: 'PaperPlaneIcon',
+  viewBox: '0 0 24 24',
   path: (
     <>
       <path
@@ -94,8 +96,8 @@ export const PaperPlaneIcon = createIcon({
 });
 
 export const MissedCallIcon = createIcon({
-  displayName: "MissedCallIcon",
-  viewBox: "0 0 58 53",
+  displayName: 'MissedCallIcon',
+  viewBox: '0 0 58 53',
   path: (
     <g id="Page-1" fill="none" fillRule="evenodd">
       <g
@@ -120,8 +122,8 @@ export const MissedCallIcon = createIcon({
 });
 
 export const VideoCallIcon = createIcon({
-  displayName: "VideoCallIcon",
-  viewBox: "0 0 467.968 467.968",
+  displayName: 'VideoCallIcon',
+  viewBox: '0 0 467.968 467.968',
   path: (
     <>
       <g>
@@ -143,28 +145,28 @@ export const VideoCallIcon = createIcon({
           />
         </g>
       </g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
     </>
   ),
 });
 
 export const TeamIcon = createIcon({
-  displayName: "TeamIcon",
-  viewBox: "0 0 511.999 511.999",
+  displayName: 'TeamIcon',
+  viewBox: '0 0 511.999 511.999',
   path: (
     <>
       <g>
@@ -224,28 +226,28 @@ export const TeamIcon = createIcon({
           />
         </g>
       </g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
     </>
   ),
 });
 
 export const ContactBookIcon = createIcon({
-  displayName: "ContactBookIcon",
-  viewBox: "0 0 442 442",
+  displayName: 'ContactBookIcon',
+  viewBox: '0 0 442 442',
   path: (
     <>
       <g>
@@ -263,28 +265,28 @@ export const ContactBookIcon = createIcon({
 		c0-32.184-26.098-58.283-58.283-58.283H218.09c-32.191,0-58.29,26.1-58.29,58.283v23.318H323V289.482z"
         />
       </g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
     </>
   ),
 });
 
 export const AddUserIcon = createIcon({
-  displayName: "AddUserIcon",
-  viewBox: "0 0 512 512",
+  displayName: 'AddUserIcon',
+  viewBox: '0 0 512 512',
   path: (
     <>
       <g>
@@ -313,21 +315,21 @@ export const AddUserIcon = createIcon({
           />
         </g>
       </g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
-      <g></g>
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
+      <g />
     </>
   ),
 });

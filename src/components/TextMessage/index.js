@@ -1,1 +1,1 @@
-export { default } from "./TextMessage";
+export { default } from './TextMessage';

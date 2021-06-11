@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { useUpdateEffect } from "react-use";
+import React, { useContext } from 'react';
+import { useUpdateEffect } from 'react-use';
 import {
   Button,
   Modal,
@@ -7,21 +7,21 @@ import {
   ModalContent,
   ModalOverlay,
   useDisclosure,
-} from "@chakra-ui/react";
-import isEqual from "lodash.isequal";
-import { SearchIcon } from "@chakra-ui/icons";
+} from '@chakra-ui/react';
+import isEqual from 'lodash.isequal';
+import { SearchIcon } from '@chakra-ui/icons';
 
-import { useModel } from "model";
-import SearchUserInput from "components/SearchUserInput";
-import { AccountContext } from "App";
+import { useModel } from 'model';
+import SearchUserInput from 'components/SearchUserInput';
+import { AccountContext } from 'App';
 
 const SearchUserButton = ({ onSelectUser }) => {
   const [{ createRoomState, rooms }, { createRoom }] = useModel(
-    "message",
+    'message',
     ({ createRoom, rooms: roomsModel }) => ({
       createRoomState: createRoom,
-      rooms: Object.keys(roomsModel).map((id) => roomsModel[id]),
-    })
+      rooms: Object.keys(roomsModel).map(id => roomsModel[id]),
+    }),
   );
   const { account } = useContext(AccountContext);
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -32,10 +32,8 @@ const SearchUserButton = ({ onSelectUser }) => {
     onClose();
   }, [createRoomState]);
 
-  const onCreateRoomChat = (toUserId) => {
-    const room = rooms.find((r) =>
-      isEqual(r.userIds.sort(), [account._id, toUserId].sort())
-    );
+  const onCreateRoomChat = toUserId => {
+    const room = rooms.find(r => isEqual(r.userIds.sort(), [account._id, toUserId].sort()));
     if (room) {
       onSelectUser(room._id);
       onClose();
@@ -66,7 +64,7 @@ const SearchUserButton = ({ onSelectUser }) => {
         <ModalOverlay />
         <ModalContent>
           <ModalBody py="5">
-            <SearchUserInput onUserClick={(u) => onCreateRoomChat(u._id)} />
+            <SearchUserInput onUserClick={u => onCreateRoomChat(u._id)} />
           </ModalBody>
         </ModalContent>
       </Modal>

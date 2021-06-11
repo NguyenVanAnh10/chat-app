@@ -1,8 +1,10 @@
-import React from "react";
-import { Box, Button, Heading, Image, Text, VStack } from "@chakra-ui/react";
-import { useHistory } from "react-router-dom";
+import React from 'react';
+import {
+  Box, Button, Heading, Image, Text, VStack,
+} from '@chakra-ui/react';
+import { useHistory } from 'react-router-dom';
 
-import exceptionImage from "statics/images/warning.png";
+import exceptionImage from 'statics/images/warning.png';
 
 const ExceptionPage = () => {
   const history = useHistory();
@@ -17,7 +19,7 @@ const ExceptionPage = () => {
           Sorry, the page you visited does not exist.
         </Text>
       </Box>
-      <Button colorScheme="blue" onClick={() => history.push("/")}>
+      <Button colorScheme="blue" onClick={() => history.push('/')}>
         Go Home
       </Button>
     </VStack>

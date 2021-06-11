@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect as useReactEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useHistory } from "react-router-dom";
+import React, { useState, useRef, useEffect as useReactEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useHistory } from 'react-router-dom';
 import {
   Alert,
   AlertDescription,
@@ -10,10 +10,10 @@ import {
   FormErrorMessage,
   Heading,
   Text,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
-import api from "services/api";
-import PasswordInput from "components/PasswordInput";
+import api from 'services/api';
+import PasswordInput from 'components/PasswordInput';
 
 const ConfirmPasswordRegisterForm = ({ token }) => {
   const history = useHistory();
@@ -26,25 +26,25 @@ const ConfirmPasswordRegisterForm = ({ token }) => {
   const [{ error: setPasswordError }, setPassword] = useState({});
 
   useReactEffect(() => {
-    api.POST("/login", { token }).then((tokenRes) => {
+    api.POST('/login', { token }).then(tokenRes => {
       seTokenState(tokenRes);
     });
   }, []);
 
   const passwordRef = useRef();
-  passwordRef.current = watch("password");
+  passwordRef.current = watch('password');
 
   const onSetPassword = handleSubmit(({ password }) => {
-    api.POST("/register/set_password", { password, token }).then((res) => {
+    api.POST('/register/set_password', { password, token }).then(res => {
       setPassword(res);
       !res.error && reset({});
-      !res.error && history.push("/login");
+      !res.error && history.push('/login');
     });
   });
   if (loading) {
     return <div>Loading...</div>;
   }
-  if (!!tokenError) {
+  if (tokenError) {
     return <Text color="red.500">{tokenError.message}</Text>;
   }
   return (
@@ -55,7 +55,7 @@ const ConfirmPasswordRegisterForm = ({ token }) => {
           name="password"
           control={control}
           defaultValue=""
-          rules={{ required: "Password is required" }}
+          rules={{ required: 'Password is required' }}
           render={({ field, fieldState: { invalid, error } }) => (
             <FormControl marginTop="5" isInvalid={invalid}>
               <PasswordInput {...field} />
@@ -68,10 +68,9 @@ const ConfirmPasswordRegisterForm = ({ token }) => {
           control={control}
           defaultValue=""
           rules={{
-            required: "Confirm password is required",
-            validate: (value) =>
-              // {/* TODO: re-password dependency field */}
-              value === passwordRef.current || "Confirm password is not match",
+            required: 'Confirm password is required',
+            // {/* TODO: re-password dependency field */}
+            validate: value => value === passwordRef.current || 'Confirm password is not match',
           }}
           render={({ field, fieldState: { invalid, error } }) => (
             <FormControl marginTop="5" isInvalid={invalid}>
@@ -85,7 +84,7 @@ const ConfirmPasswordRegisterForm = ({ token }) => {
           <Alert status="error" marginTop="5">
             <AlertIcon />
             <AlertDescription>
-              {setPasswordError.message || "Something went wrong"}
+              {setPasswordError.message || 'Something went wrong'}
             </AlertDescription>
           </Alert>
         )}

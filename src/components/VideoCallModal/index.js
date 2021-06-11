@@ -1,1 +1,1 @@
-export { default } from "./VideoCallModal";
+export { default } from './VideoCallModal';

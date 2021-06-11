@@ -1,10 +1,12 @@
-import React, { useState } from "react";
-import { Image, VStack } from "@chakra-ui/react";
+import React, { useState } from 'react';
+import { Image, VStack } from '@chakra-ui/react';
 
-import MessageStatus from "components/MessageStatus";
+import MessageStatus from 'components/MessageStatus';
 
 // TODO blink image (blob local image - url server image)
-const ImageMessage = ({ message, members, account, containerRef, onClick }) => {
+const ImageMessage = ({
+  message, members, account, containerRef, onClick,
+}) => {
   const [visible, setVisible] = useState(false);
   return (
     <VStack
@@ -18,8 +20,8 @@ const ImageMessage = ({ message, members, account, containerRef, onClick }) => {
         maxH={200}
         borderRadius="lg"
         objectFit="contain"
-        display={!visible ? "block" : "none"}
-        objectPosition={message.senderId === account._id ? "right" : "left"}
+        display={!visible ? 'block' : 'none'}
+        objectPosition={message.senderId === account._id ? 'right' : 'left'}
         src={message.contentBlob}
         // onLoad={() => {
         //   containerRef.current.scrollIntoView(false);
@@ -30,8 +32,8 @@ const ImageMessage = ({ message, members, account, containerRef, onClick }) => {
         maxH={200}
         borderRadius="lg"
         objectFit="contain"
-        display={visible ? "block" : "none"}
-        objectPosition={message.senderId === account._id ? "right" : "left"}
+        display={visible ? 'block' : 'none'}
+        objectPosition={message.senderId === account._id ? 'right' : 'left'}
         src={message.content}
         onLoad={() => {
           setVisible(true);

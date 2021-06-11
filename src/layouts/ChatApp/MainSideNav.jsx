@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
-import { Flex } from "@chakra-ui/react";
+import React, { useContext } from 'react';
+import { Flex } from '@chakra-ui/react';
 
-import RoomList from "./RoomList";
-import SearchUserButton from "components/SearchUserButton";
-import { MenuContext } from "contexts/menuContext";
+import RoomList from './RoomList';
+import SearchUserButton from 'components/SearchUserButton';
+import { MenuContext } from 'contexts/menuContext';
 
 const MainSideNav = () => {
   const { menuState, setMenuState } = useContext(MenuContext);
@@ -23,12 +23,10 @@ const MainSideNav = () => {
         borderBottom="1px solid rgba(0, 0, 0, 0.08)"
       >
         <SearchUserButton
-          onSelectUser={(id) =>
-            setMenuState((prev) => ({
-              ...prev,
-              [menuState.active]: { roomId: id },
-            }))
-          }
+          onSelectUser={id => setMenuState(prev => ({
+            ...prev,
+            [menuState.active]: { roomId: id },
+          }))}
         />
       </Flex>
       <MainSideNavContent mainSideType={menuState.active} />
@@ -36,9 +34,6 @@ const MainSideNav = () => {
   );
 };
 
-const MainSideNavContent = ({ mainSideType }) => {
-  // TODO: have many type main side nav in the future
-  return <RoomList roomListType={mainSideType} />;
-};
-
+// TODO: have many type main side nav in the future
+const MainSideNavContent = ({ mainSideType }) => <RoomList roomListType={mainSideType} />;
 export default MainSideNav;

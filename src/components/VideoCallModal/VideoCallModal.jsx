@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { useUpdateEffect } from "react-use";
+import React, { useContext } from 'react';
+import { useUpdateEffect } from 'react-use';
 import {
   Modal,
   ModalBody,
@@ -12,13 +12,13 @@ import {
   VStack,
   AspectRatio,
   IconButton,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
-import VideoPlayer from "./VideoPlayer";
-import { HangoutPhoneIcon } from "components/CustomIcons";
-import { ChatContext } from "pages/ChatApp";
+import VideoPlayer from './VideoPlayer';
+import { HangoutPhoneIcon } from 'components/CustomIcons';
+import { ChatContext } from 'pages/ChatApp';
 
-import styles from "./VideoCallModal.module.scss";
+import styles from './VideoCallModal.module.scss';
 
 const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
   const {
@@ -46,8 +46,8 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
       isOpen={isOpen}
       closeOnOverlayClick={false}
       isCentered
-      blockScrollOnMount={true}
-      preserveScrollBarGap={true}
+      blockScrollOnMount
+      preserveScrollBarGap
     >
       <ModalOverlay />
       <ModalContent>
@@ -97,15 +97,18 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
             <VStack mx="auto" zIndex="1">
               <AvatarGroup size="xl" max={3}>
                 {room.otherMembers.length > 1
-                  ? room.members.map((o) => (
-                      <Avatar key={o._id} name={o.userName}></Avatar>
-                    ))
-                  : room.otherMembers.map((o) => (
-                      <Avatar key={o._id} name={o.userName}></Avatar>
-                    ))}
+                  ? room.members.map(o => (
+                    <Avatar key={o._id} name={o.userName} />
+                  ))
+                  : room.otherMembers.map(o => (
+                    <Avatar key={o._id} name={o.userName} />
+                  ))}
               </AvatarGroup>
-              <Heading size="md">{receiver.userName} </Heading>
-              <Text>{callState.declined ? "Busy" : "Call..."}</Text>
+              <Heading size="md">
+                {receiver.userName}
+                {' '}
+              </Heading>
+              <Text>{callState.declined ? 'Busy' : 'Call...'}</Text>
             </VStack>
           )}
           <IconButton

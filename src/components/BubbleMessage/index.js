@@ -1,1 +1,1 @@
-export { default } from "./BubbleMessage";
+export { default } from './BubbleMessage';

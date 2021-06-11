@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Drawer,
   DrawerBody,
@@ -6,13 +6,13 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
-import ListItem from "components/ListItem";
-import { useRooms } from "hooks/useRoom";
-import { menuKeys } from "configs/configs";
-import Notification from "entities/Notification";
-import NotificationItem from "components/NotificationItem";
+import ListItem from 'components/ListItem';
+import { useRooms } from 'hooks/useRoom';
+import { menuKeys } from 'configs/configs';
+import Notification from 'entities/Notification';
+import NotificationItem from 'components/NotificationItem';
 
 const NotificationDrawers = ({ isOpen, onClose }) => {
   const [{ rooms }] = useRooms(menuKeys.CONTACT_BOOK);
@@ -33,7 +33,7 @@ const NotificationDrawers = ({ isOpen, onClose }) => {
             mt="3"
             spacing="7"
             data={rooms}
-            renderItem={(room) => (
+            renderItem={room => (
               <NotificationItem
                 room={room}
                 typeNotification={Notification.NOTIFICATION_FRIEND_REQUEST}

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Redirect } from "react-router";
+import React, { useState, useEffect } from 'react';
+import { Redirect } from 'react-router';
 
-import api from "services/api";
-import useQuery from "hooks/useQuery";
+import api from 'services/api';
+import useQuery from 'hooks/useQuery';
 
 const Register = () => {
   const [formData, setFormData] = useState({});
@@ -10,17 +10,17 @@ const Register = () => {
   const [checkToken, setCheckToken] = useState({});
   const { token } = useQuery();
 
-  const onHandleSubmit = (e) => {
+  const onHandleSubmit = e => {
     e.preventDefault();
     api
-      .POST("/register", formData)
+      .POST('/register', formData)
       .then(({ error }) => setStatus({ success: !error, error }));
   };
 
   useEffect(() => {
-    token &&
-      api
-        .GET("/register", { token })
+    token
+      && api
+        .GET('/register', { token })
         .then(({ error }) => setCheckToken({ success: !error, error }));
   }, [token]);
 
@@ -50,9 +50,7 @@ const Register = () => {
           type="text"
           placeholder="Username"
           value={formData.userName}
-          onChange={(e) =>
-            setFormData({ ...formData, userName: e.target.value })
-          }
+          onChange={e => setFormData({ ...formData, userName: e.target.value })}
         />
       </div>
       <div>
@@ -60,7 +58,7 @@ const Register = () => {
           type="email"
           placeholder="email"
           value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          onChange={e => setFormData({ ...formData, email: e.target.value })}
         />
       </div>
       <div>
@@ -68,15 +66,13 @@ const Register = () => {
           type="password"
           placeholder="password"
           value={formData.password}
-          onChange={(e) =>
-            setFormData({ ...formData, password: e.target.value })
-          }
+          onChange={e => setFormData({ ...formData, password: e.target.value })}
         />
       </div>
       <div>
         <input type="submit" value="Register" />
       </div>
-      {error && <div>{error.message || "Something went wrong"}</div>}
+      {error && <div>{error.message || 'Something went wrong'}</div>}
     </form>
   );
 };

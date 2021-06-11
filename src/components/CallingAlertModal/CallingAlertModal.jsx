@@ -1,4 +1,4 @@
-import React, { useEffect as useReactEffect } from "react";
+import React, { useEffect as useReactEffect } from 'react';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -7,12 +7,12 @@ import {
   AlertDialogOverlay,
   Button,
   Text,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
-import { useModel } from "model";
+import { useModel } from 'model';
 
 const CallingAlertModal = ({ callerId, onDecline, isOpen, onAnswer }) => {
-  const [{ caller }, { getUser }] = useModel("user", ({ users, getUser }) => ({
+  const [{ caller }, { getUser }] = useModel('user', ({ users, getUser }) => ({
     caller: users[getUser.id] || {},
   }));
   useReactEffect(() => {
@@ -33,7 +33,9 @@ const CallingAlertModal = ({ callerId, onDecline, isOpen, onAnswer }) => {
       <AlertDialogContent>
         <AlertDialogBody pt="10">
           <Text fontSize="lg" fontWeight="bold">
-            {caller.name || caller.userName} is calling...
+            {caller.name || caller.userName}
+            {' '}
+            is calling...
           </Text>
         </AlertDialogBody>
         <AlertDialogFooter>

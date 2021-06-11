@@ -1,1 +1,1 @@
-export { default } from "./ChatHeader";
+export { default } from './ChatHeader';

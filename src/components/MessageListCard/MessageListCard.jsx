@@ -1,8 +1,8 @@
-import React from "react";
-import { Box, Center, Spinner } from "@chakra-ui/react";
+import React from 'react';
+import { Box, Center, Spinner } from '@chakra-ui/react';
 
 const MessageListCard = ({ loading, className, children, ...rest }) => {
-  if (loading)
+  if (loading) {
     return (
       <Center className={className} {...rest}>
         <Spinner
@@ -14,6 +14,7 @@ const MessageListCard = ({ loading, className, children, ...rest }) => {
         />
       </Center>
     );
+  }
   return (
     <Box className={className} {...rest}>
       {children}

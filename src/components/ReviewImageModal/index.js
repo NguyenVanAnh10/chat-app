@@ -1,1 +1,1 @@
-export { default } from "./ReviewImageModal";
+export { default } from './ReviewImageModal';

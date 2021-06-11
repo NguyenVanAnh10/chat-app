@@ -1,12 +1,12 @@
-import React, { useContext } from "react";
-import { Icon, Text } from "@chakra-ui/react";
+import React, { useContext } from 'react';
+import { Icon, Text } from '@chakra-ui/react';
 
-import BubbleMessage from "components/BubbleMessage";
-import Notification from "entities/Notification";
-import { AccountContext } from "App";
-import useRoom from "hooks/useRoom";
-import MessageStatus from "components/MessageStatus";
-import { MissedCallIcon, VideoCallIcon } from "components/CustomIcons";
+import BubbleMessage from 'components/BubbleMessage';
+import Notification from 'entities/Notification';
+import { AccountContext } from 'App';
+import useRoom from 'hooks/useRoom';
+import MessageStatus from 'components/MessageStatus';
+import { MissedCallIcon, VideoCallIcon } from 'components/CustomIcons';
 
 const NotificationMessage = ({
   message,
@@ -35,7 +35,8 @@ const NotificationMessage = ({
             </Text>
           ) : (
             <Text>
-              you missed a video chat with{" "}
+              you missed a video chat with
+              {' '}
               {room.otherMembers?.length > 1
                 ? room.name
                 : room.otherMembers?.[0]?.userName}

@@ -1,1 +1,1 @@
-export { default } from "./CallingAlertModal";
+export { default } from './CallingAlertModal';

@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
+import React, { useContext } from 'react';
 
-import { AccountContext } from "App";
-import ImageMessage from "components/ImageMessage";
-import Message from "entities/Message";
-import NotificationMessage from "components/NotificationMessage";
-import TextMessage from "components/TextMessage";
+import { AccountContext } from 'App';
+import ImageMessage from 'components/ImageMessage';
+import Message from 'entities/Message';
+import NotificationMessage from 'components/NotificationMessage';
+import TextMessage from 'components/TextMessage';
 
 const MessageContent = ({
   roomId,

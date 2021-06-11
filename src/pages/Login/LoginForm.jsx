@@ -1,5 +1,5 @@
-import React from "react";
-import { Controller, useForm } from "react-hook-form";
+import React from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
   AlertDescription,
@@ -10,23 +10,23 @@ import {
   FormErrorMessage,
   Heading,
   Input,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
-import PasswordInput from "components/PasswordInput";
-import { useModel } from "model";
+import PasswordInput from 'components/PasswordInput';
+import { useModel } from 'model';
 
 const LoginForm = ({ onOpenRegister }) => {
   const { control, handleSubmit } = useForm();
   const [{ error, loading, loginError }, { login }] = useModel(
-    "account",
+    'account',
     ({ login, getMe }) => ({
       loading: login.loading,
       loginError: login.error,
       error: getMe.error,
-    })
+    }),
   );
 
-  const onHandleLogin = handleSubmit((user) => login(user));
+  const onHandleLogin = handleSubmit(user => login(user));
   return (
     <>
       <Heading size="lg">AloRice</Heading>
@@ -47,7 +47,7 @@ const LoginForm = ({ onOpenRegister }) => {
           name="password"
           control={control}
           defaultValue=""
-          rules={{ required: "Password is required" }}
+          rules={{ required: 'Password is required' }}
           render={({ field, fieldState: { invalid, error } }) => (
             <FormControl isInvalid={invalid} marginTop="5">
               <PasswordInput placeholder="Password" {...field} />
@@ -59,7 +59,7 @@ const LoginForm = ({ onOpenRegister }) => {
           <Alert status="error" marginTop="5">
             <AlertIcon />
             <AlertDescription>
-              {error?.message || loginError?.message || "Something went wrong"}
+              {error?.message || loginError?.message || 'Something went wrong'}
             </AlertDescription>
           </Alert>
         )}

@@ -1,7 +1,7 @@
-import { getUsers, getUser } from "services/user";
+import { getUsers, getUser } from 'services/user';
 
 const userModel = {
-  name: "user",
+  name: 'user',
   state: {
     users: {}, // {[id]: message}
     getUsers: {}, // { loading: Boolean, error: {}}
@@ -10,16 +10,16 @@ const userModel = {
   reducers: {
     getUsers: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             users: payload.reduce(
               (s, u) => ({ ...s, [u._id]: u }),
-              state.users
+              state.users,
             ),
-            getUsers: { ids: payload.map((u) => u._id) },
+            getUsers: { ids: payload.map(u => u._id) },
           };
-        case "error":
+        case 'error':
           return { ...state, getUsers: { error: payload } };
         default:
           return { ...state, getUsers: { loading: true } };
@@ -27,7 +27,7 @@ const userModel = {
     },
     getUser: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             users: {
@@ -36,7 +36,7 @@ const userModel = {
             },
             getUser: { id: payload._id },
           };
-        case "error":
+        case 'error':
           return { ...state, getUser: { error: payload } };
         default:
           return { ...state, getUser: { loading: true } };
@@ -60,8 +60,8 @@ const userModel = {
     },
   },
   actions: {
-    getUsers: (keyword) => ({ keyword }),
-    getUser: (id) => ({ userId: id }),
+    getUsers: keyword => ({ keyword }),
+    getUser: id => ({ userId: id }),
   },
 };
 

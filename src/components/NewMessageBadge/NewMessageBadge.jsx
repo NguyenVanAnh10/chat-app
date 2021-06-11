@@ -1,19 +1,18 @@
-import React, { useContext } from "react";
-import { Badge } from "@chakra-ui/react";
+import React, { useContext } from 'react';
+import { Badge } from '@chakra-ui/react';
 
-import { AccountContext } from "App";
-import { useModel } from "model";
+import { AccountContext } from 'App';
+import { useModel } from 'model';
 
 const NewMessageBadge = ({ icon }) => {
   const { account } = useContext(AccountContext);
 
-  const [{ messages }] = useModel("message", ({ messages }) => ({ messages }));
+  const [{ messages }] = useModel('message', ({ messages }) => ({ messages }));
   let newMessageNumber = 0;
   if (account._id) {
     newMessageNumber = Object.keys(messages).filter(
-      (id) =>
-        messages[id]?.hadSeenMessageUsers &&
-        !messages[id].hadSeenMessageUsers?.includes(account._id)
+      id => messages[id]?.hadSeenMessageUsers
+        && !messages[id].hadSeenMessageUsers?.includes(account._id),
     ).length;
   }
   return (
@@ -30,7 +29,7 @@ const NewMessageBadge = ({ icon }) => {
           top="-3"
           pos="relative"
         >
-          {newMessageNumber > 9 ? "+9" : newMessageNumber}
+          {newMessageNumber > 9 ? '+9' : newMessageNumber}
         </Badge>
       )}
     </>

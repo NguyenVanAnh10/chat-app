@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
+import React, { useContext } from 'react';
 
-import { MenuContext } from "contexts/menuContext";
-import ChatBox from "components/ChatBox";
-import { menuKeys } from "configs/configs";
+import { MenuContext } from 'contexts/menuContext';
+import ChatBox from 'components/ChatBox';
+import { menuKeys } from 'configs/configs';
 
 const MainContent = () => {
   const { menuState } = useContext(MenuContext);

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext } from 'react';
 import {
   Alert,
   AlertDescription,
@@ -22,15 +22,15 @@ import {
   ModalOverlay,
   useDisclosure,
   VStack,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
-import { AccountContext } from "App";
-import { useModel } from "model";
-import configs from "configs/configs";
-import NewMessageBadge from "components/NewMessageBadge";
-import { MenuContext } from "contexts/menuContext";
-import { menuKeys } from "configs/configs";
-import NotificationDrawers from "components/NotificationDrawer/NotificationDrawers";
+import { AccountContext } from 'App';
+import { useModel } from 'model';
+import configs, { menuKeys } from 'configs/configs';
+import NewMessageBadge from 'components/NewMessageBadge';
+import { MenuContext } from 'contexts/menuContext';
+
+import NotificationDrawers from 'components/NotificationDrawer/NotificationDrawers';
 
 const badges = {
   [menuKeys.MESSAGES]: <NewMessageBadge />,
@@ -38,45 +38,43 @@ const badges = {
 
 const SubSideNav = () => {
   const { menuState, setMenuState } = useContext(MenuContext);
-  const menus = configs.menus.map((m) => ({ ...m, badge: badges[m.id] }));
+  const menus = configs.menus.map(m => ({ ...m, badge: badges[m.id] }));
   const {
     onClose: onCloseNotificationDrawer,
     onOpen: onOpenNotificationDrawer,
     isOpen: isOpenNotificationDrawer,
   } = useDisclosure();
-  const handleClick = (menu) => {
+  const handleClick = menu => {
     if (menuKeys.NOTIFICATION === menu.id) {
       onOpenNotificationDrawer();
       return;
     }
-    menuState.active !== menu.id &&
-      setMenuState((prev) => ({ ...prev, active: menu.id }));
+    menuState.active !== menu.id
+      && setMenuState(prev => ({ ...prev, active: menu.id }));
   };
   return (
     <Box bg="orange.200" w="65px" py="4" zIndex="4">
       <AvatarMenu />
       <VStack spacing="0" mt="10">
-        {menus.map((m) => {
-          return (
-            <Button
-              key={m.id}
-              py="5"
-              w="100%"
-              h="auto"
-              color="white"
-              _focus="none"
-              bg="transparent"
-              borderRadius="none"
-              _active={{ bg: "orange.400" }}
-              _hover={{ bg: "orange.300" }}
-              isActive={menuState.active === m.id}
-              onClick={() => handleClick(m)}
-            >
-              <Icon fontSize="1.7rem" as={m.icon} />
-              {!!m.badge && m.badge}
-            </Button>
-          );
-        })}
+        {menus.map(m => (
+          <Button
+            key={m.id}
+            py="5"
+            w="100%"
+            h="auto"
+            color="white"
+            _focus="none"
+            bg="transparent"
+            borderRadius="none"
+            _active={{ bg: 'orange.400' }}
+            _hover={{ bg: 'orange.300' }}
+            isActive={menuState.active === m.id}
+            onClick={() => handleClick(m)}
+          >
+            <Icon fontSize="1.7rem" as={m.icon} />
+            {!!m.badge && m.badge}
+          </Button>
+        ))}
       </VStack>
       <NotificationDrawers
         isOpen={isOpenNotificationDrawer}
@@ -109,11 +107,11 @@ const AvatarMenu = () => {
 };
 const LogoutModal = ({ isOpen, onClose }) => {
   const [{ loading, error }, { logout }] = useModel(
-    "account",
+    'account',
     ({ logout: { loading, error } }) => ({
       loading,
       error,
-    })
+    }),
   );
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -126,7 +124,7 @@ const LogoutModal = ({ isOpen, onClose }) => {
             <Alert status="error" marginTop="5">
               <AlertIcon />
               <AlertDescription>
-                {error.message || "Something went wrong"}
+                {error.message || 'Something went wrong'}
               </AlertDescription>
             </Alert>
           </ModalBody>

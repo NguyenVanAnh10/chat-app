@@ -1,1 +1,1 @@
-export { default } from "./MessageStatus";
+export { default } from './MessageStatus';

@@ -1,14 +1,14 @@
-import React, { useContext } from "react";
-import { Redirect } from "react-router-dom";
-import { Flex, Box, useDisclosure } from "@chakra-ui/react";
+import React, { useContext } from 'react';
+import { Redirect } from 'react-router-dom';
+import { Flex, Box, useDisclosure } from '@chakra-ui/react';
 
-import { AccountContext } from "App";
-import useQuery from "hooks/useQuery";
-import RegisterModal from "components/RegisterModal";
-import LoginForm from "./LoginForm";
-import ConfirmPasswordRegisterForm from "./ConfirmPasswordRegisterForm";
+import { AccountContext } from 'App';
+import useQuery from 'hooks/useQuery';
+import RegisterModal from 'components/RegisterModal';
+import LoginForm from './LoginForm';
+import ConfirmPasswordRegisterForm from './ConfirmPasswordRegisterForm';
 
-import styles from "./Login.module.scss";
+import styles from './Login.module.scss';
 
 const Login = () => {
   const { account } = useContext(AccountContext);
@@ -38,7 +38,7 @@ const Login = () => {
           textAlign="center"
           w="sm"
         >
-          {!!token ? (
+          {token ? (
             <ConfirmPasswordRegisterForm token={token} />
           ) : (
             <LoginForm onOpenRegister={onOpen} />

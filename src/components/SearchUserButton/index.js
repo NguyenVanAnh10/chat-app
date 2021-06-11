@@ -1,1 +1,1 @@
-export { default } from "./SearchUserButton";
+export { default } from './SearchUserButton';

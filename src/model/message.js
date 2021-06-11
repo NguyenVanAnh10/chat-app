@@ -1,4 +1,4 @@
-import qs from "query-string";
+import qs from 'query-string';
 
 import {
   getMessage,
@@ -8,14 +8,14 @@ import {
   sendMessage,
   haveSeenMessages,
   createRoom,
-} from "services/message";
-import serviceAccount from "services/account";
+} from 'services/message';
+import serviceAccount from 'services/account';
 
 const messageModel = {
-  name: "message",
+  name: 'message',
   state: {
     messages: {}, // {[id]: message}
-    getMessages: {}, //{[cachedKey]: {ids: [], loading: Boolean, error: {}}}
+    getMessages: {}, // {[cachedKey]: {ids: [], loading: Boolean, error: {}}}
     getMessage: {},
     rooms: {},
     getRooms: { ids: [] }, // {ids: [], loading, error}
@@ -26,19 +26,19 @@ const messageModel = {
   reducers: {
     getMessages: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             messages: payload.messages.reduce(
               (s, msg) => ({ ...s, [msg._id]: msg }),
-              state.messages
+              state.messages,
             ),
             getMessages: {
               ...state.getMessages,
-              [payload.cachedKey]: { ids: payload.messages.map((m) => m._id) },
+              [payload.cachedKey]: { ids: payload.messages.map(m => m._id) },
             },
           };
-        case "error":
+        case 'error':
           return {
             ...state,
             getMessages: {
@@ -63,7 +63,7 @@ const messageModel = {
     },
     getMessage: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             messages: {
@@ -81,7 +81,7 @@ const messageModel = {
             },
             getMessage: { [payload.cachedKey]: {} },
           };
-        case "error":
+        case 'error':
           return {
             ...state,
             getMessage: {
@@ -105,19 +105,19 @@ const messageModel = {
     },
     getRooms: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             rooms: payload.reduce(
               (s, r) => ({ ...s, [r._id]: r }),
-              state.rooms
+              state.rooms,
             ),
             getRooms: {
               ...state.getRooms,
-              ids: payload.map((r) => r._id),
+              ids: payload.map(r => r._id),
             },
           };
-        case "error":
+        case 'error':
           return { ...state, getRooms: { error: payload } };
         default:
           return { ...state, getRooms: { loading: true } };
@@ -125,7 +125,7 @@ const messageModel = {
     },
     getRoom: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             rooms: { ...state.rooms, [payload._id]: payload },
@@ -136,7 +136,7 @@ const messageModel = {
             },
             getRoom: { id: payload._id },
           };
-        case "error":
+        case 'error':
           return { ...state, getRoom: { error: payload } };
         default:
           return { ...state, getRoom: { loading: true } };
@@ -144,12 +144,12 @@ const messageModel = {
     },
     createRoom: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             createRoom: payload,
           };
-        case "error":
+        case 'error':
           return { ...state, createRoom: { error: payload } };
         default:
           return { ...state, createRoom: { loading: true } };
@@ -157,7 +157,7 @@ const messageModel = {
     },
     sendMessage: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             messages: {
@@ -173,7 +173,7 @@ const messageModel = {
               [payload.cachedKey]: {
                 ids: [
                   ...(state.getMessages[payload.cachedKey]?.ids || []).filter(
-                    (id) => id !== payload.keyMsg
+                    id => id !== payload.keyMsg,
                   ),
                   payload.message._id,
                 ],
@@ -183,7 +183,7 @@ const messageModel = {
               [payload.keyMsg]: payload.message,
             },
           };
-        case "error":
+        case 'error':
           return {
             ...state,
             messages: {
@@ -228,15 +228,15 @@ const messageModel = {
     },
     haveSeenNewMessages: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             messages: payload.reduce(
               (s, m) => ({ ...s, [m._id]: m }),
-              state.messages
+              state.messages,
             ),
           };
-        case "error":
+        case 'error':
           return state;
         default:
           return state;
@@ -244,15 +244,15 @@ const messageModel = {
     },
     getHaveSeenNewMessages: (state, { status, payload }) => {
       switch (status) {
-        case "success":
+        case 'success':
           return {
             ...state,
             messages: payload.reduce(
               (s, m) => ({ ...s, [m._id]: m }),
-              state.messages
+              state.messages,
             ),
           };
-        case "error":
+        case 'error':
           return state;
         default:
           return state;
@@ -341,14 +341,14 @@ const messageModel = {
     },
   },
   actions: {
-    getMessages: (params) => params,
-    getMessage: (params) => params,
-    getRoom: (params) => params,
-    getRooms: (userId) => ({ userId }),
-    createRoom: (params) => params,
-    sendMessage: (params) => params,
-    haveSeenNewMessages: (params) => params,
-    getHaveSeenNewMessages: (params) => params,
+    getMessages: params => params,
+    getMessage: params => params,
+    getRoom: params => params,
+    getRooms: userId => ({ userId }),
+    createRoom: params => params,
+    sendMessage: params => params,
+    haveSeenNewMessages: params => params,
+    getHaveSeenNewMessages: params => params,
   },
 };
 

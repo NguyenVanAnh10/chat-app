@@ -1,1 +1,1 @@
-export { default } from "./SearchUserInput";
+export { default } from './SearchUserInput';

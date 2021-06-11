@@ -3,25 +3,26 @@ import {
   useEffect as useReactEffect,
   useRef,
   useState,
-} from "react";
-import Peer from "simple-peer";
-import { v4 as uuid } from "uuid";
+} from 'react';
+import Peer from 'simple-peer';
+import { v4 as uuid } from 'uuid';
 
-import { registerSocket } from "socket";
-import { AccountContext } from "App";
-import { useModel } from "model";
-import Message from "entities/Message";
-import Notification from "entities/Notification";
-import { turnOnCameraAndAudio, stopStreame } from "utils";
+import { registerSocket } from 'socket';
+import { AccountContext } from 'App';
+import { useModel } from 'model';
+import Message from 'entities/Message';
+import Notification from 'entities/Notification';
+import { turnOnCameraAndAudio, stopStreame } from 'utils';
 
 const useChat = () => {
   const { account } = useContext(AccountContext);
-  const [
-    ,
-    { getMessages, getRoom, getMessage, getHaveSeenNewMessages, sendMessage },
-  ] = useModel("message", () => ({}));
+  const [,
+    {
+      getMessages, getRoom, getMessage, getHaveSeenNewMessages, sendMessage,
+    },
+  ] = useModel('message', () => ({}));
   const initChat = {
-    roomId: "",
+    roomId: '',
     caller: {},
     streamVideos: {}, // {current, remote}
     callState: {}, // {hasReceived, accepted, declined}
@@ -70,15 +71,15 @@ const useChat = () => {
       getHaveSeenNewMessages({ roomId, userId, haveSeenMessageIds });
     },
     disconnect_socket: () => {
-      console.log("disconnect_socket");
+      console.log('disconnect_socket');
     },
     error: ({ error }) => {
-      console.error("error", error);
+      console.error('error', error);
     },
   });
 
   useReactEffect(() => {
-    socket.emit("join_all_room", { userId: account._id });
+    socket.emit('join_all_room', { userId: account._id });
     return () => {
       socket.disconnect();
     };
@@ -98,16 +99,16 @@ const useChat = () => {
         trickle: false,
         stream: currentStream,
       });
-      peer.on("signal", (signal) => {
-        socket.emit("answer_call", {
+      peer.on('signal', signal => {
+        socket.emit('answer_call', {
           roomId: chat.roomId,
           ...chat.caller,
           signal,
         });
       });
 
-      peer.on("stream", (remoteStream) => {
-        setChat((prev) => ({
+      peer.on('stream', remoteStream => {
+        setChat(prev => ({
           ...prev,
           streamVideos: { ...prev.streamVideos, remote: remoteStream },
         }));
@@ -117,11 +118,11 @@ const useChat = () => {
       peer._debug = console.log;
       connectionRef.current = peer;
     } catch (error) {
-      console.error("Failed to get local stream", error);
+      console.error('Failed to get local stream', error);
     }
   };
 
-  const onCallUser = async (roomId) => {
+  const onCallUser = async roomId => {
     try {
       const currentStream = await turnOnCameraAndAudio();
       setChat({ ...initChat, streamVideos: { current: currentStream } });
@@ -135,35 +136,35 @@ const useChat = () => {
             },
             {
               urls: `${process.env.REACT_APP_TURN_SERVER}?transport=tcp`,
-              username: "anhnv",
-              credential: "rice",
+              username: 'anhnv',
+              credential: 'rice',
             },
             {
               urls: `${process.env.REACT_APP_TURN_SERVER}?transport=udp`,
-              username: "anhnv",
-              credential: "rice",
+              username: 'anhnv',
+              credential: 'rice',
             },
           ],
         },
         stream: currentStream,
       });
-      peer.on("signal", (signal) => {
-        socket.emit("call_to", {
+      peer.on('signal', signal => {
+        socket.emit('call_to', {
           signal,
           id: account._id,
           roomId,
         });
       });
 
-      peer.on("stream", (remoteStream) => {
-        setChat((prev) => ({
+      peer.on('stream', remoteStream => {
+        setChat(prev => ({
           ...prev,
           streamVideos: { ...prev.streamVideos, remote: remoteStream },
         }));
       });
-      socket.removeAllListeners("call_accepted");
-      socket.on("call_accepted", ({ signal }) => {
-        setChat((prev) => ({
+      socket.removeAllListeners('call_accepted');
+      socket.on('call_accepted', ({ signal }) => {
+        setChat(prev => ({
           ...prev,
           callState: { accepted: true },
         }));
@@ -172,13 +173,13 @@ const useChat = () => {
       peer._debug = console.log;
       connectionRef.current = peer;
     } catch (error) {
-      console.error("Failed to get local stream", error);
+      console.error('Failed to get local stream', error);
     }
   };
 
-  const onDeclineCall = (callerId) => {
+  const onDeclineCall = callerId => {
     setChat({ ...chat, callState: { ...chat.callState, hasReceived: false } });
-    socket.emit("decline_incoming_call", {
+    socket.emit('decline_incoming_call', {
       callerId,
       roomId: chat.roomId,
     });
@@ -193,12 +194,12 @@ const useChat = () => {
     });
   };
 
-  const onLeaveCall = (roomId) => {
+  const onLeaveCall = roomId => {
     destroyCall();
     setChat(initChat);
-    socket.emit("callended", { userId: account._id, roomId });
-    chat.callState.accepted &&
-      sendMessage({
+    socket.emit('callended', { userId: account._id, roomId });
+    chat.callState.accepted
+      && sendMessage({
         roomId,
         contentType: Message.CONTENT_TYPE_NOTIFICATION,
         content: Notification.NOTIFICATION_ENDED_CALL,

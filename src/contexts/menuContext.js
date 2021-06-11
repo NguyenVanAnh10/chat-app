@@ -1,6 +1,6 @@
-import { createContext, useState } from "react";
+import { createContext, useState } from 'react';
 
-import { menuKeys } from "configs/configs";
+import { menuKeys } from 'configs/configs';
 
 export const MenuContext = createContext([]);
 const useMenuContext = () => {

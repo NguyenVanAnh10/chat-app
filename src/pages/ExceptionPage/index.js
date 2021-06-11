@@ -1,1 +1,1 @@
-export { default } from "./ExceptionPage";
+export { default } from './ExceptionPage';

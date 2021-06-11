@@ -2,20 +2,20 @@ import React, {
   createContext,
   useContext,
   useEffect as useReactEffect,
-} from "react";
-import { Switch, Route, Redirect } from "react-router-dom";
-import { Center, ChakraProvider, Spinner } from "@chakra-ui/react";
+} from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
+import { Center, ChakraProvider, Spinner } from '@chakra-ui/react';
 
-import { useModel } from "model";
-import ChatList from "pages/ChatApp";
-import Login from "pages/Login";
-import Register from "pages/Register";
-import ExceptionPage from "pages/ExceptionPage";
+import { useModel } from 'model';
+import ChatList from 'pages/ChatApp';
+import Login from 'pages/Login';
+import Register from 'pages/Register';
+import ExceptionPage from 'pages/ExceptionPage';
 
 export const AccountContext = createContext({});
 
 function App() {
-  const [{ account }] = useModel("account", ({ me }) => ({
+  const [{ account }] = useModel('account', ({ me }) => ({
     account: me,
   }));
 
@@ -34,7 +34,7 @@ function App() {
 }
 
 const R = ({ authorize, location, ...rest }) => {
-  const [{ loading }, { getMe }] = useModel("account", ({ getMe }) => ({
+  const [{ loading }, { getMe }] = useModel('account', ({ getMe }) => ({
     loading: getMe.loading,
     error: getMe.error,
   }));
