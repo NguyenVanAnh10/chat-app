@@ -30,6 +30,7 @@ import configs from "configs/configs";
 import NewMessageBadge from "components/NewMessageBadge";
 import { MenuContext } from "contexts/menuContext";
 import { menuKeys } from "configs/configs";
+import NotificationDrawers from "components/NotificationDrawer/NotificationDrawers";
 
 const badges = {
   [menuKeys.MESSAGES]: <NewMessageBadge />,
@@ -38,6 +39,19 @@ const badges = {
 const SubSideNav = () => {
   const { menuState, setMenuState } = useContext(MenuContext);
   const menus = configs.menus.map((m) => ({ ...m, badge: badges[m.id] }));
+  const {
+    onClose: onCloseNotificationDrawer,
+    onOpen: onOpenNotificationDrawer,
+    isOpen: isOpenNotificationDrawer,
+  } = useDisclosure();
+  const handleClick = (menu) => {
+    if (menuKeys.NOTIFICATION === menu.id) {
+      onOpenNotificationDrawer();
+      return;
+    }
+    menuState.active !== menu.id &&
+      setMenuState((prev) => ({ ...prev, active: menu.id }));
+  };
   return (
     <Box bg="orange.200" w="65px" py="4" zIndex="4">
       <AvatarMenu />
@@ -56,10 +70,7 @@ const SubSideNav = () => {
               _active={{ bg: "orange.400" }}
               _hover={{ bg: "orange.300" }}
               isActive={menuState.active === m.id}
-              onClick={() =>
-                menuState.active !== m.id &&
-                setMenuState((prev) => ({ ...prev, active: m.id }))
-              }
+              onClick={() => handleClick(m)}
             >
               <Icon fontSize="1.7rem" as={m.icon} />
               {!!m.badge && m.badge}
@@ -67,6 +78,10 @@ const SubSideNav = () => {
           );
         })}
       </VStack>
+      <NotificationDrawers
+        isOpen={isOpenNotificationDrawer}
+        onClose={onCloseNotificationDrawer}
+      />
     </Box>
   );
 };

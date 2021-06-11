@@ -1,14 +1,17 @@
-import React, { useContext } from "react";
-import { Box, HStack, IconButton, Text, useDisclosure } from "@chakra-ui/react";
-import { AddUsersIcon } from "components/CustomIcons";
+import React, { useContext } from 'react';
+import {
+  Box, HStack, IconButton, Text, useDisclosure,
+} from '@chakra-ui/react';
+import { AddUsersIcon, AddUserIcon } from 'components/CustomIcons';
 
-import { AccountContext } from "App";
-import { useRooms } from "hooks/useRoom";
-import CreateChatGroupModal from "components/CreateChatGroupModal";
-import ListItem from "components/ListItem";
-import { menuKeys } from "configs/configs";
-import { MenuContext } from "contexts/menuContext";
-import RoomItem from "components/RoomItem";
+import { AccountContext } from 'App';
+import { useRooms } from 'hooks/useRoom';
+import CreateChatGroupModal from 'components/CreateChatGroupModal';
+import ListItem from 'components/ListItem';
+import { menuKeys } from 'configs/configs';
+import { MenuContext } from 'contexts/menuContext';
+import RoomItem from 'components/RoomItem';
+import AddFriendModal from 'components/AddFriendModal';
 
 const RoomList = ({ roomListType }) => {
   const { account } = useContext(AccountContext);
@@ -19,16 +22,16 @@ const RoomList = ({ roomListType }) => {
 
   const [{ rooms }, { haveSeenNewMessages }] = useRooms(roomListType);
 
-  const onHandleClick = (room) => {
-    setMenuState((prev) => ({
+  const onHandleClick = room => {
+    setMenuState(prev => ({
       ...prev,
       [menuState.active]: { ...prev[menuState.active], roomId: room._id },
     }));
     if (!room.newMessageNumber?.length) return;
     haveSeenNewMessages({ roomId: room._id, userId: account._id });
   };
-  const onHandleSelectRoom = (id) => {
-    setMenuState((prev) => ({
+  const onHandleSelectRoom = id => {
+    setMenuState(prev => ({
       ...prev,
       [menuState.active]: { ...prev[menuState.active], roomId: id },
     }));
@@ -39,7 +42,20 @@ const RoomList = ({ roomListType }) => {
         <Box pt="5">
           <ListItem
             data={rooms}
-            renderItem={(room) => (
+            header={(
+              <HStack justifyContent="space-between">
+                <Text fontSize="sm">All friends</Text>
+                <IconButton
+                  title="add friend"
+                  bg="transparent"
+                  color="pink.200"
+                  _hover={{ bg: 'pink.50' }}
+                  icon={<AddUserIcon boxSize="1.1rem" color="blue.500" />}
+                  onClick={onOpen}
+                />
+              </HStack>
+            )}
+            renderItem={room => (
               <RoomItem
                 room={room}
                 active={selectedRoomId === room._id}
@@ -47,27 +63,27 @@ const RoomList = ({ roomListType }) => {
               />
             )}
           />
+          <AddFriendModal isOpen={isOpen} onClose={onClose} />
         </Box>
       );
-
     default:
       return (
         <Box pt="5">
           <ListItem
             data={rooms}
-            header={
+            header={(
               <HStack justifyContent="space-between">
                 <Text fontSize="sm">All messages</Text>
                 <IconButton
                   bg="transparent"
                   color="pink.200"
-                  _hover={{ bg: "pink.50" }}
-                  icon={<AddUsersIcon boxSize="1.5rem" color="pink.500" />}
+                  _hover={{ bg: 'pink.50' }}
+                  icon={<AddUsersIcon boxSize="1.3rem" color="blue.500" />}
                   onClick={onOpen}
                 />
               </HStack>
-            }
-            renderItem={(room) => (
+            )}
+            renderItem={room => (
               <RoomItem
                 room={room}
                 active={selectedRoomId === room._id}

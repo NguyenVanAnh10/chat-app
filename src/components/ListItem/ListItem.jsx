@@ -6,12 +6,14 @@ const ListItem = ({
   footer,
   data = [],
   onClickItem,
+  spacing,
+  mt,
   renderItem = () => {},
 }) => {
   return (
     <Box>
       {header && <Box>{header}</Box>}
-      <VStack marginTop="5" alignItems="flex-start">
+      <VStack mt={mt || "5"} spacing={spacing || 2} alignItems="flex-start">
         {data.map((d) => renderItem(d))}
       </VStack>
       {footer && <Box>{footer}</Box>}

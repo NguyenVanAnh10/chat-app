@@ -4,7 +4,6 @@ import { Flex } from "@chakra-ui/react";
 import RoomList from "./RoomList";
 import SearchUserButton from "components/SearchUserButton";
 import { MenuContext } from "contexts/menuContext";
-import { menuKeys } from "configs/configs";
 
 const MainSideNav = () => {
   const { menuState, setMenuState } = useContext(MenuContext);

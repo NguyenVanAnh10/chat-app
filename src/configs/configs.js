@@ -1,9 +1,10 @@
-import { ContactBookIcon } from "components/CustomIcons";
-import { ChatIcon } from "@chakra-ui/icons";
+import { ContactBookIcon } from 'components/CustomIcons';
+import { ChatIcon, BellIcon } from '@chakra-ui/icons';
 
 export const menuKeys = {
-  MESSAGES: "MESSAGES",
-  CONTACT_BOOK: "CONTACT_BOOK",
+  MESSAGES: 'MESSAGES',
+  CONTACT_BOOK: 'CONTACT_BOOK',
+  NOTIFICATION: 'NOTIFICATION',
 };
 
 const configs = {
@@ -11,13 +12,18 @@ const configs = {
   menus: [
     {
       id: menuKeys.MESSAGES,
-      title: "Messages",
+      title: 'Messages',
       icon: ChatIcon,
     },
     {
       id: menuKeys.CONTACT_BOOK,
-      title: "Contact Book",
+      title: 'Contact Book',
       icon: ContactBookIcon,
+    },
+    {
+      id: menuKeys.NOTIFICATION,
+      title: 'Notification',
+      icon: BellIcon,
     },
   ],
 };

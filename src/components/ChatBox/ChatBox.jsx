@@ -1,12 +1,12 @@
-import React from "react";
-import { VStack } from "@chakra-ui/react";
+import React from 'react';
+import { VStack } from '@chakra-ui/react';
 
-import MessageList from "components/MessageList";
-import MessageInput from "components/MessageInput";
+import MessageList from 'components/MessageList';
+import MessageInput from 'components/MessageInput';
 
-import ChatHeader from "components/ChatHeader";
+import ChatHeader from 'components/ChatHeader';
 
-import styles from "./ChatBox.module.scss";
+import styles from './ChatBox.module.scss';
 
 const ChatBox = ({ roomId, onBack }) => {
   if (!roomId) return null;
@@ -21,7 +21,6 @@ const ChatBox = ({ roomId, onBack }) => {
       <ChatHeader roomId={roomId} onBack={onBack} />
       <MessageList className="show-message-box" roomId={roomId} />
       <MessageInput roomId={roomId} pl="3" />
-      )}
     </VStack>
   );
 };

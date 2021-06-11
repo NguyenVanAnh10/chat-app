@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { useUpdateEffect } from "react-use";
+import React, { useContext } from 'react';
+import { useUpdateEffect } from 'react-use';
 import {
   Button,
   FormControl,
@@ -17,21 +17,21 @@ import {
   TagCloseButton,
   TagLabel,
   useToast,
-} from "@chakra-ui/react";
-import { Controller, useForm } from "react-hook-form";
-import isEqual from "lodash.isequal";
+} from '@chakra-ui/react';
+import { Controller, useForm } from 'react-hook-form';
+import isEqual from 'lodash.isequal';
 
-import { useModel } from "model";
-import { AccountContext } from "App";
-import SearchUserInput from "components/SearchUserInput";
+import { useModel } from 'model';
+import { AccountContext } from 'App';
+import SearchUserInput from 'components/SearchUserInput';
 
 const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
   const [{ createRoomState, rooms }, { createRoom }] = useModel(
-    "message",
+    'message',
     ({ createRoom, rooms: roomsModel }) => ({
       createRoomState: createRoom,
-      rooms: Object.keys(roomsModel).map((id) => roomsModel[id]),
-    })
+      rooms: Object.keys(roomsModel).map(id => roomsModel[id]),
+    }),
   );
   const toast = useToast();
   const { control, handleSubmit } = useForm();
@@ -43,18 +43,16 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
     onClose();
   }, [createRoomState]);
 
-  const onHandleSumbit = handleSubmit((data) => {
-    const room = rooms.find((r) =>
-      isEqual(
-        r.userIds.sort(),
-        [account._id, ...data.userIds.map((u) => u._id)].sort()
-      )
-    );
+  const onHandleSumbit = handleSubmit(data => {
+    const room = rooms.find(r => isEqual(
+      r.userIds.sort(),
+      [account._id, ...data.userIds.map(u => u._id)].sort(),
+    ));
     if (room) {
       onSelectRoom(room._id);
       toast({
-        description: "Group existed",
-        status: "error",
+        description: 'Group existed',
+        status: 'error',
         duration: 4000,
         isClosable: true,
       });
@@ -63,16 +61,16 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
     }
     createRoom({
       name: data.name,
-      userIds: [account._id, ...data.userIds.map((u) => u._id)],
+      userIds: [account._id, ...data.userIds.map(u => u._id)],
       createrId: account._id,
     });
   });
   const onHandleAddUser = (user, { users, onAdd }) => {
-    if (users.find((u) => u._id === user._id)) return;
+    if (users.find(u => u._id === user._id)) return;
     onAdd([...users, user]);
   };
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Create group chat</ModalHeader>
@@ -83,7 +81,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
               name="name"
               control={control}
               defaultValue=""
-              rules={{ required: "Room name is required" }}
+              rules={{ required: 'Room name is required' }}
               render={({ field, fieldState: { error, invalid } }) => (
                 <FormControl isInvalid={invalid}>
                   <Input placeholder="Room name" {...field} />
@@ -97,14 +95,14 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
               name="userIds"
               control={control}
               defaultValue={[]}
-              rules={{ required: "Email is required" }}
+              rules={{ required: 'Email is required' }}
               render={({
                 field: { onChange, value: users },
                 fieldState: { error, invalid },
               }) => (
                 <FormControl isInvalid={invalid} marginTop="5">
                   <HStack spacing={4}>
-                    {users.map((u) => (
+                    {users.map(u => (
                       <Tag
                         size="md"
                         key={u._id}
@@ -125,9 +123,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
                     mt="5"
                     hasSearchIcon={false}
                     placeholder="Add user..."
-                    onUserClick={(u) =>
-                      onHandleAddUser(u, { users, onAdd: onChange })
-                    }
+                    onUserClick={u => onHandleAddUser(u, { users, onAdd: onChange })}
                   />
                 </FormControl>
               )}

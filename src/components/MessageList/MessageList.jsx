@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   Avatar,
   HStack,
@@ -6,16 +6,16 @@ import {
   Stack,
   useDisclosure,
   VStack,
-} from "@chakra-ui/react";
-import { RepeatIcon } from "@chakra-ui/icons";
+} from '@chakra-ui/react';
+import { RepeatIcon } from '@chakra-ui/icons';
 
-import useRoom from "hooks/useRoom";
-import { AccountContext } from "App";
-import useMessages from "hooks/useMessages";
-import MessageListCard from "components/MessageListCard";
-import ReviewImageModal from "components/ReviewImageModal";
-import MessageContent from "components/MessageContent";
-import Message from "entities/Message";
+import useRoom from 'hooks/useRoom';
+import { AccountContext } from 'App';
+import useMessages from 'hooks/useMessages';
+import MessageListCard from 'components/MessageListCard';
+import ReviewImageModal from 'components/ReviewImageModal';
+import MessageContent from 'components/MessageContent';
+import Message from 'entities/Message';
 
 const MessageList = ({ roomId, className }) => {
   const [{ messages, loading }] = useMessages(roomId, {
@@ -60,13 +60,13 @@ const MessageList = ({ roomId, className }) => {
             key={m._id || m.keyMsg}
             spacing="1"
             w="100%"
-            direction={m.senderId !== account._id ? "row" : "row-reverse"}
+            direction={m.senderId !== account._id ? 'row' : 'row-reverse'}
           >
             <Avatar
-              name={members[m.senderId]?.userName || "N/A"}
+              name={members[m.senderId]?.userName || 'N/A'}
               size="sm"
               zIndex="2"
-            ></Avatar>
+            />
             <HStack spacing="1" maxW="70%">
               {!!m.error && (
                 <IconButton
@@ -89,7 +89,7 @@ const MessageList = ({ roomId, className }) => {
               ) : (
                 <Stack
                   spacing="2"
-                  align={m.senderId !== account._id ? "flex-start" : "flex-end"}
+                  align={m.senderId !== account._id ? 'flex-start' : 'flex-end'}
                 >
                   {m.aggregateMsg.map((mm, ii, aa) => (
                     <MessageContent
@@ -100,8 +100,7 @@ const MessageList = ({ roomId, className }) => {
                       containerRef={containerRef}
                       showStatusMessage={ii === aa.length - 1}
                       onImageClick={() => {
-                        if (mm.contentType !== Message.CONTENT_TYPE_IMAGE)
-                          return;
+                        if (mm.contentType !== Message.CONTENT_TYPE_IMAGE) { return; }
                         setImgSrc(mm.content);
                         onOpen();
                       }}
