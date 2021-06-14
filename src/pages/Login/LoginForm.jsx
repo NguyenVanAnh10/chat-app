@@ -15,16 +15,14 @@ import {
 import PasswordInput from 'components/PasswordInput';
 import { useModel } from 'model';
 
+const selectorLogin = ({ login, getMe }) => ({
+  loading: login.loading,
+  loginError: login.error,
+  error: getMe.error,
+});
 const LoginForm = ({ onOpenRegister }) => {
   const { control, handleSubmit } = useForm();
-  const [{ error, loading, loginError }, { login }] = useModel(
-    'account',
-    ({ login, getMe }) => ({
-      loading: login.loading,
-      loginError: login.error,
-      error: getMe.error,
-    }),
-  );
+  const [{ error, loading, loginError }, { login }] = useModel('account', selectorLogin);
 
   const onHandleLogin = handleSubmit(user => login(user));
   return (
@@ -36,10 +34,10 @@ const LoginForm = ({ onOpenRegister }) => {
           control={control}
           defaultValue=""
           rules={{ required: "Please type your's username" }}
-          render={({ field, fieldState: { invalid, error } }) => (
+          render={({ field, fieldState: { invalid, error: err } }) => (
             <FormControl isInvalid={invalid}>
               <Input placeholder="User name" {...field} />
-              {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+              {err && <FormErrorMessage>{err.message}</FormErrorMessage>}
             </FormControl>
           )}
         />
@@ -48,10 +46,10 @@ const LoginForm = ({ onOpenRegister }) => {
           control={control}
           defaultValue=""
           rules={{ required: 'Password is required' }}
-          render={({ field, fieldState: { invalid, error } }) => (
+          render={({ field, fieldState: { invalid, error: err } }) => (
             <FormControl isInvalid={invalid} marginTop="5">
               <PasswordInput placeholder="Password" {...field} />
-              {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+              {err && <FormErrorMessage>{err.message}</FormErrorMessage>}
             </FormControl>
           )}
         />

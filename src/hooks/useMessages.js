@@ -6,6 +6,10 @@ import { AccountContext } from 'App';
 
 const opts = { fetchData: false };
 
+const selector = ({ messages, getMessages }) => ({
+  mesagesState: getMessages,
+  messages,
+});
 const useMessages = (roomId, options = opts) => {
   const {
     account: { id: userId },
@@ -15,10 +19,7 @@ const useMessages = (roomId, options = opts) => {
   const [
     { messages, mesagesState },
     { getMessages, sendMessage, haveSeenNewMessages },
-  ] = useModel('message', ({ messages, getMessages }) => ({
-    mesagesState: getMessages,
-    messages,
-  }));
+  ] = useModel('message', selector);
 
   useReactEffect(() => {
     roomId

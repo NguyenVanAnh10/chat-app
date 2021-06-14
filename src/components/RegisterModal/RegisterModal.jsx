@@ -24,9 +24,9 @@ const RegisterModal = ({ isOpen, onClose }) => {
   const { control, handleSubmit, reset } = useForm({ defaultValues: {} });
 
   const onHandleSubmit = handleSubmit(data => {
-    api.POST('/register', data).then(({ error }) => {
-      setStatus({ success: !error, error });
-      !error && reset({});
+    api.POST('/register', data).then(({ error: err }) => {
+      setStatus({ success: !err, error: err });
+      !err && reset({});
     });
   });
   const onHandleClose = () => {
@@ -53,11 +53,11 @@ const RegisterModal = ({ isOpen, onClose }) => {
                 control={control}
                 defaultValue=""
                 rules={{ required: 'User name is required' }}
-                render={({ field, fieldState: { error, invalid } }) => (
+                render={({ field, fieldState: { error: err, invalid } }) => (
                   <FormControl isInvalid={invalid}>
                     <Input placeholder="User name" {...field} />
-                    {error && (
-                      <FormErrorMessage>{error.message}</FormErrorMessage>
+                    {err && (
+                      <FormErrorMessage>{err.message}</FormErrorMessage>
                     )}
                   </FormControl>
                 )}
@@ -67,11 +67,11 @@ const RegisterModal = ({ isOpen, onClose }) => {
                 control={control}
                 defaultValue=""
                 rules={{ required: 'Email is required' }}
-                render={({ field, fieldState: { error, invalid } }) => (
+                render={({ field, fieldState: { error: err, invalid } }) => (
                   <FormControl isInvalid={invalid} marginTop="5">
                     <Input placeholder="Email" {...field} />
-                    {error && (
-                      <FormErrorMessage>{error.message}</FormErrorMessage>
+                    {err && (
+                      <FormErrorMessage>{err.message}</FormErrorMessage>
                     )}
                   </FormControl>
                 )}

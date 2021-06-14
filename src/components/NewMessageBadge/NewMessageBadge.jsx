@@ -7,7 +7,7 @@ import { useModel } from 'model';
 const NewMessageBadge = () => {
   const { account } = useContext(AccountContext);
 
-  const [{ messages }] = useModel('message', ({ messages }) => ({ messages }));
+  const [{ messages }] = useModel('message', state => ({ messages: state.messages }));
   let newMessageNumber = 0;
   if (account.id) {
     newMessageNumber = Object.keys(messages).filter(

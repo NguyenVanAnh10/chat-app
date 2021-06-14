@@ -5,7 +5,9 @@ export const getBase64 = file => new Promise((resolve, reject) => {
   reader.onerror = error => reject(error);
 });
 
-export const turnOnCameraAndAudio = () => navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+export const turnOnCameraAndAudio = () => navigator.mediaDevices.getUserMedia({
+  video: true, audio: true,
+});
 
 export const stopStreame = stream => {
   if (!stream) return;

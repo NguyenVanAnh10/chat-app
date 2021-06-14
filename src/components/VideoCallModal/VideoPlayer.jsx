@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/media-has-caption */
 import React, { useEffect as useReactEffect, useRef } from 'react';
 // TODO: eslint
 // eslint-disable-next-line import/no-unresolved

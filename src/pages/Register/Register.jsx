@@ -14,14 +14,14 @@ const Register = () => {
     e.preventDefault();
     api
       .POST('/register', formData)
-      .then(({ error }) => setStatus({ success: !error, error }));
+      .then(({ error: err }) => setStatus({ success: !err, error: err }));
   };
 
   useEffect(() => {
     token
       && api
         .GET('/register', { token })
-        .then(({ error }) => setCheckToken({ success: !error, error }));
+        .then(({ error: err }) => setCheckToken({ success: !err, error: err }));
   }, [token]);
 
   if (success) {

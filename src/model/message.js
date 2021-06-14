@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-case-declarations */
 import qs from 'query-string';
 
 import {
@@ -47,6 +49,7 @@ const messageModel = {
             },
           };
         default:
+          // eslint-disable-next-line no-case-declarations
           const cachedKey = qs.stringify({
             roomId: payload.roomId,
             userId: payload.userId,
@@ -99,6 +102,7 @@ const messageModel = {
             },
           };
         default:
+          // eslint-disable-next-line no-case-declarations
           const cachedKey = qs.stringify({
             roomId: payload.roomId,
             userId: payload.userId,

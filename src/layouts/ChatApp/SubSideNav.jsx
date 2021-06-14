@@ -106,14 +106,12 @@ const AvatarMenu = () => {
     </>
   );
 };
+const selectorLogout = ({ logout }) => ({
+  loading: logout.loading,
+  error: logout.error,
+});
 const LogoutModal = ({ isOpen, onClose }) => {
-  const [{ loading, error }, { logout }] = useModel(
-    'account',
-    ({ logout: { loading, error } }) => ({
-      loading,
-      error,
-    }),
-  );
+  const [{ loading, error }, { logout }] = useModel('account', selectorLogout);
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />

@@ -31,10 +31,9 @@ const MessageList = ({ roomId, className }) => {
   // TODO aggregate messages
   const aggregateMessages = messages.reduce((s, c, index, msgArr) => {
     if (!index || msgArr[index - 1].senderId !== c.senderId) {
-      s = [...s, c];
-      return s;
+      return [...s, c];
     }
-    s = [
+    return [
       ...(s.length > 1 ? s.slice(0, s.length - 1) : []),
       {
         ...c,
@@ -43,7 +42,6 @@ const MessageList = ({ roomId, className }) => {
           : [s[s.length - 1], c],
       },
     ];
-    return s;
   }, []);
 
   const members = room.members.reduce((s, m) => ({ ...s, [m.id]: m }), {});

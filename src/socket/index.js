@@ -6,7 +6,7 @@ const socketContainer = {
   },
 };
 
-export const registerSocket = (events = {}) => {
+const registerSocket = (events = {}) => {
   if (!socketContainer.socket) {
     socketContainer.initSocket();
   }
@@ -24,3 +24,5 @@ export const registerSocket = (events = {}) => {
 
   return [socket, unSubscribe];
 };
+
+export default registerSocket;

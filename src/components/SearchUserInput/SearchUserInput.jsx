@@ -39,6 +39,7 @@ const SearchUserInput = ({
         {hasSearchIcon && (
           <InputLeftElement
             pointerEvents="none"
+            // eslint-disable-next-line react/no-children-prop
             children={<SearchIcon color="gray.300" />}
           />
         )}

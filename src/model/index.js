@@ -45,6 +45,7 @@ const models = {
       if (status) {
         return state;
       }
+      // eslint-disable-next-line no-shadow
       const onFinish = status => payload => {
         store.dispatch({
           type: `${prefix}/${actionName}/${status}`,

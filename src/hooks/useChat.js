@@ -7,7 +7,7 @@ import {
 import Peer from 'simple-peer';
 import { v4 as uuid } from 'uuid';
 
-import { registerSocket } from 'socket';
+import registerSocket from 'socket';
 import { AccountContext } from 'App';
 import { useModel } from 'model';
 import Message from 'entities/Message';
@@ -121,6 +121,7 @@ const useChat = () => {
       });
 
       peer.signal(chat.caller.signal);
+      // eslint-disable-next-line no-underscore-dangle
       peer._debug = console.log;
       connectionRef.current = peer;
     } catch (error) {
@@ -176,6 +177,7 @@ const useChat = () => {
         }));
         peer.signal(signal);
       });
+      // eslint-disable-next-line no-underscore-dangle
       peer._debug = console.log;
       connectionRef.current = peer;
     } catch (error) {
