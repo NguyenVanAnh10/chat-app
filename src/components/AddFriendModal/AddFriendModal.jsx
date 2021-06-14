@@ -37,7 +37,7 @@ const AddFriendModal = ({ isOpen, onClose }) => {
         <ModalBody>
           <SearchUserInput
             mt="0"
-            users={notFriends.filter(u => u.id !== account.id)}
+            usersData={notFriends.filter(u => u.id !== account.id)}
             hasSearchIcon={false}
             placeholder="Find friend..."
             renderResultList={data => (
