@@ -8,7 +8,7 @@ import ChatHeader from 'components/ChatHeader';
 
 import styles from './ChatBox.module.scss';
 
-const ChatBox = ({ roomId, onBack }) => {
+const ChatBox = ({ roomId }) => {
   if (!roomId) return null;
   return (
     <VStack
@@ -18,7 +18,7 @@ const ChatBox = ({ roomId, onBack }) => {
       alignItems="flex-start"
       justifyContent="space-between"
     >
-      <ChatHeader roomId={roomId} onBack={onBack} />
+      <ChatHeader roomId={roomId} />
       <MessageList className="show-message-box" roomId={roomId} />
       <MessageInput roomId={roomId} pl="3" />
     </VStack>

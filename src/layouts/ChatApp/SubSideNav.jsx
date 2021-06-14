@@ -7,6 +7,7 @@ import {
   AvatarBadge,
   Box,
   Button,
+  HStack,
   Icon,
   Menu,
   MenuButton,
@@ -20,6 +21,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  useBreakpointValue,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
@@ -45,6 +47,8 @@ const SubSideNav = () => {
     onOpen: onOpenNotificationDrawer,
     isOpen: isOpenNotificationDrawer,
   } = useDisclosure();
+  const isMobileScreen = useBreakpointValue({ base: true, md: false });
+
   const handleClick = menu => {
     if (menuKeys.NOTIFICATION === menu.id) {
       onOpenNotificationDrawer();
@@ -53,6 +57,45 @@ const SubSideNav = () => {
     menuState.active !== menu.id
       && setMenuState(prev => ({ ...prev, active: menu.id }));
   };
+  if (isMobileScreen) {
+    return (
+      <Box
+        bg="orange.200"
+        w="100%"
+        zIndex="4"
+        pos="fixed"
+        bottom="0"
+        left="0"
+        right="0"
+      >
+        <HStack spacing="0">
+          {menus.map(m => (
+            <Button
+              key={m.id}
+              py="3"
+              w="100%"
+              h="auto"
+              color="white"
+              _focus="none"
+              bg="transparent"
+              borderRadius="none"
+              _active={{ bg: 'orange.400' }}
+              _hover={{ bg: 'orange.300' }}
+              isActive={menuState.active === m.id}
+              onClick={() => handleClick(m)}
+            >
+              <Icon fontSize="1.1rem" as={m.icon} />
+              {!!m.badge && m.badge}
+            </Button>
+          ))}
+        </HStack>
+        <NotificationDrawers
+          isOpen={isOpenNotificationDrawer}
+          onClose={onCloseNotificationDrawer}
+        />
+      </Box>
+    );
+  }
   return (
     <Box bg="orange.200" w="65px" py="4" zIndex="4">
       <AvatarMenu />

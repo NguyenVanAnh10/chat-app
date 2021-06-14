@@ -6,6 +6,7 @@ import {
   HStack,
   IconButton,
   Text,
+  useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react';
 import { PhoneIcon, ArrowBackIcon } from '@chakra-ui/icons';
@@ -14,11 +15,14 @@ import { AccountContext } from 'App';
 import VideoCallModal from 'components/VideoCallModal';
 import { ChatContext } from 'pages/ChatApp';
 import useRoom from 'hooks/useRoom';
+import { MenuContext } from 'contexts/menuContext';
 
-const ChatHeader = ({ roomId, onBack }) => {
+const ChatHeader = ({ roomId }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { account } = useContext(AccountContext);
   const [{ room }] = useRoom(roomId);
+  const isMobileScreen = useBreakpointValue({ base: true, md: false });
+  const { setMenuState } = useContext(MenuContext);
 
   const {
     actions: { onCallUser },
@@ -35,7 +39,7 @@ const ChatHeader = ({ roomId, onBack }) => {
         justifyContent="space-between"
       >
         <HStack spacing="1">
-          {onBack && (
+          {isMobileScreen && (
             <IconButton
               size="sm"
               _focus="none"
@@ -43,7 +47,7 @@ const ChatHeader = ({ roomId, onBack }) => {
               bg="transparent !important"
               variant="ghost"
               fontSize="1.4rem"
-              onClick={onBack}
+              onClick={() => setMenuState(prev => ({ ...prev, [prev.active]: {} }))}
               icon={<ArrowBackIcon />}
             />
           )}
