@@ -31,7 +31,7 @@ const NotificationDrawers = ({ isOpen, onClose }) => {
       <DrawerOverlay />
       <DrawerContent>
         <DrawerCloseButton />
-        <DrawerHeader>Notification</DrawerHeader>
+        <DrawerHeader>Notifications</DrawerHeader>
         <DrawerBody>
           <ListItem
             mt="3"

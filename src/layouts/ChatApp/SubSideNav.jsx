@@ -21,6 +21,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Text,
   useBreakpointValue,
   useDisclosure,
   VStack,
@@ -33,6 +34,7 @@ import NewMessageBadge from 'components/NewMessageBadge';
 import { MenuContext } from 'contexts/menuContext';
 import NotificationDrawers from 'components/NotificationDrawer';
 import NewNotificationBadge from 'components/NewNotificationsBadge';
+import { UserIcon } from 'components/CustomIcons';
 
 const badges = {
   [menuKeys.MESSAGES]: <NewMessageBadge />,
@@ -48,14 +50,24 @@ const SubSideNav = () => {
     isOpen: isOpenNotificationDrawer,
   } = useDisclosure();
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
+  const {
+    onClose: onCloseAccountModal,
+    onOpen: onOpenAccountModal,
+    isOpen: isOpenAccountModal,
+  } = useDisclosure();
 
   const handleClick = menu => {
-    if (menuKeys.NOTIFICATION === menu.id) {
-      onOpenNotificationDrawer();
-      return;
+    switch (menu?.id || menu) {
+      case menuKeys.NOTIFICATION:
+        onOpenNotificationDrawer();
+        return;
+      case menuKeys.ACCOUNT:
+        onOpenAccountModal();
+        return;
+      default:
+        menuState.active !== menu.id
+          && setMenuState(prev => ({ ...prev, active: menu.id }));
     }
-    menuState.active !== menu.id
-      && setMenuState(prev => ({ ...prev, active: menu.id }));
   };
   if (isMobileScreen) {
     return (
@@ -72,7 +84,7 @@ const SubSideNav = () => {
           {menus.map(m => (
             <Button
               key={m.id}
-              py="3"
+              py="4"
               w="100%"
               h="auto"
               color="white"
@@ -84,21 +96,36 @@ const SubSideNav = () => {
               isActive={menuState.active === m.id}
               onClick={() => handleClick(m)}
             >
-              <Icon fontSize="1.1rem" as={m.icon} />
+              <Icon fontSize="1.3rem" as={m.icon} />
               {!!m.badge && m.badge}
             </Button>
           ))}
+          <Button
+            py="4"
+            w="100%"
+            h="auto"
+            color="white"
+            _focus="none"
+            bg="transparent"
+            borderRadius="none"
+            _active={{ bg: 'orange.400' }}
+            _hover={{ bg: 'orange.300' }}
+            onClick={() => handleClick(menuKeys.ACCOUNT)}
+          >
+            <Icon fontSize="1.3rem" as={UserIcon} />
+          </Button>
         </HStack>
         <NotificationDrawers
           isOpen={isOpenNotificationDrawer}
           onClose={onCloseNotificationDrawer}
         />
+        <DetailAccountModal isOpen={isOpenAccountModal} onClose={onCloseAccountModal} />
       </Box>
     );
   }
   return (
     <Box bg="orange.200" w="65px" py="4" zIndex="4">
-      <AvatarMenu />
+      <AvatarMenu onOpenProfile={() => handleClick(menuKeys.ACCOUNT)} />
       <VStack spacing="0" mt="10">
         {menus.map(m => (
           <Button
@@ -124,11 +151,45 @@ const SubSideNav = () => {
         isOpen={isOpenNotificationDrawer}
         onClose={onCloseNotificationDrawer}
       />
+      <DetailAccountModal isOpen={isOpenAccountModal} onClose={onCloseAccountModal} />
     </Box>
   );
 };
 
-const AvatarMenu = () => {
+const DetailAccountModal = ({ isOpen, onClose }) => {
+  const { account } = useContext(AccountContext);
+  return (
+    <>
+      <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Profile</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing="3" align="flex-start">
+              <HStack spacing="3">
+                <Text> Username:</Text>
+                <Text fontWeight="bold">{account.userName}</Text>
+              </HStack>
+              <HStack spacing="3">
+                <Text> Email:</Text>
+                <Text fontWeight="bold">{account.email}</Text>
+              </HStack>
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" variant="ghost" onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+};
+
+const AvatarMenu = ({ onOpenProfile }) => {
   const { account } = useContext(AccountContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
@@ -140,7 +201,7 @@ const AvatarMenu = () => {
           </Avatar>
         </MenuButton>
         <MenuList>
-          <MenuItem>Profile</MenuItem>
+          <MenuItem onClick={onOpenProfile}>Profile</MenuItem>
           <MenuDivider />
           <MenuItem onClick={onOpen}>Logout</MenuItem>
         </MenuList>

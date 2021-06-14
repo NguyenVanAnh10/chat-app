@@ -5,6 +5,7 @@ export const menuKeys = {
   MESSAGES: 'MESSAGES',
   CONTACT_BOOK: 'CONTACT_BOOK',
   NOTIFICATION: 'NOTIFICATION',
+  ACCOUNT: 'ACCOUNT',
 };
 
 const configs = {
