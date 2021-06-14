@@ -18,10 +18,15 @@ import SearchUserInput from 'components/SearchUserInput';
 import { useModel } from 'model';
 import { AccountContext } from 'App';
 
+const selector = ({ me, addFriend, users, getUsers }) => ({
+  addFriendIds: me.addFriends.map(f => f.friendId),
+  addFriendState: addFriend,
+  notFriends: (getUsers?.ids || [])
+    .filter(id => !me.friendIds.includes(id)).map(id => users[id]),
+});
+
 const AddFriendModal = ({ isOpen, onClose }) => {
-  const [{ addFriendState }, { addFriend }] = useModel('account', ({ addFriends }) => ({
-    addFriendState: addFriends,
-  }));
+  const [{ addFriendIds, addFriendState, notFriends }, { addFriend }] = useModel('account', selector);
   const { account } = useContext(AccountContext);
 
   return (
@@ -32,6 +37,7 @@ const AddFriendModal = ({ isOpen, onClose }) => {
         <ModalBody>
           <SearchUserInput
             mt="0"
+            users={notFriends.filter(u => u.id !== account.id)}
             hasSearchIcon={false}
             placeholder="Find friend..."
             renderResultList={data => (
@@ -39,13 +45,14 @@ const AddFriendModal = ({ isOpen, onClose }) => {
                 mt="3"
                 spacing="7"
                 data={data}
+                emptyText="No friend"
                 renderItem={user => (
                   <FriendItem
-                    loading={addFriendState[user._id]?.loading}
-                    isFriendRequest={addFriendState.ids.includes(user._id)}
-                    key={user._id}
+                    key={user.id}
                     user={user}
-                    onAddfriend={() => addFriend({ userId: account._id, friendId: user._id })}
+                    loading={addFriendState[user.id]?.loading}
+                    isFriendRequest={addFriendIds.includes(user.id)}
+                    onAddfriend={() => addFriend({ userId: account.id, friendId: user.id })}
                   />
                 )}
               />
@@ -76,6 +83,7 @@ const FriendItem = ({ user, onAddfriend, loading, isFriendRequest }) => (
       size="sm"
       ml="auto !important"
       d="block"
+      variant={isFriendRequest ? 'outline' : 'solid'}
       isLoading={loading}
       onClick={onAddfriend}
       disabled={isFriendRequest || loading}

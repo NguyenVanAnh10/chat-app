@@ -21,7 +21,7 @@ const MessageStatus = ({
     )}
     {showStatus && (
     <>
-      {message.senderId === account._id
+      {message.senderId === account.id
             && !message.error
             && message.hadSeenMessageUsers.length === 1 && (
               <Text fontSize="xs">
@@ -34,7 +34,7 @@ const MessageStatus = ({
     {showSeenUsers && message.hadSeenMessageUsers.length > 1 && (
     <AvatarGroup spacing="0.5" max="3" size="2xs" fontSize="xs">
       {message.hadSeenMessageUsers
-        .filter(id => id !== message.senderId && id !== account._id)
+        .filter(id => id !== message.senderId && id !== account.id)
         .map(userId => (
           <Avatar
             key={userId}

@@ -21,7 +21,7 @@ const ImageMessage = ({
         borderRadius="lg"
         objectFit="contain"
         display={!visible ? 'block' : 'none'}
-        objectPosition={message.senderId === account._id ? 'right' : 'left'}
+        objectPosition={message.senderId === account.id ? 'right' : 'left'}
         src={message.contentBlob}
         // onLoad={() => {
         //   containerRef.current.scrollIntoView(false);
@@ -33,7 +33,7 @@ const ImageMessage = ({
         borderRadius="lg"
         objectFit="contain"
         display={visible ? 'block' : 'none'}
-        objectPosition={message.senderId === account._id ? 'right' : 'left'}
+        objectPosition={message.senderId === account.id ? 'right' : 'left'}
         src={message.content}
         onLoad={() => {
           setVisible(true);

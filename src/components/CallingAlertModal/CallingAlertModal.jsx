@@ -12,14 +12,14 @@ import {
 import { useModel } from 'model';
 
 const CallingAlertModal = ({ callerId, onDecline, isOpen, onAnswer }) => {
-  const [{ caller }, { getUser }] = useModel('account', ({ users, getUser }) => ({
-    caller: users[getUser.id] || {},
+  const [{ caller }, { getUser }] = useModel('account', ({ users, getUser: getUserState }) => ({
+    caller: users[getUserState.id] || {},
   }));
   useReactEffect(() => {
     callerId && getUser(callerId);
   }, [callerId]);
 
-  if (!caller._id) return null;
+  if (!caller.id) return null;
 
   return (
     <AlertDialog

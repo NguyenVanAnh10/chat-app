@@ -29,11 +29,12 @@ import { useModel } from 'model';
 import configs, { menuKeys } from 'configs/configs';
 import NewMessageBadge from 'components/NewMessageBadge';
 import { MenuContext } from 'contexts/menuContext';
-
-import NotificationDrawers from 'components/NotificationDrawer/NotificationDrawers';
+import NotificationDrawers from 'components/NotificationDrawer';
+import NewNotificationBadge from 'components/NewNotificationsBadge';
 
 const badges = {
   [menuKeys.MESSAGES]: <NewMessageBadge />,
+  [menuKeys.NOTIFICATION]: <NewNotificationBadge />,
 };
 
 const SubSideNav = () => {

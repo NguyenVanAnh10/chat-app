@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Avatar,
   AvatarBadge,
-  AvatarGroup,
   Button,
   ButtonGroup,
   HStack,
@@ -12,32 +11,22 @@ import {
 
 import Notification from 'entities/Notification';
 
-const NotificationItem = ({ typeNotification, room }) => {
+const NotificationItem = ({ typeNotification, friend, onConfirm, onDelete }) => {
   switch (typeNotification) {
     case Notification.NOTIFICATION_FRIEND_REQUEST:
       return (
         <HStack spacing="4" align="flex-start">
-          <AvatarGroup size="md" max={3}>
-            {room.otherMembers.length > 1
-              ? room.members.map(o => (
-                <Avatar key={o._id} name={o.userName}>
-                  <AvatarBadge boxSize="0.8em" bg="green.500" />
-                </Avatar>
-              ))
-              : room.otherMembers.map(o => (
-                <Avatar key={o._id} name={o.userName}>
-                  <AvatarBadge boxSize="0.8em" bg="green.500" />
-                </Avatar>
-              ))}
-          </AvatarGroup>
+          <Avatar name={friend.userName}>
+            <AvatarBadge boxSize="0.8em" bg="green.500" />
+          </Avatar>
           <VStack align="flex-start">
             <Text>
-              <strong>{room.userName}</strong>
-&nbsp; sent a friend request
+              <strong>{friend.userName}</strong>
+                &nbsp; sent you a friend request
             </Text>
             <ButtonGroup size="sm" spacing="2">
-              <Button colorScheme="blue">Confirm</Button>
-              <Button>Delete</Button>
+              <Button colorScheme="blue" onClick={onConfirm}>Confirm</Button>
+              <Button onClick={onDelete}>Delete</Button>
             </ButtonGroup>
           </VStack>
         </HStack>

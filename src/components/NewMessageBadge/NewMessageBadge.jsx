@@ -9,10 +9,10 @@ const NewMessageBadge = () => {
 
   const [{ messages }] = useModel('message', ({ messages }) => ({ messages }));
   let newMessageNumber = 0;
-  if (account._id) {
+  if (account.id) {
     newMessageNumber = Object.keys(messages).filter(
       id => messages[id]?.hadSeenMessageUsers
-        && !messages[id].hadSeenMessageUsers?.includes(account._id),
+        && !messages[id].hadSeenMessageUsers?.includes(account.id),
     ).length;
   }
   return (

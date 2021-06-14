@@ -30,12 +30,12 @@ const messageModel = {
           return {
             ...state,
             messages: payload.messages.reduce(
-              (s, msg) => ({ ...s, [msg._id]: msg }),
+              (s, msg) => ({ ...s, [msg.id]: msg }),
               state.messages,
             ),
             getMessages: {
               ...state.getMessages,
-              [payload.cachedKey]: { ids: payload.messages.map(m => m._id) },
+              [payload.cachedKey]: { ids: payload.messages.map(m => m.id) },
             },
           };
         case 'error':
@@ -68,18 +68,26 @@ const messageModel = {
             ...state,
             messages: {
               ...state.messages,
-              [payload.message._id]: payload.message,
+              [payload.message.id]: payload.message,
             },
             getMessages: {
               ...state.getMessages,
               [payload.cachedKey]: {
                 ids: [
                   ...(state.getMessages[payload.cachedKey]?.ids || []),
-                  payload.message._id,
+                  payload.message.id,
                 ],
               },
             },
             getMessage: { [payload.cachedKey]: {} },
+            rooms: {
+              ...state.rooms,
+              [payload.message.roomId]: {
+                ...state.rooms[payload.message.roomId],
+                messageIds: [...(state.rooms[payload.message.roomId].messageIds || []),
+                  payload.message.id],
+              },
+            },
           };
         case 'error':
           return {
@@ -109,12 +117,12 @@ const messageModel = {
           return {
             ...state,
             rooms: payload.reduce(
-              (s, r) => ({ ...s, [r._id]: r }),
+              (s, r) => ({ ...s, [r.id]: r }),
               state.rooms,
             ),
             getRooms: {
               ...state.getRooms,
-              ids: payload.map(r => r._id),
+              ids: payload.map(r => r.id),
             },
           };
         case 'error':
@@ -128,13 +136,13 @@ const messageModel = {
         case 'success':
           return {
             ...state,
-            rooms: { ...state.rooms, [payload._id]: payload },
+            rooms: { ...state.rooms, [payload.id]: payload },
             getRooms: {
-              ids: state.getRooms.ids.includes(payload._id)
+              ids: state.getRooms.ids.includes(payload.id)
                 ? state.getRooms.ids
-                : [...state.getRooms.ids, payload._id],
+                : [...state.getRooms.ids, payload.id],
             },
-            getRoom: { id: payload._id },
+            getRoom: { id: payload.id },
           };
         case 'error':
           return { ...state, getRoom: { error: payload } };
@@ -163,7 +171,7 @@ const messageModel = {
             messages: {
               ...state.messages,
               [payload.keyMsg]: undefined,
-              [payload.message._id]: {
+              [payload.message.id]: {
                 ...payload.message,
                 contentBlob: state.messages[payload.keyMsg].contentBlob,
               },
@@ -175,7 +183,7 @@ const messageModel = {
                   ...(state.getMessages[payload.cachedKey]?.ids || []).filter(
                     id => id !== payload.keyMsg,
                   ),
-                  payload.message._id,
+                  payload.message.id,
                 ],
               },
             },
@@ -232,7 +240,7 @@ const messageModel = {
           return {
             ...state,
             messages: payload.reduce(
-              (s, m) => ({ ...s, [m._id]: m }),
+              (s, m) => ({ ...s, [m.id]: m }),
               state.messages,
             ),
           };
@@ -248,7 +256,7 @@ const messageModel = {
           return {
             ...state,
             messages: payload.reduce(
-              (s, m) => ({ ...s, [m._id]: m }),
+              (s, m) => ({ ...s, [m.id]: m }),
               state.messages,
             ),
           };
@@ -286,7 +294,7 @@ const messageModel = {
     getRooms: async (payload, onSuccess, onError) => {
       try {
         if (!payload.userId) {
-          payload.userId = (await getMe())._id;
+          payload.userId = (await getMe()).id;
         }
         onSuccess(await getRooms(payload.userId));
       } catch (error) {
@@ -303,7 +311,7 @@ const messageModel = {
     getRoom: async (payload, onSuccess, onError) => {
       try {
         if (!payload.userId) {
-          payload.userId = (await getMe())._id;
+          payload.userId = (await getMe()).id;
         }
         onSuccess(await getRoom(payload));
       } catch (error) {

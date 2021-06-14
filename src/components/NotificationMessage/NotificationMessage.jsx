@@ -26,7 +26,7 @@ const NotificationMessage = ({
           showStatus={false}
           showSeenUsers={false}
         >
-          {account._id === message.senderId ? (
+          {account.id === message.senderId ? (
             <Text>
               {room.otherMembers?.length > 1
                 ? room.name
@@ -66,7 +66,7 @@ const NotificationMessage = ({
     case Notification.NOTIFICATION_DECLINE_CALL:
       return (
         <BubbleMessage message={message}>
-          {account._id !== message.senderId ? (
+          {account.id !== message.senderId ? (
             <Text color="blue" fontWeight="bold" fontStyle="italic">
               <Icon as={MissedCallIcon} mr="2" />
               {room.otherMembers?.length > 1

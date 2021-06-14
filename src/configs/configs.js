@@ -1,5 +1,5 @@
-import { ContactBookIcon } from 'components/CustomIcons';
-import { ChatIcon, BellIcon } from '@chakra-ui/icons';
+import { ContactBookIcon, NotificationBellIcon } from 'components/CustomIcons';
+import { ChatIcon } from '@chakra-ui/icons';
 
 export const menuKeys = {
   MESSAGES: 'MESSAGES',
@@ -23,7 +23,7 @@ const configs = {
     {
       id: menuKeys.NOTIFICATION,
       title: 'Notification',
-      icon: BellIcon,
+      icon: NotificationBellIcon,
     },
   ],
 };

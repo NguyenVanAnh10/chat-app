@@ -14,6 +14,10 @@ import Message from 'entities/Message';
 import Notification from 'entities/Notification';
 import { turnOnCameraAndAudio, stopStreame } from 'utils';
 
+const initJoinAllRoomsState = {
+  isJoined: false,
+};
+
 const useChat = () => {
   const { account } = useContext(AccountContext);
   const [,
@@ -21,6 +25,8 @@ const useChat = () => {
       getMessages, getRoom, getMessage, getHaveSeenNewMessages, sendMessage,
     },
   ] = useModel('message', () => ({}));
+  const [, { getFriendRequest }] = useModel('account', () => ({}));
+
   const initChat = {
     roomId: '',
     caller: {},
@@ -33,7 +39,7 @@ const useChat = () => {
 
   const [socket] = registerSocket({
     a_call_from: ({ signal, id, roomId }) => {
-      if (id === account._id) return;
+      if (id === account.id) return;
       setChat({
         ...initChat,
         roomId,
@@ -46,29 +52,27 @@ const useChat = () => {
       destroyCall();
     },
     decline_incoming_call: ({ callerId }) => {
-      if (callerId === account._id) {
+      if (callerId === account.id) {
         destroyCall();
         setChat({ ...initChat, callState: { declined: true } });
       }
     },
-    create_room_chat_one_to_one_success: ({ roomId }) => {
-      getRoom({ roomId, userId: account._id });
-    },
     user_has_added_new_room: ({ roomId }) => {
-      // TODO other peer (include person created room) auto getRoom once create a room successful
-      // if (account._id !== createrId) return;
-      getRoom({ roomId, userId: account._id });
+      getRoom({ roomId, userId: account.id });
     },
     send_message_success: ({ senderId, messageId, roomId }) => {
-      if (account._id === senderId) return;
-      getMessage({ messageId, userId: account._id, roomId });
+      if (account.id === senderId) return;
+      getMessage({ messageId, userId: account.id, roomId });
     },
     receive_message: ({ roomId }) => {
-      getMessages({ roomId, userId: account._id });
+      getMessages({ roomId, userId: account.id });
     },
     user_has_seen_messages: ({ roomId, userId, haveSeenMessageIds }) => {
-      if (account._id === userId) return;
+      if (account.id === userId) return;
       getHaveSeenNewMessages({ roomId, userId, haveSeenMessageIds });
+    },
+    friend_request: ({ creatorId }) => {
+      getFriendRequest({ userId: account.id, friendId: creatorId });
     },
     disconnect_socket: () => {
       console.log('disconnect_socket');
@@ -79,11 +83,13 @@ const useChat = () => {
   });
 
   useReactEffect(() => {
-    socket.emit('join_all_room', { userId: account._id });
+    if (initJoinAllRoomsState.isJoined || !account.id) return;
+    socket.emit('join_all_room', { userId: account.id });
+    initJoinAllRoomsState.isJoined = true;
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [account.id]);
 
   const onAnswerCall = async () => {
     try {
@@ -151,7 +157,7 @@ const useChat = () => {
       peer.on('signal', signal => {
         socket.emit('call_to', {
           signal,
-          id: account._id,
+          id: account.id,
           roomId,
         });
       });
@@ -189,15 +195,15 @@ const useChat = () => {
       content: Notification.NOTIFICATION_DECLINE_CALL,
       keyMsg: uuid(),
       createAt: Date.now(),
-      senderId: account._id,
-      hadSeenMessageUsers: [account._id],
+      senderId: account.id,
+      hadSeenMessageUsers: [account.id],
     });
   };
 
   const onLeaveCall = roomId => {
     destroyCall();
     setChat(initChat);
-    socket.emit('callended', { userId: account._id, roomId });
+    socket.emit('callended', { userId: account.id, roomId });
     chat.callState.accepted
       && sendMessage({
         roomId,
@@ -205,8 +211,8 @@ const useChat = () => {
         content: Notification.NOTIFICATION_ENDED_CALL,
         keyMsg: uuid(),
         createAt: Date.now(),
-        senderId: account._id,
-        hadSeenMessageUsers: [account._id],
+        senderId: account.id,
+        hadSeenMessageUsers: [account.id],
       });
   };
   const destroyCall = () => {

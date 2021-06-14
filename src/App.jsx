@@ -34,9 +34,9 @@ function App() {
 }
 
 const R = ({ authorize, location, ...rest }) => {
-  const [{ loading }, { getMe }] = useModel('account', ({ getMe }) => ({
-    loading: getMe.loading,
-    error: getMe.error,
+  const [{ loading }, { getMe }] = useModel('account', ({ getMe: getMeState }) => ({
+    loading: getMeState.loading,
+    error: getMeState.error,
   }));
   const { account } = useContext(AccountContext);
   useReactEffect(() => {
@@ -58,7 +58,7 @@ const R = ({ authorize, location, ...rest }) => {
   if (!authorize) {
     return <Route {...rest} />;
   }
-  if (!account._id) {
+  if (!account.id) {
     return <Redirect to="/login" />;
   }
   return <Route {...rest} />;

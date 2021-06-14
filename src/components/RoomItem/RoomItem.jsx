@@ -12,7 +12,7 @@ import styles from './RoomItem.module.scss';
 
 const RoomItem = ({ room, active, onClick }) => (
   <HStack
-    key={room._id}
+    key={room.id}
     p="1"
     spacing="3"
     w="100%"
@@ -26,12 +26,12 @@ const RoomItem = ({ room, active, onClick }) => (
     <AvatarGroup size="md" max={3}>
       {room.otherMembers.length > 1
         ? room.members.map(o => (
-          <Avatar key={o._id} name={o.userName}>
+          <Avatar key={o.id} name={o.userName}>
             <AvatarBadge boxSize="0.8em" bg="green.500" />
           </Avatar>
         ))
         : room.otherMembers.map(o => (
-          <Avatar key={o._id} name={o.userName}>
+          <Avatar key={o.id} name={o.userName}>
             <AvatarBadge boxSize="0.8em" bg="green.500" />
           </Avatar>
         ))}

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Flex } from '@chakra-ui/react';
 
-import RoomList from './RoomList';
+import RoomList from 'components/RoomList';
 import SearchUserButton from 'components/SearchUserButton';
 import { MenuContext } from 'contexts/menuContext';
 

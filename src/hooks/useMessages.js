@@ -8,7 +8,7 @@ const opts = { fetchData: false };
 
 const useMessages = (roomId, options = opts) => {
   const {
-    account: { _id: userId },
+    account: { id: userId },
   } = useContext(AccountContext);
 
   const cachedKey = qs.stringify({ roomId, userId });

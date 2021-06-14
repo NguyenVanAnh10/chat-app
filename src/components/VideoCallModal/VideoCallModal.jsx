@@ -98,10 +98,10 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
               <AvatarGroup size="xl" max={3}>
                 {room.otherMembers.length > 1
                   ? room.members.map(o => (
-                    <Avatar key={o._id} name={o.userName} />
+                    <Avatar key={o.id} name={o.userName} />
                   ))
                   : room.otherMembers.map(o => (
-                    <Avatar key={o._id} name={o.userName} />
+                    <Avatar key={o.id} name={o.userName} />
                   ))}
               </AvatarGroup>
               <Heading size="md">
@@ -128,7 +128,7 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
             icon={<HangoutPhoneIcon />}
             m="0 auto"
             onClick={() => {
-              onLeaveCall(roomId || room._id);
+              onLeaveCall(roomId || room.id);
               onClose();
             }}
           />

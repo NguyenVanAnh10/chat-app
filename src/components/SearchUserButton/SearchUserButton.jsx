@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { useUpdateEffect } from 'react-use';
 import {
   Button,
   Modal,
@@ -16,33 +15,25 @@ import SearchUserInput from 'components/SearchUserInput';
 import { AccountContext } from 'App';
 
 const SearchUserButton = ({ onSelectUser }) => {
-  const [{ createRoomState, rooms }, { createRoom }] = useModel(
+  const [{ rooms }] = useModel(
     'message',
-    ({ createRoom, rooms: roomsModel }) => ({
-      createRoomState: createRoom,
+    ({ rooms: roomsModel }) => ({
       rooms: Object.keys(roomsModel).map(id => roomsModel[id]),
+    }),
+  );
+  const [{ friends }] = useModel(
+    'account',
+    ({ me, users }) => ({
+      friends: (me.friendIds || []).map(id => users[id]),
     }),
   );
   const { account } = useContext(AccountContext);
   const { isOpen, onClose, onOpen } = useDisclosure();
 
-  useUpdateEffect(() => {
-    if (createRoomState.loading || createRoomState.error) return;
-    onSelectUser(createRoomState._id);
-    onClose();
-  }, [createRoomState]);
-
   const onCreateRoomChat = toUserId => {
-    const room = rooms.find(r => isEqual(r.userIds.sort(), [account._id, toUserId].sort()));
-    if (room) {
-      onSelectUser(room._id);
-      onClose();
-      return;
-    }
-    createRoom({
-      userIds: [toUserId, account._id],
-      createrId: account._id,
-    });
+    const room = rooms.find(r => isEqual(r.userIds.sort(), [account.id, toUserId].sort()));
+    onSelectUser(room.id);
+    onClose();
   };
 
   return (
@@ -64,7 +55,7 @@ const SearchUserButton = ({ onSelectUser }) => {
         <ModalOverlay />
         <ModalContent>
           <ModalBody py="5">
-            <SearchUserInput onUserClick={u => onCreateRoomChat(u._id)} />
+            <SearchUserInput usersData={friends} onUserClick={u => onCreateRoomChat(u.id)} />
           </ModalBody>
         </ModalContent>
       </Modal>

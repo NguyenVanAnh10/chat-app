@@ -4,106 +4,80 @@ import { AccountContext } from 'App';
 import { useModel } from 'model';
 import { menuKeys } from 'configs/configs';
 
-// TODO refactor
+const roomSelector = ({ messages, rooms }) => ({ messages, rooms });
+
 const useRoom = roomId => {
   const { account } = useContext(AccountContext);
 
-  const [{ messages, rooms }, { haveSeenNewMessages }] = useModel(
-    'message',
-    ({ messages, rooms }) => ({ messages, rooms }),
-  );
-  if (!roomId || !account._id || !rooms[roomId] || !rooms[roomId].members) { return [{ room: {} }, {}]; }
+  const [{ messages, rooms }, { haveSeenNewMessages }] = useModel('message', roomSelector);
+  if (!roomId || !account.id || !rooms[roomId]) {
+    return [{ room: {} }, {}];
+  }
 
-  const newNumberMessagesInRoom = Object.keys(messages).filter(
-    id => messages[id]
-      && messages[id].roomId === roomId
-      && messages[id].hadSeenMessageUsers
-      && !messages[id].hadSeenMessageUsers.includes(account._id),
-  ).length;
   return [
     {
       room: {
         ...rooms[roomId],
         otherMembers: rooms[roomId].members.filter(
-          m => m._id !== account._id,
+          m => m.id !== account.id,
         ),
-        newMessageNumber: newNumberMessagesInRoom,
+        newMessageNumber: Object.keys(messages).filter(
+          id => messages[id]?.roomId === roomId
+            && !messages[id]?.hadSeenMessageUsers?.includes(account.id),
+        ).length,
         userName:
           rooms[roomId]?.userName
-          || rooms[roomId]?.members?.find(m => m._id !== account._id)?.userName,
+          || rooms[roomId]?.members?.find(m => m.id !== account.id)?.userName,
       },
     },
     { haveSeenNewMessages },
   ];
 };
+
+const roomsSelector = account => ({ messages, getRooms, rooms }) => ({
+  messages,
+  rooms: (getRooms.ids || []).map(id => ({
+    ...rooms[id],
+    otherMembers: rooms[id].members?.filter(m => m.id !== account.id),
+    newMessageNumber: rooms[id].messageIds?.filter(
+      msgId => !messages[msgId]?.hadSeenMessageUsers?.includes(account.id),
+    )?.length,
+    userName:
+      rooms[id].name
+      || rooms[id].members?.find(m => m.id !== account.id)?.userName,
+  })),
+});
 // typeRooms: messages | notMessages | contactBook |all
 export const useRooms = typeRooms => {
   const { account } = useContext(AccountContext);
   const [
-    { messageRooms, notMessageRooms, withoutGroupRooms, rooms },
+    { rooms },
     { getRooms, haveSeenNewMessages },
-  ] = useModel('message', ({ messages, getRooms, rooms }) => ({
-    messages,
-    messageRooms: (getRooms.ids || [])
-      .filter(id => !!rooms[id]?.messageIds?.length)
-      .map(id => rooms[id])
-      .map(room => ({
-        ...room,
-        newMessageNumber: room.messageIds?.filter(
-          msgId => messages[msgId]?.hadSeenMessageUsers
-            && !messages[msgId].hadSeenMessageUsers?.includes(account._id),
-        )?.length,
-        otherMembers: room.members?.filter(m => m._id !== account._id),
-        userName:
-          room.name
-          || room.members?.find(m => m._id !== account._id)?.userName,
-      })),
-    notMessageRooms: (getRooms.ids || [])
-      .filter(id => !rooms[id]?.messageIds?.length)
-      .map(id => ({
-        ...rooms[id],
-        otherMembers: rooms[id].members?.filter(m => m._id !== account._id),
-        userName:
-          rooms[id].name
-          || rooms[id].members?.find(m => m._id !== account._id)?.userName,
-      })),
-    withoutGroupRooms: (getRooms.ids || [])
-      .filter(id => rooms[id].members?.length === 2)
-      .map(id => ({
-        ...rooms[id],
-        otherMembers: rooms[id].members?.filter(m => m._id !== account._id),
-        userName:
-          rooms[id].name
-          || rooms[id].members?.find(m => m._id !== account._id)?.userName,
-      })),
-    rooms: (getRooms.ids || []).map(id => ({
-      ...rooms[id],
-      otherMembers: rooms[id].members?.filter(m => m._id !== account._id),
-      userName:
-        rooms[id].name
-        || rooms[id].members?.find(m => m._id !== account._id)?.userName,
-    })),
-  }));
+  ] = useModel('message', roomsSelector(account));
 
   useReactEffect(() => {
-    account._id && getRooms(account._id);
-  }, [account._id]);
+    account.id && getRooms(account.id);
+  }, [account.id]);
 
-  if (!account._id) return [{}, {}];
+  if (!account.id) return [{}, {}];
 
   switch (typeRooms) {
     case menuKeys.MESSAGES:
-      return [{ rooms: messageRooms }, { haveSeenNewMessages }];
+      return [{ rooms: rooms.filter(room => !!room.messageIds?.length) }, { haveSeenNewMessages }];
     case 'notMessages':
-      return [{ rooms: notMessageRooms }, { haveSeenNewMessages }];
+      return [{ rooms: rooms.filter(room => !room.messageIds?.length) }, { haveSeenNewMessages }];
+    case menuKeys.CONTACT_BOOK:
+      return [{ rooms: rooms.filter(room => room.members?.length === 2) }, { haveSeenNewMessages }];
     case 'all':
       return [{ rooms }, { haveSeenNewMessages }];
-    case menuKeys.CONTACT_BOOK:
-      return [{ rooms: withoutGroupRooms }, { haveSeenNewMessages }];
     default:
       // no params
       return [
-        { messageRooms, notMessageRooms, rooms },
+        {
+          messageRooms: rooms.filter(room => !!room.messageIds?.length),
+          notMessageRooms: rooms.filter(room => !room.messageIds?.length),
+          rooms,
+        },
         { haveSeenNewMessages },
       ];
   }

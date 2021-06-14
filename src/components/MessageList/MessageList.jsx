@@ -46,7 +46,7 @@ const MessageList = ({ roomId, className }) => {
     return s;
   }, []);
 
-  const members = room.members.reduce((s, m) => ({ ...s, [m._id]: m }), {});
+  const members = room.members.reduce((s, m) => ({ ...s, [m.id]: m }), {});
   useEffect(() => {
     // TODO scroll to bottom list
     // !loading && containerRef.current.scrollIntoView(false);
@@ -57,10 +57,10 @@ const MessageList = ({ roomId, className }) => {
       <VStack mt="5" spacing="3" ref={containerRef} alignItems="flex-start">
         {aggregateMessages.map(m => (
           <Stack
-            key={m._id || m.keyMsg}
+            key={m.id || m.keyMsg}
             spacing="1"
             w="100%"
-            direction={m.senderId !== account._id ? 'row' : 'row-reverse'}
+            direction={m.senderId !== account.id ? 'row' : 'row-reverse'}
           >
             <Avatar
               name={members[m.senderId]?.userName || 'N/A'}
@@ -89,12 +89,12 @@ const MessageList = ({ roomId, className }) => {
               ) : (
                 <Stack
                   spacing="2"
-                  align={m.senderId !== account._id ? 'flex-start' : 'flex-end'}
+                  align={m.senderId !== account.id ? 'flex-start' : 'flex-end'}
                 >
                   {m.aggregateMsg.map((mm, ii, aa) => (
                     <MessageContent
                       roomId={roomId}
-                      key={mm._id || mm.keyMsg}
+                      key={mm.id || mm.keyMsg}
                       message={mm}
                       members={members}
                       containerRef={containerRef}

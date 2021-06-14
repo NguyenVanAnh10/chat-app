@@ -25,10 +25,10 @@ const RoomList = ({ roomListType }) => {
   const onHandleClick = room => {
     setMenuState(prev => ({
       ...prev,
-      [menuState.active]: { ...prev[menuState.active], roomId: room._id },
+      [menuState.active]: { ...prev[menuState.active], roomId: room.id },
     }));
     if (!room.newMessageNumber?.length) return;
-    haveSeenNewMessages({ roomId: room._id, userId: account._id });
+    haveSeenNewMessages({ roomId: room.id, userId: account.id });
   };
   const onHandleSelectRoom = id => {
     setMenuState(prev => ({
@@ -42,6 +42,7 @@ const RoomList = ({ roomListType }) => {
         <Box pt="5">
           <ListItem
             data={rooms}
+            emptyText="No friend"
             header={(
               <HStack justifyContent="space-between">
                 <Text fontSize="sm">All friends</Text>
@@ -58,7 +59,7 @@ const RoomList = ({ roomListType }) => {
             renderItem={room => (
               <RoomItem
                 room={room}
-                active={selectedRoomId === room._id}
+                active={selectedRoomId === room.id}
                 onClick={() => onHandleClick(room)}
               />
             )}
@@ -71,6 +72,7 @@ const RoomList = ({ roomListType }) => {
         <Box pt="5">
           <ListItem
             data={rooms}
+            emptyText="No message"
             header={(
               <HStack justifyContent="space-between">
                 <Text fontSize="sm">All messages</Text>
@@ -86,7 +88,7 @@ const RoomList = ({ roomListType }) => {
             renderItem={room => (
               <RoomItem
                 room={room}
-                active={selectedRoomId === room._id}
+                active={selectedRoomId === room.id}
                 onClick={() => onHandleClick(room)}
               />
             )}

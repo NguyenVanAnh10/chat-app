@@ -36,7 +36,7 @@ const MessageInput = ({ roomId, ...rest }) => {
 
   const onHandleFocusInput = () => {
     if (!room.newMessageNumber) return;
-    haveSeenNewMessages({ roomId, userId: account._id });
+    haveSeenNewMessages({ roomId, userId: account.id });
   };
   const { control, handleSubmit, reset, setFocus } = useForm({ message: '' });
 
@@ -52,8 +52,8 @@ const MessageInput = ({ roomId, ...rest }) => {
       contentType: Message.CONTENT_TYPE_TEXT,
       content: data.message,
       createAt: Date.now(),
-      senderId: account._id,
-      hadSeenMessageUsers: [account._id],
+      senderId: account.id,
+      hadSeenMessageUsers: [account.id],
     });
     reset({ message: '' });
     setFocus('message');
@@ -72,8 +72,8 @@ const MessageInput = ({ roomId, ...rest }) => {
         contentBlob: URL.createObjectURL(imageUrls[0]),
         base64Image,
         createAt: Date.now(),
-        senderId: account._id,
-        hadSeenMessageUsers: [account._id],
+        senderId: account.id,
+        hadSeenMessageUsers: [account.id],
       });
     } catch (error) {
       console.error(error);
@@ -164,12 +164,13 @@ const UploadImage = ({ onSendImage, maxSize = 1 }) => {
     inputImageRef.current.value = '';
     // 1B
     if (sizeImages > maxSize * 1024 * 1024) {
-      return toast({
+      toast({
         description: `Size file has to less ${maxSize}MB`,
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
+      return;
     }
     onSendImage(imageUrls);
   };

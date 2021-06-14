@@ -25,12 +25,17 @@ import { useModel } from 'model';
 import { AccountContext } from 'App';
 import SearchUserInput from 'components/SearchUserInput';
 
+const selector = ({ createRoom, rooms: roomsModel }) => ({
+  createRoomState: createRoom,
+  rooms: Object.keys(roomsModel).map(id => roomsModel[id]),
+});
+
 const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
-  const [{ createRoomState, rooms }, { createRoom }] = useModel(
-    'message',
-    ({ createRoom, rooms: roomsModel }) => ({
-      createRoomState: createRoom,
-      rooms: Object.keys(roomsModel).map(id => roomsModel[id]),
+  const [{ createRoomState, rooms }, { createRoom }] = useModel('message', selector);
+  const [{ friends }] = useModel(
+    'account',
+    ({ me, users }) => ({
+      friends: (me.friendIds || []).map(id => users[id]),
     }),
   );
   const toast = useToast();
@@ -39,17 +44,18 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
 
   useUpdateEffect(() => {
     if (createRoomState.loading || createRoomState.error) return;
-    onSelectRoom(createRoomState._id);
+    onSelectRoom(createRoomState.id);
     onClose();
   }, [createRoomState]);
 
   const onHandleSumbit = handleSubmit(data => {
+    if (data.userIds.length < 3) return;
     const room = rooms.find(r => isEqual(
       r.userIds.sort(),
-      [account._id, ...data.userIds.map(u => u._id)].sort(),
+      [account.id, ...data.userIds.map(u => u.id)].sort(),
     ));
     if (room) {
-      onSelectRoom(room._id);
+      onSelectRoom(room.id);
       toast({
         description: 'Group existed',
         status: 'error',
@@ -61,12 +67,12 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
     }
     createRoom({
       name: data.name,
-      userIds: [account._id, ...data.userIds.map(u => u._id)],
-      createrId: account._id,
+      userIds: [account.id, ...data.userIds.map(u => u.id)],
+      createrId: account.id,
     });
   });
   const onHandleAddUser = (user, { users, onAdd }) => {
-    if (users.find(u => u._id === user._id)) return;
+    if (users.find(u => u.id === user.id)) return;
     onAdd([...users, user]);
   };
   return (
@@ -81,7 +87,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
               name="name"
               control={control}
               defaultValue=""
-              rules={{ required: 'Room name is required' }}
+              rules={{ required: 'Set group name' }}
               render={({ field, fieldState: { error, invalid } }) => (
                 <FormControl isInvalid={invalid}>
                   <Input placeholder="Room name" {...field} />
@@ -95,48 +101,51 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
               name="userIds"
               control={control}
               defaultValue={[]}
-              rules={{ required: 'Email is required' }}
+              rules={{
+                required: 'Add friend to chat group',
+                validate: value => value.length > 1 || 'Group chat is greater 2 friends',
+              }}
               render={({
                 field: { onChange, value: users },
                 fieldState: { error, invalid },
               }) => (
-                <FormControl isInvalid={invalid} marginTop="5">
-                  <HStack spacing={4}>
-                    {users.map(u => (
-                      <Tag
-                        size="md"
-                        key={u._id}
-                        borderRadius="full"
-                        variant="solid"
-                        bg="pink.100"
-                        color="pink.600"
-                      >
-                        <TagLabel>{u.userName}</TagLabel>
-                        <TagCloseButton />
-                      </Tag>
-                    ))}
-                  </HStack>
-                  {error && (
+                <>
+                  <FormControl isInvalid={invalid} marginTop="5">
+                    <HStack spacing={4}>
+                      {users.map(u => (
+                        <Tag
+                          size="md"
+                          key={u.id}
+                          colorScheme="blue"
+                        >
+                          <TagLabel>{u.userName}</TagLabel>
+                          <TagCloseButton />
+                        </Tag>
+                      ))}
+                    </HStack>
+                    {error && (
                     <FormErrorMessage>{error.message}</FormErrorMessage>
-                  )}
+                    )}
+                  </FormControl>
                   <SearchUserInput
                     mt="5"
+                    usersData={friends}
                     hasSearchIcon={false}
-                    placeholder="Add user..."
+                    placeholder="Find friend..."
                     onUserClick={u => onHandleAddUser(u, { users, onAdd: onChange })}
                   />
-                </FormControl>
+                </>
               )}
             />
           </form>
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}>
+          <Button variant="ghost" mr={3} onClick={onClose}>
             Cancel
           </Button>
           <Button
-            variant="ghost"
+            colorScheme="blue"
             onClick={onHandleSumbit}
             isLoading={createRoomState.loading}
           >

@@ -1,50 +1,38 @@
-import React, { useContext, useRef, useMemo } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Avatar,
-  Center,
   Divider,
   Input,
   InputGroup,
   InputLeftElement,
   List,
   ListItem,
-  Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import debounce from 'lodash.debounce';
 
-import { useModel } from 'model';
-import { AccountContext } from 'App';
+import EmptyList from 'components/EmptyList';
 
 const SearchUserInput = ({
   placeholder,
+  usersData = [],
   hasSearchIcon = true,
   onUserClick,
   renderResultList,
   ...rest
 }) => {
-  const [{ users, loading }, { getUsers }] = useModel(
-    'account',
-    ({ getUsers, users: usersModel }) => ({
-      users: (getUsers.ids || []).map(id => usersModel[id]),
-      loading: getUsers.loading,
-    }),
-  );
-  const { account } = useContext(AccountContext);
+  const [users, setUsers] = useState(usersData);
   const debounceRef = useRef();
 
-  const onHandleSearch = keyword => {
-    if (!keyword) return;
+  const onHandleSearch = kw => {
+    if (!kw) return;
     debounceRef.current && debounceRef.current.cancel();
-    debounceRef.current = debounce(() => getUsers(keyword), 300);
+    debounceRef.current = debounce(() => setUsers(usersData.filter(u => u.userName.includes(kw))),
+      300);
     debounceRef.current();
   };
-  const usersData = useMemo(
-    () => users.filter(u => u._id !== account._id),
-    [users, account._id],
-  );
   return (
     <>
       <InputGroup {...rest}>
@@ -62,17 +50,6 @@ const SearchUserInput = ({
           onChange={e => onHandleSearch(e.target.value)}
         />
       </InputGroup>
-      {loading && (
-        <Center>
-          <Spinner
-            thickness="3px"
-            speed="0.65s"
-            emptyColor="gray.200"
-            color="orange.300"
-            size="lg"
-          />
-        </Center>
-      )}
       {!!users.length && (
         <>
           <Divider mb="5" mt="1" />
@@ -83,6 +60,7 @@ const SearchUserInput = ({
           )}
         </>
       )}
+      {!users.length && <EmptyList pt="5" content="Friend not found" />}
     </>
   );
 };
@@ -90,7 +68,7 @@ const DefaultResultList = ({ users, onUserClick }) => (
   <List spacing="2">
     {users.map(u => (
       <ListItem
-        key={u._id}
+        key={u.id}
         d="flex"
         cursor="pointer"
         bg="pink.50"

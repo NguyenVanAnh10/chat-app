@@ -15,7 +15,7 @@ const Login = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { token } = useQuery();
 
-  if (account._id) {
+  if (account.id) {
     return <Redirect to="/" />;
   }
 

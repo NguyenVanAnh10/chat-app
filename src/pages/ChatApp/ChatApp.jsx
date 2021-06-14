@@ -7,9 +7,9 @@ import { Flex, useDisclosure } from '@chakra-ui/react';
 
 import { AccountContext } from 'App';
 import { useModel } from 'model';
-import SubSideNav from 'components/SubSideNav';
 // import ChatBox from 'components/ChatBox';
 import MainSideNav from 'layouts/ChatApp/MainSideNav';
+import SubSideNav from 'layouts/ChatApp/SubSideNav';
 
 import useChat from 'hooks/useChat';
 import CallingAlertModal from 'components/CallingAlertModal';
@@ -22,6 +22,7 @@ export const ChatContext = createContext({});
 const ChatApp = () => {
   const { account } = useContext(AccountContext);
   const [, { getMessages }] = useModel('message', () => ({}));
+  const [, { getUsers }] = useModel('account', () => ({}));
   const { isOpen, onClose, onOpen: onOpenConversationModal } = useDisclosure();
   const { state: chatState, actions: chatActions } = useChat();
 
@@ -30,7 +31,9 @@ const ChatApp = () => {
   // const isMobileScreen = useBreakpointValue({ base: true, md: false });
 
   useReactEffect(() => {
-    getMessages({ userId: account._id });
+    getMessages({ userId: account.id });
+    // TODO just get all users
+    getUsers();
   }, []);
   return (
     <ChatContext.Provider value={{ state: chatState, actions: chatActions }}>
