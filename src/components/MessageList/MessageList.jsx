@@ -17,7 +17,9 @@ import ReviewImageModal from 'components/ReviewImageModal';
 import MessageContent from 'components/MessageContent';
 import Message from 'entities/Message';
 
-const MessageList = ({ roomId, className }) => {
+import styles from './MessageList.module.scss';
+
+const MessageList = ({ roomId }) => {
   const [{ messages, loading }] = useMessages(roomId, {
     fetchData: true,
   });
@@ -46,13 +48,12 @@ const MessageList = ({ roomId, className }) => {
 
   const members = room.members.reduce((s, m) => ({ ...s, [m.id]: m }), {});
   useEffect(() => {
-    // TODO scroll to bottom list
-    // !loading && containerRef.current.scrollIntoView(false);
+    !loading && containerRef.current.scrollIntoView(false);
   }, [messages, loading]);
 
   return (
-    <MessageListCard w="100%" className={className} loading={loading}>
-      <VStack mt="5" spacing="3" ref={containerRef} alignItems="flex-start">
+    <MessageListCard className={styles.MessageList} loading={loading}>
+      <VStack mt="5" ref={containerRef} spacing="3" alignItems="flex-start">
         {aggregateMessages.map(m => (
           <Stack
             key={m.id || m.keyMsg}

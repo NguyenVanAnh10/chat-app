@@ -25,7 +25,6 @@ const NotificationDrawers = ({ isOpen, onClose }) => {
     <Drawer
       isOpen={isOpen}
       placement="left"
-      closeOnOverlayClick={false}
       onClose={onClose}
     >
       <DrawerOverlay />

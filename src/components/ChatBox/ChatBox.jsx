@@ -19,7 +19,7 @@ const ChatBox = ({ roomId }) => {
       justifyContent="space-between"
     >
       <ChatHeader roomId={roomId} />
-      <MessageList className="show-message-box" roomId={roomId} />
+      <MessageList roomId={roomId} />
       <MessageInput roomId={roomId} pl="3" />
     </VStack>
   );
