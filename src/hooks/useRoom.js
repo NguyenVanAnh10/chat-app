@@ -23,7 +23,8 @@ const useRoom = roomId => {
         ),
         newMessageNumber: Object.keys(messages).filter(
           id => messages[id]?.roomId === roomId
-            && !messages[id]?.hadSeenMessageUsers?.includes(account.id),
+            && !!messages[id]?.hadSeenMessageUsers
+            && !messages[id].hadSeenMessageUsers.includes(account.id),
         ).length,
         userName:
           rooms[roomId]?.userName
@@ -40,7 +41,8 @@ const roomsSelector = account => ({ messages, getRooms, rooms }) => ({
     ...rooms[id],
     otherMembers: rooms[id].members?.filter(m => m.id !== account.id),
     newMessageNumber: rooms[id].messageIds?.filter(
-      msgId => !messages[msgId]?.hadSeenMessageUsers?.includes(account.id),
+      msgId => !!messages[msgId]?.hadSeenMessageUsers
+      && !messages[msgId].hadSeenMessageUsers.includes(account.id),
     )?.length,
     userName:
       rooms[id].name
