@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect as useReactEffect } from 'react';
+import React, { useContext, useRef } from 'react';
 import {
   Box,
   HStack,
@@ -25,7 +25,7 @@ import NimblePicker from 'components/EmojiPicker';
 
 import styles from './MessageInput.module.scss';
 
-const MessageInput = ({ roomId, ...rest }) => {
+const MessageInput = ({ roomId, messagesContainerRef, ...rest }) => {
   const { account } = useContext(AccountContext);
   const [{ room }] = useRoom(roomId);
 
@@ -40,10 +40,6 @@ const MessageInput = ({ roomId, ...rest }) => {
   };
   const { control, handleSubmit, reset, setFocus } = useForm({ message: '' });
 
-  useReactEffect(() => {
-    setFocus('message');
-  }, []);
-
   const handleSubmitMessage = handleSubmit(data => {
     if (!data.message) return;
     sendMessage({
@@ -57,7 +53,9 @@ const MessageInput = ({ roomId, ...rest }) => {
     });
     reset({ message: '' });
     setFocus('message');
+    messagesContainerRef.current?.scrollIntoView(false);
   });
+
   const handleSendImage = async imageUrls => {
     if (!imageUrls.length) return;
     try {
@@ -75,6 +73,7 @@ const MessageInput = ({ roomId, ...rest }) => {
         senderId: account.id,
         hadSeenMessageUsers: [account.id],
       });
+      messagesContainerRef.current?.scrollIntoView(false);
     } catch (error) {
       console.error(error);
     }

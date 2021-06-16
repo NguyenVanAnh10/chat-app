@@ -31,7 +31,8 @@ const ChatApp = () => {
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
 
   useReactEffect(() => {
-    getMessages({ userId: account.id });
+    // TODO just get all not seen messages
+    getMessages({ userId: account.id, cachedKey: 'all' });
     // TODO just get all users
     getUsers();
   }, []);
@@ -55,7 +56,7 @@ const ChatApp = () => {
 };
 
 const MainLayout = () => (
-  <Flex minH="100vh" w="100%">
+  <Flex h="100vh" w="100%" overflow="hidden">
     <Flex borderRight="1px solid rgba(0, 0, 0, 0.08)">
       <SubSideNav />
       <MainSideNav />
@@ -68,7 +69,7 @@ const MobileLayout = () => {
   const { menuState } = useContext(MenuContext);
 
   return (
-    <Flex w="100%">
+    <Flex h="100vh" w="100%" overflow="hidden">
       {(!!menuState.active && !!menuState[menuState.active]?.roomId) ? (
         <MainContent />
       ) : (

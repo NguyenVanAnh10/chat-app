@@ -1,43 +1,58 @@
 import { useContext, useEffect as useReactEffect } from 'react';
-import qs from 'query-string';
 
 import { useModel } from 'model';
 import { AccountContext } from 'App';
 
 const opts = { fetchData: false };
 
-const selector = ({ messages, getMessages }) => ({
-  mesagesState: getMessages,
-  messages,
-});
+const selector = cachedKey => ({ messages, getMessages, rooms }) => {
+  console.log('cachedKey', cachedKey, 'room', rooms[cachedKey]?.id);
+  return ({
+    mesagesState: getMessages,
+    messages,
+    total: rooms[cachedKey]?.messageIds?.length || 0,
+  });
+};
 const useMessages = (roomId, options = opts) => {
   const {
     account: { id: userId },
   } = useContext(AccountContext);
 
-  const cachedKey = qs.stringify({ roomId, userId });
+  const cachedKey = roomId || 'all';
   const [
-    { messages, mesagesState },
+    { messages, mesagesState, total },
     { getMessages, sendMessage, haveSeenNewMessages },
-  ] = useModel('message', selector);
-
+  ] = useModel('message', selector(cachedKey), [cachedKey]);
+  // TODO
   useReactEffect(() => {
     roomId
       && userId
       && options.fetchData
       && !mesagesState[cachedKey]
-      && getMessages({ roomId, userId });
+      && getMessages({ roomId, userId, limit: 20, skip: 0, cachedKey });
   }, [roomId, userId]);
+  // TODO
+  const loadMoreMessages = ({ limit, skip }) => {
+    roomId
+      && userId
+      && options.fetchData
+      && getMessages({ roomId, userId, limit, skip, cachedKey });
+  };
 
   if (!roomId || !userId) return [{ messages: [] }, {}];
   return [
     {
+      total,
       messages: (mesagesState[cachedKey]?.ids || [])
         .map(id => messages[id])
-        .filter(m => m.roomId === roomId),
+        .sort((msg1, msg2) => {
+          if (msg1.createAt > msg2.createAt) return 1;
+          if (msg1.createAt < msg2.createAt) return -1;
+          return 0;
+        }),
       loading: mesagesState[cachedKey]?.loading,
     },
-    { getMessages, sendMessage, haveSeenNewMessages },
+    { getMessages, sendMessage, haveSeenNewMessages, loadMoreMessages },
   ];
 };
 export default useMessages;

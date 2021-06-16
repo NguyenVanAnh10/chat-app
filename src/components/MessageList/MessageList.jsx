@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState, forwardRef } from 'react';
 import {
   Avatar,
   HStack,
@@ -8,6 +8,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { RepeatIcon } from '@chakra-ui/icons';
+import { useUpdateEffect } from 'react-use';
 
 import useRoom from 'hooks/useRoom';
 import { AccountContext } from 'App';
@@ -19,16 +20,17 @@ import Message from 'entities/Message';
 
 import styles from './MessageList.module.scss';
 
-const MessageList = ({ roomId }) => {
-  const [{ messages, loading }] = useMessages(roomId, {
+const MessageList = forwardRef(({ roomId }, ref) => {
+  const [{ messages, loading, total }, { loadMoreMessages }] = useMessages(roomId, {
     fetchData: true,
   });
 
   const [{ room }] = useRoom(roomId);
   const { account } = useContext(AccountContext);
-  const containerRef = useRef();
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [imgSrc, setImgSrc] = useState();
+
+  const messagesRef = useRef({ total, messages });
 
   // TODO aggregate messages
   const aggregateMessages = messages.reduce((s, c, index, msgArr) => {
@@ -47,14 +49,33 @@ const MessageList = ({ roomId }) => {
   }, []);
 
   const members = room.members.reduce((s, m) => ({ ...s, [m.id]: m }), {});
-  useEffect(() => {
-    !loading && containerRef.current.scrollIntoView(false);
-  }, [messages, loading]);
+  useUpdateEffect(() => {
+    messagesRef.current.messages = messages;
+    messagesRef.current.total = total;
+  }, [messages, roomId]);
+
+  const handleLoadmore = listContainerRef => {
+    if (messagesRef.current.total <= messagesRef.current.messages.length) return;
+    loadMoreMessages({
+      limit: 10, skip: messagesRef.current.messages.length,
+    });
+    listContainerRef.scrollTo({
+      top: 100,
+      left: 0,
+      behavior: 'smooth',
+    });
+  };
 
   return (
-    <MessageListCard className={styles.MessageList} loading={loading}>
-      <VStack mt="5" ref={containerRef} spacing="3" alignItems="flex-start">
-        {aggregateMessages.map(m => (
+    <MessageListCard
+      roomId={roomId}
+      className={styles.MessageList}
+      messages={messages}
+      loading={loading}
+      onLoadmore={handleLoadmore}
+    >
+      <VStack mt="5" ref={ref} spacing="3" alignItems="flex-start">
+        {aggregateMessages.map((m, i, msgsArr) => (
           <Stack
             key={m.id || m.keyMsg}
             spacing="1"
@@ -78,7 +99,8 @@ const MessageList = ({ roomId }) => {
                   roomId={roomId}
                   message={m}
                   members={members}
-                  containerRef={containerRef}
+                  messagesContainerRef={ref}
+                  showSeenUsers={i === msgsArr.length - 1}
                   onImageClick={() => {
                     if (m.contentType !== Message.CONTENT_TYPE_IMAGE) return;
                     setImgSrc(m.content);
@@ -96,8 +118,9 @@ const MessageList = ({ roomId }) => {
                       key={mm.id || mm.keyMsg}
                       message={mm}
                       members={members}
-                      containerRef={containerRef}
+                      messagesContainerRef={ref}
                       showStatusMessage={ii === aa.length - 1}
+                      showSeenUsers={i === msgsArr.length - 1}
                       onImageClick={() => {
                         if (mm.contentType !== Message.CONTENT_TYPE_IMAGE) { return; }
                         setImgSrc(mm.content);
@@ -114,6 +137,6 @@ const MessageList = ({ roomId }) => {
       <ReviewImageModal isOpen={isOpen} onClose={onClose} imgSrc={imgSrc} />
     </MessageListCard>
   );
-};
+});
 
 export default MessageList;

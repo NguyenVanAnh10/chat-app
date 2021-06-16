@@ -22,7 +22,7 @@ const useChat = () => {
   const { account } = useContext(AccountContext);
   const [,
     {
-      getMessages, getRoom, getMessage, getHaveSeenNewMessages, sendMessage,
+      getRoom, getMessage, getHaveSeenNewMessages, sendMessage,
     },
   ] = useModel('message', () => ({}));
   const [, { getFriendRequest }] = useModel('account', () => ({}));
@@ -62,10 +62,10 @@ const useChat = () => {
     },
     send_message_success: ({ senderId, messageId, roomId }) => {
       if (account.id === senderId) return;
-      getMessage({ messageId, userId: account.id, roomId });
-    },
-    receive_message: ({ roomId }) => {
-      getMessages({ roomId, userId: account.id });
+      getMessage({ messageId,
+        userId: account.id,
+        roomId,
+        cachedKey: roomId });
     },
     user_has_seen_messages: ({ roomId, userId, haveSeenMessageIds }) => {
       if (account.id === userId) return;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { VStack } from '@chakra-ui/react';
 
 import MessageList from 'components/MessageList';
@@ -9,6 +9,7 @@ import ChatHeader from 'components/ChatHeader';
 import styles from './ChatBox.module.scss';
 
 const ChatBox = ({ roomId }) => {
+  const messagesContainerRef = useRef();
   if (!roomId) return null;
   return (
     <VStack
@@ -19,8 +20,8 @@ const ChatBox = ({ roomId }) => {
       justifyContent="space-between"
     >
       <ChatHeader roomId={roomId} />
-      <MessageList roomId={roomId} />
-      <MessageInput roomId={roomId} pl="3" />
+      <MessageList ref={messagesContainerRef} roomId={roomId} />
+      <MessageInput messagesContainerRef={messagesContainerRef} roomId={roomId} pl="3" />
     </VStack>
   );
 };

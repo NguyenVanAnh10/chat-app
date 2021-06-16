@@ -1,7 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-case-declarations */
-import qs from 'query-string';
-
 import {
   getMessage,
   getMessages,
@@ -37,7 +33,12 @@ const messageModel = {
             ),
             getMessages: {
               ...state.getMessages,
-              [payload.cachedKey]: { ids: payload.messages.map(m => m.id) },
+              [payload.cachedKey]: { ids: [
+                ...(state.getMessages[payload.cachedKey]?.ids || []),
+                ...payload.messages
+                  .map(m => m.id)
+                  .filter(id => !state.getMessages[payload.cachedKey]?.ids?.includes(id)),
+              ] },
             },
           };
         case 'error':
@@ -49,17 +50,14 @@ const messageModel = {
             },
           };
         default:
-          // eslint-disable-next-line no-case-declarations
-          const cachedKey = qs.stringify({
-            roomId: payload.roomId,
-            userId: payload.userId,
-          });
-
           return {
             ...state,
             getMessages: {
               ...state.getMessages,
-              [cachedKey]: { loading: true },
+              [payload.cachedKey]: {
+                loading: true,
+                ...state.getMessages[payload.cachedKey],
+              },
             },
           };
       }
@@ -102,15 +100,10 @@ const messageModel = {
             },
           };
         default:
-          // eslint-disable-next-line no-case-declarations
-          const cachedKey = qs.stringify({
-            roomId: payload.roomId,
-            userId: payload.userId,
-          });
           return {
             ...state,
             getMessage: {
-              [cachedKey]: { loading: true },
+              [payload.cachedKey]: { loading: true },
             },
           };
       }
@@ -192,7 +185,7 @@ const messageModel = {
               },
             },
             sendMessage: {
-              [payload.keyMsg]: payload.message,
+              [payload.keyMsg]: undefined,
             },
           };
         case 'error':
@@ -210,11 +203,6 @@ const messageModel = {
             },
           };
         default:
-          const cachedKey = qs.stringify({
-            roomId: payload.roomId,
-            userId: payload.senderId,
-          });
-
           return {
             ...state,
             messages: {
@@ -228,9 +216,9 @@ const messageModel = {
             },
             getMessages: {
               ...state.getMessages,
-              [cachedKey]: {
+              [payload.roomId]: {
                 ids: [
-                  ...(state.getMessages[cachedKey]?.ids || []),
+                  ...(state.getMessages[payload.roomId]?.ids || []),
                   payload.keyMsg,
                 ],
               },
@@ -272,23 +260,14 @@ const messageModel = {
     },
   },
   effects: {
-    getMessages: async (payload, onSuccess, onError) => {
-      const cachedKey = qs.stringify({
-        roomId: payload.roomId,
-        userId: payload.userId,
-      });
-
+    getMessages: async ({ cachedKey, ...payload }, onSuccess, onError) => {
       try {
         onSuccess({ cachedKey, messages: await getMessages(payload) });
       } catch (error) {
         onError({ cachedKey, error });
       }
     },
-    getMessage: async (payload, onSuccess, onError) => {
-      const cachedKey = qs.stringify({
-        roomId: payload.roomId,
-        userId: payload.userId,
-      });
+    getMessage: async ({ cachedKey, ...payload }, onSuccess, onError) => {
       try {
         onSuccess({ cachedKey, message: await getMessage(payload) });
       } catch (error) {
@@ -298,6 +277,7 @@ const messageModel = {
     getRooms: async (payload, onSuccess, onError) => {
       try {
         if (!payload.userId) {
+          // eslint-disable-next-line no-param-reassign
           payload.userId = (await getMe()).id;
         }
         onSuccess(await getRooms(payload.userId));
@@ -315,6 +295,7 @@ const messageModel = {
     getRoom: async (payload, onSuccess, onError) => {
       try {
         if (!payload.userId) {
+          // eslint-disable-next-line no-param-reassign
           payload.userId = (await getMe()).id;
         }
         onSuccess(await getRoom(payload));
@@ -322,19 +303,15 @@ const messageModel = {
         onError(error);
       }
     },
-    sendMessage: async (params, onSuccess, onError) => {
-      const cachedKey = qs.stringify({
-        roomId: params.roomId,
-        userId: params.senderId,
-      });
+    sendMessage: async ({ keyMsg, ...payload }, onSuccess, onError) => {
       try {
         onSuccess({
-          cachedKey,
-          keyMsg: params.keyMsg,
-          message: (await sendMessage(params)).message,
+          cachedKey: payload.roomId,
+          keyMsg,
+          message: (await sendMessage(payload)).message,
         });
       } catch (error) {
-        onError({ keyMsg: params.keyMsg, error });
+        onError({ keyMsg, error });
       }
     },
     haveSeenNewMessages: async (payload, onSuccess, onError) => {

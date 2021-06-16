@@ -12,6 +12,7 @@ const MessageContent = ({
   members,
   containerRef,
   onImageClick,
+  showSeenUsers = true,
   showStatusMessage = true,
 }) => {
   const { account } = useContext(AccountContext);
@@ -44,6 +45,7 @@ const MessageContent = ({
           message={message}
           members={members}
           account={account}
+          showSeenUsers={showSeenUsers}
           showStatusMessage={showStatusMessage}
         />
       );

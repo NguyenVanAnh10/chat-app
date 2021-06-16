@@ -75,7 +75,7 @@ export const initRegisters = registerModels => Object.keys(registerModels).forEa
   models.modelNames.push(registerModels[m].name);
 });
 
-export const useModel = (name, selector) => {
+export const useModel = (name, selector, cachedKey = []) => {
   const [, forceRender] = useState({});
   if (!models.store) {
     models.initStore();
@@ -92,6 +92,6 @@ export const useModel = (name, selector) => {
       }
     });
     return unsub;
-  }, []);
+  }, cachedKey);
   return [currentStateRef.current, models.actions];
 };
