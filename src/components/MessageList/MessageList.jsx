@@ -58,11 +58,13 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
     <>
       <MessageListCard
         ref={ref}
+        total={total}
         roomId={roomId}
         messages={messages}
         className={styles.MessageList}
         getState={getMessagesState} // {loading, error}
         isLoadmore={total > messages.length}
+        isNewMessages={room.newMessageNumber}
         bottomMessagesBoxRef={bottomMessagesBoxRef}
         onLoadmore={handleLoadmore}
       >

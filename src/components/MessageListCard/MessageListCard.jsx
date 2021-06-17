@@ -1,15 +1,25 @@
-import React, { forwardRef, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { forwardRef, useContext, useEffect, useLayoutEffect, useRef } from 'react';
 import { useUpdateEffect } from 'react-use';
 import { Center, Spinner, VStack } from '@chakra-ui/react';
 import debounce from 'lodash.debounce';
 import classNames from 'classnames';
 
 import styles from './MessageListCard.module.scss';
+import { useModel } from 'model';
+import { AccountContext } from 'App';
+import useRoom from 'hooks/useRoom';
 
 const MessageListCard = forwardRef(({
-  roomId, messages, getState: { loading, error }, bottomMessagesBoxRef,
-  className, children, isLoadmore, onLoadmore, threshold = 50, ...rest },
+  roomId, messages, getState: { loading, error }, bottomMessagesBoxRef, isNewMessages,
+  className, children, isLoadmore, onLoadmore, threshold = 50, total, ...rest },
 ref) => {
+  const { account } = useContext(AccountContext);
+  const [{ room }] = useRoom(roomId);
+  const [, { haveSeenNewMessages }] = useModel(
+    'message',
+    () => ({}),
+  );
+
   const prevScrollTopRef = useRef(0);
   const debounceRef = useRef();
   const prevRoomIdRef = useRef();
@@ -30,9 +40,13 @@ ref) => {
 
   useLayoutEffect(() => {
     // set scrollbar at bottom when first time get messages
-    if (isChangeRoomRef.current && !!messages.length) {
+    if (isChangeRoomRef.current
+       && (messages.length >= 20 || messages.length === total)) {
       prevRoomIdRef.current = roomId;
       isChangeRoomRef.current = false;
+      bottomMessagesBoxRef.current?.scrollIntoView(false);
+    }
+    if (isNewMessages) {
       bottomMessagesBoxRef.current?.scrollIntoView(false);
     }
   }, [messages]);
@@ -62,6 +76,10 @@ ref) => {
     }, 300);
     debounceRef.current();
   };
+  const onHandleSeenNewMessage = e => {
+    if (!room.newMessageNumber || prevScrollTopRef.current <= e.target.scrollTop) return;
+    haveSeenNewMessages({ roomId, userId: account.id });
+  };
 
   return (
     <VStack
@@ -70,6 +88,7 @@ ref) => {
       alignItems="flex-start"
       w="100%"
       p="2"
+      onScroll={onHandleSeenNewMessage}
       className={classNames(className, styles.MessageListCard)}
       {...rest}
     >

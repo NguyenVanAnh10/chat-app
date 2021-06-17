@@ -27,7 +27,7 @@ const RoomList = ({ roomListType }) => {
       ...prev,
       [menuState.active]: { ...prev[menuState.active], roomId: room.id },
     }));
-    if (!room.newMessageNumber?.length) return;
+    if (!room.newMessageNumber) return;
     haveSeenNewMessages({ roomId: room.id, userId: account.id });
   };
   const onHandleSelectRoom = id => {
