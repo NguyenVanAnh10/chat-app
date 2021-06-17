@@ -59,11 +59,12 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
       <MessageListCard
         ref={ref}
         roomId={roomId}
-        className={styles.MessageList}
         messages={messages}
+        className={styles.MessageList}
         getState={getMessagesState} // {loading, error}
-        onLoadmore={handleLoadmore}
         isLoadmore={total > messages.length}
+        bottomMessagesBoxRef={bottomMessagesBoxRef}
+        onLoadmore={handleLoadmore}
       >
         {aggregateMessages.map((m, i, msgsArr) => (
           <Stack

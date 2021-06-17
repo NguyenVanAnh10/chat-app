@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import styles from './MessageListCard.module.scss';
 
 const MessageListCard = forwardRef(({
-  roomId, messages, getState: { loading, error },
+  roomId, messages, getState: { loading, error }, bottomMessagesBoxRef,
   className, children, isLoadmore, onLoadmore, threshold = 50, ...rest },
 ref) => {
   const prevScrollTopRef = useRef(0);
@@ -33,9 +33,7 @@ ref) => {
     if (isChangeRoomRef.current && !!messages.length) {
       prevRoomIdRef.current = roomId;
       isChangeRoomRef.current = false;
-      // eslint-disable-next-line no-param-reassign
-      ref.current.scrollTop = ref.current.scrollHeight
-        - ref.current.clientHeight;
+      bottomMessagesBoxRef.current?.scrollIntoView(false);
     }
   }, [messages]);
 

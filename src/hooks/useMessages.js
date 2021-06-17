@@ -25,7 +25,9 @@ const useMessages = (roomId, options = opts) => {
     roomId
       && userId
       && options.fetchData
-      && !mesagesState[cachedKey]
+      && (!mesagesState[cachedKey]
+      || (mesagesState[cachedKey]?.ids?.length < 20
+        && mesagesState[cachedKey]?.ids?.length < total))
       && getMessages({ roomId, userId, limit: 20, skip: 0, cachedKey });
   }, [roomId, userId]);
 
