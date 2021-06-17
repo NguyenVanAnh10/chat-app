@@ -25,7 +25,7 @@ import NimblePicker from 'components/EmojiPicker';
 
 import styles from './MessageInput.module.scss';
 
-const MessageInput = ({ roomId, messagesContainerRef, ...rest }) => {
+const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
   const { account } = useContext(AccountContext);
   const [{ room }] = useRoom(roomId);
 
@@ -53,7 +53,7 @@ const MessageInput = ({ roomId, messagesContainerRef, ...rest }) => {
     });
     reset({ message: '' });
     setFocus('message');
-    messagesContainerRef.current?.scrollIntoView(false);
+    bottomMessagesBoxRef.current?.scrollIntoView(false);
   });
 
   const handleSendImage = async imageUrls => {
@@ -73,7 +73,7 @@ const MessageInput = ({ roomId, messagesContainerRef, ...rest }) => {
         senderId: account.id,
         hadSeenMessageUsers: [account.id],
       });
-      messagesContainerRef.current?.scrollIntoView(false);
+      bottomMessagesBoxRef.current?.scrollIntoView(false);
     } catch (error) {
       console.error(error);
     }

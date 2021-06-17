@@ -10,6 +10,8 @@ import styles from './ChatBox.module.scss';
 
 const ChatBox = ({ roomId }) => {
   const messagesContainerRef = useRef();
+  const bottomMessagesBoxRef = useRef();
+
   if (!roomId) return null;
   return (
     <VStack
@@ -18,8 +20,16 @@ const ChatBox = ({ roomId }) => {
       spacing="0"
     >
       <ChatHeader roomId={roomId} />
-      <MessageList ref={messagesContainerRef} roomId={roomId} />
-      <MessageInput messagesContainerRef={messagesContainerRef} roomId={roomId} pl="3" />
+      <MessageList
+        roomId={roomId}
+        ref={messagesContainerRef}
+        bottomMessagesBoxRef={bottomMessagesBoxRef}
+      />
+      <MessageInput
+        pl="3"
+        roomId={roomId}
+        bottomMessagesBoxRef={bottomMessagesBoxRef}
+      />
     </VStack>
   );
 };

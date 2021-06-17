@@ -18,7 +18,7 @@ import Message from 'entities/Message';
 
 import styles from './MessageList.module.scss';
 
-const MessageList = forwardRef(({ roomId }, ref) => {
+const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
   const [{ messages, getMessagesState, total }, { loadMoreMessages }] = useMessages(roomId, {
     fetchData: true,
   });
@@ -89,7 +89,6 @@ const MessageList = forwardRef(({ roomId }, ref) => {
                   roomId={roomId}
                   message={m}
                   members={members}
-                  messagesContainerRef={ref}
                   showSeenUsers={i === msgsArr.length - 1}
                   onImageClick={() => {
                     if (m.contentType !== Message.CONTENT_TYPE_IMAGE) return;
@@ -108,7 +107,6 @@ const MessageList = forwardRef(({ roomId }, ref) => {
                       key={mm.id || mm.keyMsg}
                       message={mm}
                       members={members}
-                      messagesContainerRef={ref}
                       showStatusMessage={ii === aa.length - 1}
                       showSeenUsers={i === msgsArr.length - 1}
                       onImageClick={() => {
@@ -123,6 +121,7 @@ const MessageList = forwardRef(({ roomId }, ref) => {
             </HStack>
           </Stack>
         ))}
+        <div ref={bottomMessagesBoxRef} />
       </MessageListCard>
       <ReviewImageModal isOpen={isOpen} onClose={onClose} imgSrc={imgSrc} />
     </>
