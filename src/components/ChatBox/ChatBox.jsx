@@ -14,10 +14,10 @@ const ChatBox = ({ roomId }) => {
   return (
     <VStack
       className={styles.ChatBox}
-      flex="1"
+      // flex="1"
       w="100%"
-      alignItems="flex-start"
-      justifyContent="space-between"
+      spacing="2"
+      // h="100vh"
     >
       <ChatHeader roomId={roomId} />
       <MessageList ref={messagesContainerRef} roomId={roomId} />

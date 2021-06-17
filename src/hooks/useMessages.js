@@ -5,14 +5,11 @@ import { AccountContext } from 'App';
 
 const opts = { fetchData: false };
 
-const selector = cachedKey => ({ messages, getMessages, rooms }) => {
-  console.log('cachedKey', cachedKey, 'room', rooms[cachedKey]?.id);
-  return ({
-    mesagesState: getMessages,
-    messages,
-    total: rooms[cachedKey]?.messageIds?.length || 0,
-  });
-};
+const selector = cachedKey => ({ messages, getMessages, rooms }) => ({
+  mesagesState: getMessages,
+  messages,
+  total: rooms[cachedKey]?.messageIds?.length || 0,
+});
 const useMessages = (roomId, options = opts) => {
   const {
     account: { id: userId },
@@ -31,12 +28,11 @@ const useMessages = (roomId, options = opts) => {
       && !mesagesState[cachedKey]
       && getMessages({ roomId, userId, limit: 20, skip: 0, cachedKey });
   }, [roomId, userId]);
-  // TODO
-  const loadMoreMessages = ({ limit, skip }) => {
-    roomId
+
+  const loadMoreMessages = ({ roomId: chatRoomId, limit, skip }) => {
+    chatRoomId
       && userId
-      && options.fetchData
-      && getMessages({ roomId, userId, limit, skip, cachedKey });
+      && getMessages({ roomId: chatRoomId, userId, limit, skip, cachedKey });
   };
 
   if (!roomId || !userId) return [{ messages: [] }, {}];
@@ -50,7 +46,7 @@ const useMessages = (roomId, options = opts) => {
           if (msg1.createAt < msg2.createAt) return -1;
           return 0;
         }),
-      loading: mesagesState[cachedKey]?.loading,
+      getMessagesState: mesagesState[cachedKey] || {},
     },
     { getMessages, sendMessage, haveSeenNewMessages, loadMoreMessages },
   ];

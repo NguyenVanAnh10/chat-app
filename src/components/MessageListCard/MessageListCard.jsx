@@ -1,65 +1,111 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { forwardRef, useEffect, useLayoutEffect, useRef } from 'react';
 import { useUpdateEffect } from 'react-use';
-import { Box, Center, Spinner } from '@chakra-ui/react';
+import { Center, Spinner, VStack } from '@chakra-ui/react';
 import debounce from 'lodash.debounce';
-// TODO refactor
-const MessageListCard = ({ roomId, messages,
-  loading, className, children, onLoadmore, threshold = 50, ...rest }) => {
-  const containerRef = useRef();
+import classNames from 'classnames';
+
+import styles from './MessageListCard.module.scss';
+
+const MessageListCard = forwardRef(({
+  roomId, messages, getState: { loading, error },
+  className, children, isLoadmore, onLoadmore, threshold = 50, ...rest },
+ref) => {
   const prevScrollTopRef = useRef(0);
   const debounceRef = useRef();
   const prevRoomIdRef = useRef();
   const isChangeRoomRef = useRef();
 
   useEffect(() => {
-    containerRef.current?.addEventListener('scroll', handleScroll);
-    return () => containerRef.current?.removeEventListener('scroll', handleScroll);
-  }, [roomId, loading]);
+    ref.current.addEventListener('scroll', handleScroll);
+    return () => ref.current?.removeEventListener('scroll', handleScroll);
+  }, [onLoadmore]);
+
   useLayoutEffect(() => {
+    // check change room
     prevScrollTopRef.current = 0;
     if (prevRoomIdRef.current !== roomId) {
       isChangeRoomRef.current = true;
     }
   }, [roomId]);
 
-  useUpdateEffect(() => {
-    if (isChangeRoomRef.current && !!messages.length && containerRef.current) {
+  useLayoutEffect(() => {
+    // set scrollbar at bottom when first time get messages
+    if (isChangeRoomRef.current && !!messages.length) {
       prevRoomIdRef.current = roomId;
       isChangeRoomRef.current = false;
-      containerRef.current.scrollTop = containerRef.current.scrollHeight
-        - containerRef.current.clientHeight;
+      // eslint-disable-next-line no-param-reassign
+      ref.current.scrollTop = ref.current.scrollHeight
+        - ref.current.clientHeight;
     }
   }, [messages]);
 
+  useUpdateEffect(() => {
+    // loadmore successful
+    if (!isChangeRoomRef.current && !error && !loading
+      && ref.current?.scrollTop <= threshold) {
+      ref.current?.scrollTo({
+        top: 100,
+        left: 0,
+        behavior: 'smooth',
+      });
+    }
+  }, [loading, error]);
+
   const handleScroll = e => {
-    if (containerRef.current?.scrollTop > threshold
-      || prevScrollTopRef.current <= e.target.scrollTop) {
+    if (!isLoadmore || loading || ref.current?.scrollTop > threshold
+      || prevScrollTopRef.current <= e.target.scrollTop) { // check scrolling up
       prevScrollTopRef.current = e.target.scrollTop;
       return;
     }
     prevScrollTopRef.current = e.target.scrollTop;
     debounceRef.current?.cancel();
-    debounceRef.current = debounce(() => onLoadmore(containerRef.current), 300);
+    debounceRef.current = debounce(() => {
+      onLoadmore();
+    }, 300);
     debounceRef.current();
   };
 
-  if (loading && isChangeRoomRef.current) {
-    return (
-      <Center w="100%" className={className} {...rest}>
-        <Spinner
-          thickness="3px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="orange.300"
-          size="lg"
-        />
-      </Center>
-    );
-  }
   return (
-    <Box ref={containerRef} w="100%" px="2" className={className} {...rest}>
-      {children}
-    </Box>
+    <VStack
+      ref={ref}
+      spacing="3"
+      alignItems="flex-start"
+      jus
+      w="100%"
+      px="2"
+      className={classNames(className, styles.MessageListCard)}
+      {...rest}
+    >
+      {loading && isChangeRoomRef.current ? (
+        <Center w="100%" className={className} {...rest}>
+          <Spinner
+            thickness="3px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="orange.300"
+            size="lg"
+          />
+        </Center>
+      ) : (
+        <>
+          {isLoadmore && (
+          <Center
+            w="100%"
+            opacity={loading ? 1 : 0}
+          >
+            <Spinner
+              thickness="3px"
+              speed="0.65s"
+              emptyColor="gray.200"
+              color="orange.300"
+              size="md"
+            />
+          </Center>
+          )}
+          {children}
+        </>
+      )}
+    </VStack>
   );
-};
+});
 export default MessageListCard;

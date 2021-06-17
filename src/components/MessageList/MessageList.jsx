@@ -1,14 +1,12 @@
-import React, { useContext, useRef, useState, forwardRef } from 'react';
+import React, { useContext, useState, forwardRef } from 'react';
 import {
   Avatar,
   HStack,
   IconButton,
   Stack,
   useDisclosure,
-  VStack,
 } from '@chakra-ui/react';
 import { RepeatIcon } from '@chakra-ui/icons';
-import { useUpdateEffect } from 'react-use';
 
 import useRoom from 'hooks/useRoom';
 import { AccountContext } from 'App';
@@ -21,7 +19,7 @@ import Message from 'entities/Message';
 import styles from './MessageList.module.scss';
 
 const MessageList = forwardRef(({ roomId }, ref) => {
-  const [{ messages, loading, total }, { loadMoreMessages }] = useMessages(roomId, {
+  const [{ messages, getMessagesState, total }, { loadMoreMessages }] = useMessages(roomId, {
     fetchData: true,
   });
 
@@ -29,8 +27,6 @@ const MessageList = forwardRef(({ roomId }, ref) => {
   const { account } = useContext(AccountContext);
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [imgSrc, setImgSrc] = useState();
-
-  const messagesRef = useRef({ total, messages });
 
   // TODO aggregate messages
   const aggregateMessages = messages.reduce((s, c, index, msgArr) => {
@@ -49,32 +45,26 @@ const MessageList = forwardRef(({ roomId }, ref) => {
   }, []);
 
   const members = room.members.reduce((s, m) => ({ ...s, [m.id]: m }), {});
-  useUpdateEffect(() => {
-    messagesRef.current.messages = messages;
-    messagesRef.current.total = total;
-  }, [messages, roomId]);
 
-  const handleLoadmore = listContainerRef => {
-    if (messagesRef.current.total <= messagesRef.current.messages.length) return;
+  const handleLoadmore = () => {
     loadMoreMessages({
-      limit: 10, skip: messagesRef.current.messages.length,
-    });
-    listContainerRef.scrollTo({
-      top: 100,
-      left: 0,
-      behavior: 'smooth',
+      limit: 10,
+      roomId,
+      skip: messages.length,
     });
   };
 
   return (
-    <MessageListCard
-      roomId={roomId}
-      className={styles.MessageList}
-      messages={messages}
-      loading={loading}
-      onLoadmore={handleLoadmore}
-    >
-      <VStack mt="5" ref={ref} spacing="3" alignItems="flex-start">
+    <>
+      <MessageListCard
+        ref={ref}
+        roomId={roomId}
+        className={styles.MessageList}
+        messages={messages}
+        getState={getMessagesState} // {loading, error}
+        onLoadmore={handleLoadmore}
+        isLoadmore={total > messages.length}
+      >
         {aggregateMessages.map((m, i, msgsArr) => (
           <Stack
             key={m.id || m.keyMsg}
@@ -89,10 +79,10 @@ const MessageList = forwardRef(({ roomId }, ref) => {
             />
             <HStack spacing="1" maxW="70%">
               {!!m.error && (
-                <IconButton
-                  bg="transparent"
-                  icon={<RepeatIcon color="red.500" />}
-                />
+              <IconButton
+                bg="transparent"
+                icon={<RepeatIcon color="red.500" />}
+              />
               )}
               {!m.aggregateMsg ? (
                 <MessageContent
@@ -133,9 +123,9 @@ const MessageList = forwardRef(({ roomId }, ref) => {
             </HStack>
           </Stack>
         ))}
-      </VStack>
+      </MessageListCard>
       <ReviewImageModal isOpen={isOpen} onClose={onClose} imgSrc={imgSrc} />
-    </MessageListCard>
+    </>
   );
 });
 

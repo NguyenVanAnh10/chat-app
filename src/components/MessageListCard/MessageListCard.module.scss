@@ -1,0 +1,39 @@
+.MessageListCard {
+  overflow-y: auto;
+  overscroll-behavior: contain !important;
+  // scrollbar
+  &::-webkit-scrollbar {
+    width: 0.4em;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background-color: rgb(196, 196, 196);
+    width: 100%;
+  }
+  :global {
+    .loading-more {
+      animation: anim 1.3 ease ;
+    }
+    .not-loading-more {
+      display: none;
+    }
+    @keyframes anim {
+      0% {
+        display: none;
+        opacity: 0;
+      }
+      1% {
+        opacity: 0;
+      }
+      100% {
+        display: flex;
+        opacity: 1;
+      }
+    }
+  }
+}

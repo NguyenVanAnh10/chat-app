@@ -83,7 +83,7 @@ const MessageInput = ({ roomId, messagesContainerRef, ...rest }) => {
     handleSubmitMessage();
   };
   return (
-    <HStack w="100%" pb="2" pt="1" pr="3" mt="0" spacing="2" {...rest}>
+    <HStack w="100%" pb="2" pr="3" spacing="2" {...rest}>
       <form className="form" onSubmit={handleSubmitMessage}>
         <Controller
           name="message"

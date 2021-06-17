@@ -1,21 +1,4 @@
 .MessageList {
   // TODO calc
   height: calc(100vh - 135px);
-  overflow-y: scroll;
-  margin-top: 0 !important;
-
-  // scrollbar
-  &::-webkit-scrollbar {
-    width: 0.4em;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-    background-color: rgb(196, 196, 196);
-    width: 100%;
-  }
 }
