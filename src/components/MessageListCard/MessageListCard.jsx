@@ -70,9 +70,8 @@ ref) => {
       ref={ref}
       spacing="3"
       alignItems="flex-start"
-      jus
       w="100%"
-      px="2"
+      p="2"
       className={classNames(className, styles.MessageListCard)}
       {...rest}
     >

@@ -58,6 +58,7 @@ const RoomList = ({ roomListType }) => {
             )}
             renderItem={room => (
               <RoomItem
+                key={room.id}
                 room={room}
                 active={selectedRoomId === room.id}
                 onClick={() => onHandleClick(room)}
@@ -87,6 +88,7 @@ const RoomList = ({ roomListType }) => {
             )}
             renderItem={room => (
               <RoomItem
+                key={room.id}
                 room={room}
                 active={selectedRoomId === room.id}
                 onClick={() => onHandleClick(room)}

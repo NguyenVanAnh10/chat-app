@@ -83,7 +83,14 @@ const MessageInput = ({ roomId, messagesContainerRef, ...rest }) => {
     handleSubmitMessage();
   };
   return (
-    <HStack w="100%" pb="2" pr="3" spacing="2" {...rest}>
+    <HStack
+      w="100%"
+      py="3"
+      pr="3"
+      spacing="2"
+      borderTop="1px solid #EDF2F7"
+      {...rest}
+    >
       <form className="form" onSubmit={handleSubmitMessage}>
         <Controller
           name="message"
@@ -100,11 +107,12 @@ const MessageInput = ({ roomId, messagesContainerRef, ...rest }) => {
                       _active="none"
                       _hover="none"
                       _focus="none"
+                      color="black"
                       icon={(
                         <EmojiIcon
                           fontSize="1.8rem"
+                          bg="yellow"
                           borderRadius="full"
-                          bg="yellow.300"
                         />
                       )}
                     />
@@ -124,6 +132,10 @@ const MessageInput = ({ roomId, messagesContainerRef, ...rest }) => {
                 </Popover>
               </InputRightElement>
               <Input
+                border="none"
+                _focus="none"
+                _focusWithin="none"
+                bg="transparent"
                 placeholder="Type message..."
                 onFocus={onHandleFocusInput}
                 onKeyDown={hanleKeyDown}
