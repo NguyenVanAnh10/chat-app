@@ -4,14 +4,20 @@ import { AccountContext } from 'App';
 import { useModel } from 'model';
 import { menuKeys } from 'configs/configs';
 
-const roomSelector = ({ messages, rooms }) => ({ messages, rooms });
+const roomSelector = ({ messages, rooms, seeMessages }) => ({
+  messages,
+  rooms,
+  seeMessages,
+});
 
 const useRoom = roomId => {
   const { account } = useContext(AccountContext);
 
-  const [{ messages, rooms }, { seeMessages }] = useModel('message', roomSelector);
+  const [{ messages, rooms, seeMessages: seeMessagesState }, { seeMessages }] = useModel('message',
+    roomSelector);
+
   if (!roomId || !account.id || !rooms[roomId]) {
-    return [{ room: {} }, {}];
+    return [{ room: {}, seeMessagesState: {} }, {}];
   }
 
   return [
@@ -30,6 +36,7 @@ const useRoom = roomId => {
           rooms[roomId]?.userName
           || rooms[roomId]?.members?.find(m => m.id !== account.id)?.userName,
       },
+      seeMessagesState: seeMessagesState[roomId] || {},
     },
     { seeMessages },
   ];

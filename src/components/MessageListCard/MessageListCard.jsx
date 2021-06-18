@@ -4,21 +4,17 @@ import { Center, Spinner, VStack } from '@chakra-ui/react';
 import debounce from 'lodash.debounce';
 import classNames from 'classnames';
 
-import styles from './MessageListCard.module.scss';
-import { useModel } from 'model';
 import { AccountContext } from 'App';
 import useRoom from 'hooks/useRoom';
+
+import styles from './MessageListCard.module.scss';
 
 const MessageListCard = forwardRef(({
   roomId, messages, getState: { loading, error }, bottomMessagesBoxRef, isNewMessages,
   className, children, isLoadmore, onLoadmore, threshold = 50, total, ...rest },
 ref) => {
   const { account } = useContext(AccountContext);
-  const [{ room }] = useRoom(roomId);
-  const [, { seeMessages }] = useModel(
-    'message',
-    () => ({}),
-  );
+  const [{ room, seeMessagesState }, { seeMessages }] = useRoom(roomId);
 
   const prevScrollTopRef = useRef(0);
   const debounceRef = useRef();
@@ -63,6 +59,15 @@ ref) => {
     }
   }, [loading, error]);
 
+  const onHandleSeeNewMessages = e => {
+    if (!room.newMessageNumber || seeMessagesState.loading
+      || prevScrollTopRef.current <= e.target.scrollTop) return;
+    seeMessages({
+      roomId,
+      userId: account.id,
+    });
+  };
+
   const handleScroll = e => {
     if (!isLoadmore || loading || ref.current?.scrollTop > threshold
       || prevScrollTopRef.current <= e.target.scrollTop) { // check scrolling up
@@ -75,10 +80,6 @@ ref) => {
       onLoadmore();
     }, 300);
     debounceRef.current();
-  };
-  const onHandleSeeNewMessages = e => {
-    if (!room.newMessageNumber || prevScrollTopRef.current <= e.target.scrollTop) return;
-    seeMessages({ roomId, userId: account.id });
   };
 
   return (

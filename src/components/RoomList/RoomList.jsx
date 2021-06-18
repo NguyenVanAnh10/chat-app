@@ -2,10 +2,10 @@ import React, { useContext } from 'react';
 import {
   Box, HStack, IconButton, Text, useDisclosure,
 } from '@chakra-ui/react';
-import { AddUsersIcon, AddUserIcon } from 'components/CustomIcons';
 
+import { AddUsersIcon, AddUserIcon } from 'components/CustomIcons';
 import { AccountContext } from 'App';
-import { useRooms } from 'hooks/useRoom';
+import useRoom, { useRooms } from 'hooks/useRoom';
 import CreateChatGroupModal from 'components/CreateChatGroupModal';
 import ListItem from 'components/ListItem';
 import { menuKeys } from 'configs/configs';
@@ -21,14 +21,14 @@ const RoomList = ({ roomListType }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [{ rooms }, { seeMessages }] = useRooms(roomListType);
+  const [{ seeMessagesState }] = useRoom(selectedRoomId);
 
   const onHandleClick = room => {
     setMenuState(prev => ({
       ...prev,
       [menuState.active]: { ...prev[menuState.active], roomId: room.id },
     }));
-    if (!room.newMessageNumber) return;
-    seeMessages({ roomId: room.id, userId: account.id });
+    onHandleSeeNewMessages(room);
   };
   const onHandleSelectRoom = id => {
     setMenuState(prev => ({
@@ -36,6 +36,12 @@ const RoomList = ({ roomListType }) => {
       [menuState.active]: { ...prev[menuState.active], roomId: id },
     }));
   };
+
+  const onHandleSeeNewMessages = room => {
+    if (!room.newMessageNumber || seeMessagesState.loading) return;
+    seeMessages({ roomId: room.id, userId: account.id });
+  };
+
   switch (roomListType) {
     case menuKeys.CONTACT_BOOK:
       return (

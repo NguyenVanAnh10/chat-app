@@ -19,6 +19,7 @@ const messageModel = {
     getRooms: { ids: [] }, // {ids: [], loading, error}
     getRoom: {},
     createRoom: {},
+    seeMessages: {},
     sendMessage: {},
   },
   reducers: {
@@ -231,15 +232,35 @@ const messageModel = {
         case 'success':
           return {
             ...state,
-            messages: payload.reduce(
+            messages: payload.messages.reduce(
               (s, m) => ({ ...s, [m.id]: m }),
               state.messages,
             ),
+            seeMessages: {
+              ...state.seeMessages,
+              [payload.roomId]: {},
+            },
           };
         case 'error':
-          return state;
+          return {
+            ...state,
+            seeMessages: {
+              ...state.seeMessages,
+              [payload.roomId]: {
+                error: payload.error,
+              },
+            },
+          };
         default:
-          return state;
+          return {
+            ...state,
+            seeMessages: {
+              ...state.seeMessages,
+              [payload.roomId]: {
+                loading: true,
+              },
+            },
+          };
       }
     },
     getMessagesOtherUserHasSeen: (state, { status, payload }) => {
@@ -316,9 +337,9 @@ const messageModel = {
     },
     seeMessages: async (payload, onSuccess, onError) => {
       try {
-        onSuccess(await haveSeenMessages(payload));
+        onSuccess({ roomId: payload.roomId, messages: await haveSeenMessages(payload) });
       } catch (error) {
-        onError({});
+        onError({ roomId: payload.roomId, error: {} });
       }
     },
     getMessagesOtherUserHasSeen: async (payload, onSuccess, onError) => {
