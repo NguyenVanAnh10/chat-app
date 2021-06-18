@@ -10,7 +10,7 @@
 
 //   get newMessageNumber() {
 //     return this.room.messageIds?.filter(
-//       msgId => !messages[msgId]?.hadSeenMessageUsers?.includes(account.id),
+//       msgId => !messages[msgId]?.usersSeenMessage?.includes(account.id),
 //     )?.length;
 //   }
 //   get userName() {

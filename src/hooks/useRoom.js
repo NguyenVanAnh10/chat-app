@@ -9,7 +9,7 @@ const roomSelector = ({ messages, rooms }) => ({ messages, rooms });
 const useRoom = roomId => {
   const { account } = useContext(AccountContext);
 
-  const [{ messages, rooms }, { haveSeenNewMessages }] = useModel('message', roomSelector);
+  const [{ messages, rooms }, { seeMessages }] = useModel('message', roomSelector);
   if (!roomId || !account.id || !rooms[roomId]) {
     return [{ room: {} }, {}];
   }
@@ -23,15 +23,15 @@ const useRoom = roomId => {
         ),
         newMessageNumber: Object.keys(messages).filter(
           id => messages[id]?.roomId === roomId
-            && !!messages[id]?.hadSeenMessageUsers
-            && !messages[id].hadSeenMessageUsers.includes(account.id),
+            && !!messages[id]?.usersSeenMessage
+            && !messages[id].usersSeenMessage.includes(account.id),
         ).length,
         userName:
           rooms[roomId]?.userName
           || rooms[roomId]?.members?.find(m => m.id !== account.id)?.userName,
       },
     },
-    { haveSeenNewMessages },
+    { seeMessages },
   ];
 };
 
@@ -41,8 +41,8 @@ const roomsSelector = account => ({ messages, getRooms, rooms }) => ({
     ...rooms[id],
     otherMembers: rooms[id].members?.filter(m => m.id !== account.id),
     newMessageNumber: rooms[id].messageIds?.filter(
-      msgId => !!messages[msgId]?.hadSeenMessageUsers
-      && !messages[msgId].hadSeenMessageUsers.includes(account.id),
+      msgId => !!messages[msgId]?.usersSeenMessage
+      && !messages[msgId].usersSeenMessage.includes(account.id),
     )?.length,
     userName:
       rooms[id].name
@@ -54,7 +54,7 @@ export const useRooms = typeRooms => {
   const { account } = useContext(AccountContext);
   const [
     { rooms },
-    { getRooms, haveSeenNewMessages },
+    { getRooms, seeMessages },
   ] = useModel('message', roomsSelector(account));
 
   useReactEffect(() => {
@@ -65,13 +65,13 @@ export const useRooms = typeRooms => {
 
   switch (typeRooms) {
     case menuKeys.MESSAGES:
-      return [{ rooms: rooms.filter(room => !!room.messageIds?.length) }, { haveSeenNewMessages }];
+      return [{ rooms: rooms.filter(room => !!room.messageIds?.length) }, { seeMessages }];
     case 'notMessages':
-      return [{ rooms: rooms.filter(room => !room.messageIds?.length) }, { haveSeenNewMessages }];
+      return [{ rooms: rooms.filter(room => !room.messageIds?.length) }, { seeMessages }];
     case menuKeys.CONTACT_BOOK:
-      return [{ rooms: rooms.filter(room => room.members?.length === 2) }, { haveSeenNewMessages }];
+      return [{ rooms: rooms.filter(room => room.members?.length === 2) }, { seeMessages }];
     case 'all':
-      return [{ rooms }, { haveSeenNewMessages }];
+      return [{ rooms }, { seeMessages }];
     default:
       // no params
       return [
@@ -80,7 +80,7 @@ export const useRooms = typeRooms => {
           notMessageRooms: rooms.filter(room => !room.messageIds?.length),
           rooms,
         },
-        { haveSeenNewMessages },
+        { seeMessages },
       ];
   }
 };

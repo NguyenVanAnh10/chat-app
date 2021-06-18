@@ -22,7 +22,7 @@ const useChat = () => {
   const { account } = useContext(AccountContext);
   const [,
     {
-      getRoom, getMessage, getHaveSeenNewMessages, sendMessage,
+      getRoom, getMessage, getMessagesOtherUserHasSeen, sendMessage,
     },
   ] = useModel('message', () => ({}));
   const [, { getFriendRequest }] = useModel('account', () => ({}));
@@ -69,7 +69,7 @@ const useChat = () => {
     },
     user_has_seen_messages: ({ roomId, userId, haveSeenMessageIds }) => {
       if (account.id === userId) return;
-      getHaveSeenNewMessages({ roomId, userId, haveSeenMessageIds });
+      getMessagesOtherUserHasSeen({ roomId, userId, haveSeenMessageIds });
     },
     friend_request: ({ creatorId }) => {
       getFriendRequest({ userId: account.id, friendId: creatorId });
@@ -198,7 +198,7 @@ const useChat = () => {
       keyMsg: uuid(),
       createAt: Date.now(),
       senderId: account.id,
-      hadSeenMessageUsers: [account.id],
+      usersSeenMessage: [account.id],
     });
   };
 
@@ -214,7 +214,7 @@ const useChat = () => {
         keyMsg: uuid(),
         createAt: Date.now(),
         senderId: account.id,
-        hadSeenMessageUsers: [account.id],
+        usersSeenMessage: [account.id],
       });
   };
   const destroyCall = () => {

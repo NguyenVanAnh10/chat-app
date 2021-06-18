@@ -23,7 +23,7 @@ const MessageStatus = ({
     <>
       {message.senderId === account.id
             && !message.error
-            && message.hadSeenMessageUsers.length === 1 && (
+            && message.usersSeenMessage.length === 1 && (
               <Text fontSize="xs">
                 {message.status ? 'Delivered' : 'Sending'}
               </Text>
@@ -31,9 +31,9 @@ const MessageStatus = ({
       {!!message.error && <Text fontSize="xs">Sending Error</Text>}
     </>
     )}
-    {showSeenUsers && message.hadSeenMessageUsers.length > 1 && (
+    {showSeenUsers && message.usersSeenMessage.length > 1 && (
     <AvatarGroup spacing="0.5" max="3" size="2xs" fontSize="xs">
-      {message.hadSeenMessageUsers
+      {message.usersSeenMessage
         .filter(id => id !== message.senderId && id !== account.id)
         .map(userId => (
           <Avatar

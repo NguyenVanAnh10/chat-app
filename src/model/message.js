@@ -226,7 +226,7 @@ const messageModel = {
           };
       }
     },
-    haveSeenNewMessages: (state, { status, payload }) => {
+    seeMessages: (state, { status, payload }) => {
       switch (status) {
         case 'success':
           return {
@@ -242,7 +242,7 @@ const messageModel = {
           return state;
       }
     },
-    getHaveSeenNewMessages: (state, { status, payload }) => {
+    getMessagesOtherUserHasSeen: (state, { status, payload }) => {
       switch (status) {
         case 'success':
           return {
@@ -314,14 +314,14 @@ const messageModel = {
         onError({ keyMsg, error });
       }
     },
-    haveSeenNewMessages: async (payload, onSuccess, onError) => {
+    seeMessages: async (payload, onSuccess, onError) => {
       try {
         onSuccess(await haveSeenMessages(payload));
       } catch (error) {
         onError({});
       }
     },
-    getHaveSeenNewMessages: async (payload, onSuccess, onError) => {
+    getMessagesOtherUserHasSeen: async (payload, onSuccess, onError) => {
       try {
         onSuccess(await getMessages(payload));
       } catch (error) {
@@ -336,8 +336,8 @@ const messageModel = {
     getRooms: userId => ({ userId }),
     createRoom: params => params,
     sendMessage: params => params,
-    haveSeenNewMessages: params => params,
-    getHaveSeenNewMessages: params => params,
+    seeMessages: params => params,
+    getMessagesOtherUserHasSeen: params => params,
   },
 };
 

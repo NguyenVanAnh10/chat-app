@@ -29,14 +29,14 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
   const { account } = useContext(AccountContext);
   const [{ room }] = useRoom(roomId);
 
-  const [, { sendMessage, haveSeenNewMessages }] = useModel(
+  const [, { sendMessage, seeMessages }] = useModel(
     'message',
     () => ({}),
   );
 
   const onHandleFocusInput = () => {
     if (!room.newMessageNumber) return;
-    haveSeenNewMessages({ roomId, userId: account.id });
+    seeMessages({ roomId, userId: account.id });
   };
   const { control, handleSubmit, reset, setFocus } = useForm({ message: '' });
 
@@ -49,7 +49,7 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
       content: data.message,
       createAt: Date.now(),
       senderId: account.id,
-      hadSeenMessageUsers: [account.id],
+      usersSeenMessage: [account.id],
     });
     reset({ message: '' });
     setFocus('message');
@@ -71,7 +71,7 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
         base64Image,
         createAt: Date.now(),
         senderId: account.id,
-        hadSeenMessageUsers: [account.id],
+        usersSeenMessage: [account.id],
       });
       bottomMessagesBoxRef.current?.scrollIntoView(false);
     } catch (error) {

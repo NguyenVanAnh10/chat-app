@@ -18,7 +18,7 @@ const useMessages = (roomId, options = opts) => {
   const cachedKey = roomId || 'all';
   const [
     { messages, mesagesState, total },
-    { getMessages, sendMessage, haveSeenNewMessages },
+    { getMessages, sendMessage, seeMessages },
   ] = useModel('message', selector(cachedKey), [cachedKey]);
   // TODO
   useReactEffect(() => {
@@ -50,7 +50,7 @@ const useMessages = (roomId, options = opts) => {
         }),
       getMessagesState: mesagesState[cachedKey] || {},
     },
-    { getMessages, sendMessage, haveSeenNewMessages, loadMoreMessages },
+    { getMessages, sendMessage, seeMessages, loadMoreMessages },
   ];
 };
 export default useMessages;

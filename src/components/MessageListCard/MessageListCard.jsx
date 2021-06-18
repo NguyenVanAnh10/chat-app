@@ -15,7 +15,7 @@ const MessageListCard = forwardRef(({
 ref) => {
   const { account } = useContext(AccountContext);
   const [{ room }] = useRoom(roomId);
-  const [, { haveSeenNewMessages }] = useModel(
+  const [, { seeMessages }] = useModel(
     'message',
     () => ({}),
   );
@@ -76,9 +76,9 @@ ref) => {
     }, 300);
     debounceRef.current();
   };
-  const onHandleSeenNewMessage = e => {
+  const onHandleSeeNewMessages = e => {
     if (!room.newMessageNumber || prevScrollTopRef.current <= e.target.scrollTop) return;
-    haveSeenNewMessages({ roomId, userId: account.id });
+    seeMessages({ roomId, userId: account.id });
   };
 
   return (
@@ -88,7 +88,7 @@ ref) => {
       alignItems="flex-start"
       w="100%"
       p="2"
-      onScroll={onHandleSeenNewMessage}
+      onScroll={onHandleSeeNewMessages}
       className={classNames(className, styles.MessageListCard)}
       {...rest}
     >

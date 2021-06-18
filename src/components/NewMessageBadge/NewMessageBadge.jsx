@@ -11,8 +11,8 @@ const NewMessageBadge = () => {
   let newMessageNumber = 0;
   if (account.id) {
     newMessageNumber = Object.keys(messages).filter(
-      id => messages[id]?.hadSeenMessageUsers
-        && !messages[id].hadSeenMessageUsers?.includes(account.id),
+      id => messages[id]?.usersSeenMessage
+        && !messages[id].usersSeenMessage?.includes(account.id),
     ).length;
   }
   return (

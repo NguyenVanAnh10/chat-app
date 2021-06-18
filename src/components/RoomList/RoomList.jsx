@@ -20,7 +20,7 @@ const RoomList = ({ roomListType }) => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [{ rooms }, { haveSeenNewMessages }] = useRooms(roomListType);
+  const [{ rooms }, { seeMessages }] = useRooms(roomListType);
 
   const onHandleClick = room => {
     setMenuState(prev => ({
@@ -28,7 +28,7 @@ const RoomList = ({ roomListType }) => {
       [menuState.active]: { ...prev[menuState.active], roomId: room.id },
     }));
     if (!room.newMessageNumber) return;
-    haveSeenNewMessages({ roomId: room.id, userId: account.id });
+    seeMessages({ roomId: room.id, userId: account.id });
   };
   const onHandleSelectRoom = id => {
     setMenuState(prev => ({
