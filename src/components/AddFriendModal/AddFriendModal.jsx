@@ -18,6 +18,8 @@ import SearchUserInput from 'components/SearchUserInput';
 import { useModel } from 'model';
 import { AccountContext } from 'App';
 
+import defaultAvatar from 'statics/images/default_user.png';
+
 const selector = ({ me, addFriend, users, getUsers }) => ({
   addFriendIds: me.addFriends.map(f => f.friendId),
   addFriendState: addFriend,
@@ -71,7 +73,7 @@ const AddFriendModal = ({ isOpen, onClose }) => {
 
 const FriendItem = ({ user, onAddfriend, loading, isFriendRequest }) => (
   <HStack spacing="4" w="100%">
-    <Avatar name={user.userName} />
+    <Avatar name={user.userName} src={user.avatar || defaultAvatar} />
     <VStack align="flex-start" spacing="1">
       <Text fontWeight="bold">{user.userName}</Text>
       <Text fontWeight="light" color="gray.600" fontSize="sm">

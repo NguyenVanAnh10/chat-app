@@ -1,5 +1,5 @@
 import {
-  getMe, login, logout, addFriend, confirmFriendRequest, getFriendRequest,
+  getMe, login, logout, addFriend, confirmFriendRequest, getFriendRequest, updateMe,
 } from 'services/account';
 import { getUsers, getUser } from 'services/user';
 
@@ -14,6 +14,7 @@ const accountModel = {
     addFriend: {}, // {[id]: { loading, error}}
     confirmFriendRequest: {}, // {[id]: { loading, error}}
     getMe: {}, // { loading, error}
+    updateMe: {},
     login: {},
     logout: {},
     users: {}, // {[id]: message}
@@ -34,6 +35,20 @@ const accountModel = {
           return { ...state, getMe: { error: payload } };
         default:
           return { ...state, getMe: { loading: true } };
+      }
+    },
+    updateMe: (state, { status, payload }) => {
+      switch (status) {
+        case 'success':
+          return {
+            ...state,
+            me: { ...state.me, ...payload },
+            updateMe: {},
+          };
+        case 'error':
+          return { ...state, updateMe: { error: payload } };
+        default:
+          return { ...state, updateMe: { loading: true } };
       }
     },
     login: (state, { status, payload }) => {
@@ -179,6 +194,13 @@ const accountModel = {
         onError(error);
       }
     },
+    updateMe: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await updateMe(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
     login: async (payload, onSuccess, onError) => {
       try {
         onSuccess(await login(payload));
@@ -232,6 +254,7 @@ const accountModel = {
   },
   actions: {
     getMe: () => ({}),
+    updateMe: params => params,
     login: params => params,
     logout: () => ({}),
     getUsers: keyword => ({ keyword }),

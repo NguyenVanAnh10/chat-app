@@ -1,6 +1,5 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext } from 'react';
 import {
-  Box,
   HStack,
   IconButton,
   Input,
@@ -10,18 +9,17 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
-  useToast,
 } from '@chakra-ui/react';
 import { v4 as uuid } from 'uuid';
 import { useForm, Controller } from 'react-hook-form';
-import Message from 'entities/Message';
 
 import { useModel } from 'model';
-import { getBase64 } from 'utils';
-import { AccountContext } from 'App';
-import { ImageIcon, EmojiIcon, PaperPlaneIcon } from 'components/CustomIcons';
 import useRoom from 'hooks/useRoom';
+import { AccountContext } from 'App';
+import Message from 'entities/Message';
+import UploadImage from 'components/UploadImage';
 import NimblePicker from 'components/EmojiPicker';
+import { ImageIcon, EmojiIcon, PaperPlaneIcon } from 'components/CustomIcons';
 
 import styles from './MessageInput.module.scss';
 
@@ -56,27 +54,20 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
     bottomMessagesBoxRef.current?.scrollIntoView(false);
   });
 
-  const handleSendImage = async imageUrls => {
-    if (!imageUrls.length) return;
-    try {
-      const base64Image = (await getBase64(imageUrls[0])).replace(
-        /^data:image\/[a-z]+;base64,/,
-        '',
-      );
-      sendMessage({
-        roomId,
-        keyMsg: uuid(),
-        contentType: Message.CONTENT_TYPE_IMAGE,
-        contentBlob: URL.createObjectURL(imageUrls[0]),
-        base64Image,
-        createAt: Date.now(),
-        senderId: account.id,
-        usersSeenMessage: [account.id],
-      });
-      bottomMessagesBoxRef.current?.scrollIntoView(false);
-    } catch (error) {
-      console.error(error);
-    }
+  const handleSendImage = imageSource => {
+    if (!imageSource.base64Image || !imageSource.contentBlob) return;
+
+    sendMessage({
+      roomId,
+      keyMsg: uuid(),
+      contentType: Message.CONTENT_TYPE_IMAGE,
+      contentBlob: imageSource.contentBlob,
+      base64Image: imageSource.base64Image,
+      createAt: Date.now(),
+      senderId: account.id,
+      usersSeenMessage: [account.id],
+    });
+    bottomMessagesBoxRef.current?.scrollIntoView(false);
   };
   const hanleKeyDown = e => {
     if (e.keyCode !== 13) return;
@@ -145,7 +136,16 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
           )}
         />
       </form>
-      <UploadImage onSendImage={handleSendImage} />
+      <UploadImage
+        onSelectImage={handleSendImage}
+        renderButton={() => (
+          <IconButton
+            bg="transparent"
+            _hover={{ bg: 'blue.100' }}
+            icon={<ImageIcon color="blue.400" fontSize="2rem" />}
+          />
+        )}
+      />
       <IconButton
         bg="transparent"
         color="blue.400"
@@ -155,53 +155,6 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
         onClick={handleSubmitMessage}
       />
     </HStack>
-  );
-};
-
-const UploadImage = ({ onSendImage, maxSize = 1 }) => {
-  const toast = useToast();
-
-  const inputImageRef = useRef();
-  const handleClick = () => inputImageRef.current.click();
-  const handleChange = () => {
-    if (!inputImageRef.current.files.length) return;
-    const imageUrls = [];
-    const images = inputImageRef.current.files;
-    let sizeImages = 0;
-    for (const image of images) {
-      imageUrls.push(image);
-      sizeImages += image.size;
-    }
-    inputImageRef.current.value = '';
-    // 1B
-    if (sizeImages > maxSize * 1024 * 1024) {
-      toast({
-        description: `Size file has to less ${maxSize}MB`,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-    onSendImage(imageUrls);
-  };
-  return (
-    <Box>
-      <IconButton
-        bg="transparent"
-        _hover={{ bg: 'blue.100' }}
-        onClick={handleClick}
-        icon={<ImageIcon color="blue.400" fontSize="2rem" />}
-      />
-      <Input
-        ref={inputImageRef}
-        onChange={handleChange}
-        type="file"
-        accept="image/*"
-        multiple
-        display="none"
-      />
-    </Box>
   );
 };
 

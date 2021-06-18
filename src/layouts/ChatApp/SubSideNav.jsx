@@ -21,7 +21,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Text,
   useBreakpointValue,
   useDisclosure,
   VStack,
@@ -35,6 +34,9 @@ import { MenuContext } from 'contexts/menuContext';
 import NotificationDrawers from 'components/NotificationDrawer';
 import NewNotificationBadge from 'components/NewNotificationsBadge';
 import { UserIcon } from 'components/CustomIcons';
+import UpdateAccountInfoModal from 'components/UpdateAccountInfoModal';
+
+import defaultAvatar from 'statics/images/default_user.png';
 
 const badges = {
   [menuKeys.MESSAGES]: <NewMessageBadge />,
@@ -119,7 +121,7 @@ const SubSideNav = () => {
           isOpen={isOpenNotificationDrawer}
           onClose={onCloseNotificationDrawer}
         />
-        <DetailAccountModal isOpen={isOpenAccountModal} onClose={onCloseAccountModal} />
+        <UpdateAccountInfoModal isOpen={isOpenAccountModal} onClose={onCloseAccountModal} />
       </Box>
     );
   }
@@ -151,41 +153,8 @@ const SubSideNav = () => {
         isOpen={isOpenNotificationDrawer}
         onClose={onCloseNotificationDrawer}
       />
-      <DetailAccountModal isOpen={isOpenAccountModal} onClose={onCloseAccountModal} />
+      <UpdateAccountInfoModal isOpen={isOpenAccountModal} onClose={onCloseAccountModal} />
     </Box>
-  );
-};
-
-const DetailAccountModal = ({ isOpen, onClose }) => {
-  const { account } = useContext(AccountContext);
-  return (
-    <>
-      <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Profile</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <VStack spacing="3" align="flex-start">
-              <HStack spacing="3">
-                <Text> Username:</Text>
-                <Text fontWeight="bold">{account.userName}</Text>
-              </HStack>
-              <HStack spacing="3">
-                <Text> Email:</Text>
-                <Text fontWeight="bold">{account.email}</Text>
-              </HStack>
-            </VStack>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="blue" variant="ghost" onClick={onClose}>
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
   );
 };
 
@@ -196,7 +165,7 @@ const AvatarMenu = ({ onOpenProfile }) => {
     <>
       <Menu>
         <MenuButton h="fit-content" d="block" mx="auto">
-          <Avatar name={account.userName} onClick={onOpen}>
+          <Avatar name={account.userName} src={account.avatar || defaultAvatar} onClick={onOpen}>
             <AvatarBadge boxSize="0.8em" bg="green.500" />
           </Avatar>
         </MenuButton>

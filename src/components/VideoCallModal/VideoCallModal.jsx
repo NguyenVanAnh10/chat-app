@@ -19,6 +19,7 @@ import { HangoutPhoneIcon } from 'components/CustomIcons';
 import { ChatContext } from 'pages/ChatApp';
 
 import styles from './VideoCallModal.module.scss';
+import defaultAvatar from 'statics/images/default_user.png';
 
 const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
   const {
@@ -98,10 +99,10 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
               <AvatarGroup size="xl" max={3}>
                 {room.otherMembers.length > 1
                   ? room.members.map(o => (
-                    <Avatar key={o.id} name={o.userName} />
+                    <Avatar key={o.id} name={o.userName} src={o.avatar || defaultAvatar} />
                   ))
                   : room.otherMembers.map(o => (
-                    <Avatar key={o.id} name={o.userName} />
+                    <Avatar key={o.id} name={o.userName} src={o.avatar || defaultAvatar} />
                   ))}
               </AvatarGroup>
               <Heading size="md">

@@ -17,6 +17,7 @@ import MessageContent from 'components/MessageContent';
 import Message from 'entities/Message';
 
 import styles from './MessageList.module.scss';
+import defaultAvatar from 'statics/images/default_user.png';
 
 const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
   const [{ messages, getMessagesState, total }, { loadMoreMessages }] = useMessages(roomId, {
@@ -77,6 +78,7 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
           >
             <Avatar
               name={members[m.senderId]?.userName || 'N/A'}
+              src={members[m.senderId]?.avatar || defaultAvatar}
               size="sm"
               zIndex="2"
             />
