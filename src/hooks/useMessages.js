@@ -5,10 +5,10 @@ import { AccountContext } from 'App';
 
 const opts = { fetchData: false };
 
-const selector = cachedKey => ({ messages, getMessages, rooms }) => ({
+const selector = ({ messages, getMessages, rooms }) => ({
   mesagesState: getMessages,
   messages,
-  total: rooms[cachedKey]?.messageIds?.length || 0,
+  rooms,
 });
 const useMessages = (roomId, options = opts) => {
   const {
@@ -17,9 +17,11 @@ const useMessages = (roomId, options = opts) => {
 
   const cachedKey = roomId || 'all';
   const [
-    { messages, mesagesState, total },
+    { messages, mesagesState, rooms },
     { getMessages, sendMessage, seeMessages },
-  ] = useModel('message', selector(cachedKey), [cachedKey]);
+  ] = useModel('message', selector);
+
+  const total = rooms[cachedKey]?.messageIds?.length || 0;
   // TODO
   useReactEffect(() => {
     roomId
