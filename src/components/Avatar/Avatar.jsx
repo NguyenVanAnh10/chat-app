@@ -1,7 +1,8 @@
 import React from 'react';
+import { Avatar as CAvatar } from '@chakra-ui/react';
 
 const Avatar = props => (
-  <Avatar
+  <CAvatar
     loading="lazy"
     showBorder
     {...props}
