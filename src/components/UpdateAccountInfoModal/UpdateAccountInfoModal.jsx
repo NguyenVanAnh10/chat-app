@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Button, FormControl, FormErrorMessage, Image, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, VStack } from '@chakra-ui/react';
+import { Button, FormControl, FormErrorMessage, Image, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useToast, VStack } from '@chakra-ui/react';
+import { useUpdateEffect } from 'react-use';
 
 import { AccountContext } from 'App';
 import UploadImage from 'components/UploadImage';
@@ -8,17 +9,35 @@ import { useModel } from 'model';
 
 import defaultAvatar from 'statics/images/default_user.png';
 
+const selector = ({ updateMe }) => ({ updateState: updateMe });
+
 const UpdateAccountInfoModal = ({ isOpen, onClose }) => {
   const { account } = useContext(AccountContext);
-  const [, { updateMe }] = useModel('account', () => ({}));
+  const [{ updateState }, { updateMe }] = useModel('account', selector);
+  const toast = useToast();
 
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       userName: account.userName,
       email: account.email,
       avatar: { src: account.avatar },
     },
   });
+  useUpdateEffect(() => {
+    if (!updateState.loading && !updateState.error) {
+      toast({
+        description: 'Update successfully',
+        status: 'success',
+        duration: 9000,
+      });
+      handleClose();
+    }
+  }, [updateState.loading]);
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
 
   const handleUpdate = handleSubmit(data => {
     if (!data.avatar?.base64Image) return;
@@ -31,7 +50,7 @@ const UpdateAccountInfoModal = ({ isOpen, onClose }) => {
   });
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
+      <Modal isOpen={isOpen} onClose={handleClose} closeOnOverlayClick={false}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Update account information</ModalHeader>
@@ -103,11 +122,12 @@ const UpdateAccountInfoModal = ({ isOpen, onClose }) => {
               colorScheme="blue"
               variant="solid"
               mr="2"
+              isLoading={updateState.loading}
               onClick={handleUpdate}
             >
               Update
             </Button>
-            <Button colorScheme="blue" variant="ghost" onClick={onClose}>
+            <Button colorScheme="blue" variant="ghost" onClick={handleClose}>
               Close
             </Button>
           </ModalFooter>
