@@ -76,8 +76,9 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
             direction={m.senderId !== account.id ? 'row' : 'row-reverse'}
           >
             <Avatar
-              name={members[m.senderId]?.userName || 'N/A'}
-              src={members[m.senderId]?.avatar}
+              name={m.senderId !== account.id
+                ? members[m.senderId]?.userName : account.userName}
+              src={m.senderId !== account.id ? members[m.senderId]?.avatar : account.avatar}
               size="sm"
               zIndex="2"
             />
