@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import {
-  Avatar,
   AvatarBadge,
   AvatarGroup,
   HStack,
@@ -16,8 +15,7 @@ import VideoCallModal from 'components/VideoCallModal';
 import { ChatContext } from 'pages/ChatApp';
 import useRoom from 'hooks/useRoom';
 import { MenuContext } from 'contexts/menuContext';
-
-import defaultAvatar from 'statics/images/default_user.png';
+import Avatar from 'components/Avatar';
 
 const ChatHeader = ({ roomId }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -56,12 +54,12 @@ const ChatHeader = ({ roomId }) => {
           <AvatarGroup size="md" max={3}>
             {room.otherMembers.length > 1
               ? room.members.map(o => (
-                <Avatar key={o.id} name={o.userName} src={o.avatar || defaultAvatar}>
+                <Avatar key={o.id} name={o.userName} src={o.avatar}>
                   <AvatarBadge boxSize="0.8em" bg="green.500" />
                 </Avatar>
               ))
               : room.otherMembers.map(o => (
-                <Avatar key={o.id} name={o.userName} src={o.avatar || defaultAvatar}>
+                <Avatar key={o.id} name={o.userName} src={o.avatar}>
                   <AvatarBadge boxSize="0.8em" bg="green.500" />
                 </Avatar>
               ))}

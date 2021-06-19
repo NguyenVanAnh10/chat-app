@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Avatar,
   AvatarBadge,
   Button,
   ButtonGroup,
@@ -9,15 +8,15 @@ import {
   VStack,
 } from '@chakra-ui/react';
 
+import Avatar from 'components/Avatar';
 import Notification from 'entities/Notification';
-import defaultAvatar from 'statics/images/default_user.png';
 
 const NotificationItem = ({ typeNotification, friend, onConfirm, onDelete }) => {
   switch (typeNotification) {
     case Notification.NOTIFICATION_FRIEND_REQUEST:
       return (
         <HStack spacing="4" align="flex-start">
-          <Avatar name={friend.userName} src={friend.avatar || defaultAvatar}>
+          <Avatar name={friend.userName} src={friend.avatar}>
             <AvatarBadge boxSize="0.8em" bg="green.500" />
           </Avatar>
           <VStack align="flex-start">

@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Avatar,
   AvatarBadge,
   AvatarGroup,
   HStack,
@@ -8,8 +7,9 @@ import {
 } from '@chakra-ui/react';
 import classNames from 'classnames';
 
+import Avatar from 'components/Avatar';
+
 import styles from './RoomItem.module.scss';
-import defaultAvatar from 'statics/images/default_user.png';
 
 const RoomItem = ({ room, active, onClick }) => (
   <HStack
@@ -27,12 +27,12 @@ const RoomItem = ({ room, active, onClick }) => (
     <AvatarGroup size="md" max={3}>
       {room.otherMembers.length > 1
         ? room.members.map(o => (
-          <Avatar key={o.id} name={o.userName} src={o.avatar || defaultAvatar}>
+          <Avatar key={o.id} name={o.userName} src={o.avatar}>
             <AvatarBadge boxSize="0.8em" bg="green.500" />
           </Avatar>
         ))
         : room.otherMembers.map(o => (
-          <Avatar key={o.id} name={o.userName} src={o.avatar || defaultAvatar}>
+          <Avatar key={o.id} name={o.userName} src={o.avatar}>
             <AvatarBadge boxSize="0.8em" bg="green.500" />
           </Avatar>
         ))}

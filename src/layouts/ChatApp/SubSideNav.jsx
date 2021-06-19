@@ -3,7 +3,6 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
-  Avatar,
   AvatarBadge,
   Box,
   Button,
@@ -35,8 +34,7 @@ import NotificationDrawers from 'components/NotificationDrawer';
 import NewNotificationBadge from 'components/NewNotificationsBadge';
 import { UserIcon } from 'components/CustomIcons';
 import UpdateAccountInfoModal from 'components/UpdateAccountInfoModal';
-
-import defaultAvatar from 'statics/images/default_user.png';
+import Avatar from 'components/Avatar';
 
 const badges = {
   [menuKeys.MESSAGES]: <NewMessageBadge />,
@@ -165,7 +163,7 @@ const AvatarMenu = ({ onOpenProfile }) => {
     <>
       <Menu>
         <MenuButton h="fit-content" d="block" mx="auto">
-          <Avatar name={account.userName} src={account.avatar || defaultAvatar} onClick={onOpen}>
+          <Avatar name={account.userName} src={account.avatar} onClick={onOpen}>
             <AvatarBadge boxSize="0.8em" bg="green.500" />
           </Avatar>
         </MenuButton>

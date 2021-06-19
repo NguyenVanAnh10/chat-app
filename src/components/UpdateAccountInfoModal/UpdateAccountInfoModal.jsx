@@ -7,8 +7,6 @@ import { AccountContext } from 'App';
 import UploadImage from 'components/UploadImage';
 import { useModel } from 'model';
 
-import defaultAvatar from 'statics/images/default_user.png';
-
 const selector = ({ updateMe }) => ({ updateState: updateMe });
 
 const UpdateAccountInfoModal = ({ isOpen, onClose }) => {
@@ -73,7 +71,7 @@ const UpdateAccountInfoModal = ({ isOpen, onClose }) => {
                         <Image
                           mx="auto"
                           borderRadius="100%"
-                          src={field.value?.src || defaultAvatar}
+                          src={field.value?.src}
                           boxSize="120px"
                           objectFit="cover"
                           alt="Avatar"

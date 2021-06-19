@@ -1,6 +1,8 @@
 import React from 'react';
-import { Avatar, AvatarGroup, HStack, Text } from '@chakra-ui/react';
+import { AvatarGroup, HStack, Text } from '@chakra-ui/react';
 import dayjs from 'dayjs';
+
+import Avatar from 'components/Avatar';
 
 const MessageStatus = ({
   message,
@@ -38,8 +40,9 @@ const MessageStatus = ({
         .map(userId => (
           <Avatar
             key={userId}
-            border="none"
+            showBorder={false}
             name={members[userId]?.userName}
+            src={members[userId]?.avatar}
           />
         ))}
     </AvatarGroup>

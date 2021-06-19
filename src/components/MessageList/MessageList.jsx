@@ -1,6 +1,5 @@
 import React, { useContext, useState, forwardRef } from 'react';
 import {
-  Avatar,
   HStack,
   IconButton,
   Stack,
@@ -15,9 +14,9 @@ import MessageListCard from 'components/MessageListCard';
 import ReviewImageModal from 'components/ReviewImageModal';
 import MessageContent from 'components/MessageContent';
 import Message from 'entities/Message';
+import Avatar from 'components/Avatar';
 
 import styles from './MessageList.module.scss';
-import defaultAvatar from 'statics/images/default_user.png';
 
 const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
   const [{ messages, getMessagesState, total }, { loadMoreMessages }] = useMessages(roomId, {
@@ -78,7 +77,7 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
           >
             <Avatar
               name={members[m.senderId]?.userName || 'N/A'}
-              src={members[m.senderId]?.avatar || defaultAvatar}
+              src={members[m.senderId]?.avatar}
               size="sm"
               zIndex="2"
             />

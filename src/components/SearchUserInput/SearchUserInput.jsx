@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import {
-  Avatar,
   Divider,
   Input,
   InputGroup,
@@ -13,8 +12,8 @@ import {
 import { SearchIcon } from '@chakra-ui/icons';
 import debounce from 'lodash.debounce';
 
+import Avatar from 'components/Avatar';
 import EmptyList from 'components/EmptyList';
-import defaultAvatar from 'statics/images/default_user.png';
 
 const SearchUserInput = ({
   placeholder,
@@ -80,7 +79,7 @@ const DefaultResultList = ({ users, onUserClick }) => (
         _hover={{ bg: 'pink.100' }}
         onClick={() => onUserClick(u)}
       >
-        <Avatar name={u.userName} src={u.avatar || defaultAvatar} />
+        <Avatar name={u.userName} src={u.avatar} />
         <VStack ml="4" alignItems="flex-start" spacing={0} color="gray.600">
           <Text fontSize="md" fontWeight="bold">
             {u.userName}
