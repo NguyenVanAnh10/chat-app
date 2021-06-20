@@ -15,12 +15,9 @@ import Message from 'entities/Message';
 import Notification from 'entities/Notification';
 import { turnOnCameraAndAudio, stopStreame } from 'utils';
 
-const initJoinAllRoomsState = {
-  isJoined: false,
-};
-
 const useChat = () => {
   const { account } = useContext(AccountContext);
+  const socketRef = useRef();
   const [,
     {
       getRoom, getMessage, getMessagesOtherUserHasSeen, sendMessage,
@@ -35,67 +32,69 @@ const useChat = () => {
     callState: {}, // {hasReceived, accepted, declined}
   };
   const [chat, setChat] = useState(initChat);
-
+  const chatRef = useRef();
   const connectionRef = useRef();
 
-  // TODO
-  const [socket] = registerSocket({
-    connect: () => {
-      updateOnline({ id: account.id, online: true });
-    },
-    update_user: ({ userId }) => {
-      getUser({ id: userId });
-    },
-    a_call_from: ({ signal, id, roomId }) => {
-      if (id === account.id) return;
-      setChat({
-        ...initChat,
-        roomId,
-        caller: { signal, id },
-        callState: { hasReceived: true },
-      });
-    },
-    callended: () => {
-      setChat(initChat);
-      destroyCall();
-    },
-    decline_incoming_call: ({ callerId }) => {
-      if (callerId === account.id) {
-        destroyCall();
-        setChat({ ...initChat, callState: { declined: true } });
-      }
-    },
-    user_has_added_new_room: ({ roomId }) => {
-      getRoom({ roomId, userId: account.id });
-    },
-    send_message_success: ({ senderId, messageId, roomId }) => {
-      if (account.id === senderId) return;
-      getMessage({
-        messageId,
-        userId: account.id,
-        roomId,
-        cachedKey: roomId });
-    },
-    user_has_seen_messages: ({ roomId, userId, haveSeenMessageIds }) => {
-      if (account.id === userId) return;
-      getMessagesOtherUserHasSeen({ roomId, userId, haveSeenMessageIds });
-    },
-    friend_request: ({ creatorId }) => {
-      getFriendRequest({ userId: account.id, friendId: creatorId });
-    },
-    disconnect: () => {
-      updateOnline({ id: account.id, online: false });
-      console.log('disconnected');
-    },
-    error: ({ error }) => {
-      console.error('error', error);
-    },
-  });
+  useReactEffect(() => {
+    chatRef.current = chat;
+  }, [chat]);
 
   useReactEffect(() => {
-    if (initJoinAllRoomsState.isJoined || !account.id) return;
+    if (!account.id) return;
+    const [socket] = registerSocket({
+      connect: () => {
+        updateOnline({ id: account.id, online: true });
+      },
+      update_user: ({ userId }) => {
+        getUser({ id: userId });
+      },
+      a_call_from: ({ signal, id, roomId }) => {
+        if (id === account.id) return;
+        setChat({
+          ...initChat,
+          roomId,
+          caller: { signal, id },
+          callState: { hasReceived: true },
+        });
+      },
+      callended: () => {
+        setChat(initChat);
+        destroyCall();
+      },
+      decline_incoming_call: ({ callerId }) => {
+        if (callerId === account.id) {
+          destroyCall();
+          setChat({ ...initChat, callState: { declined: true } });
+        }
+      },
+      user_has_added_new_room: ({ roomId }) => {
+        getRoom({ roomId, userId: account.id });
+      },
+      send_message_success: ({ senderId, messageId, roomId }) => {
+        if (account.id === senderId) return;
+        getMessage({
+          messageId,
+          userId: account.id,
+          roomId,
+          cachedKey: roomId });
+      },
+      user_has_seen_messages: ({ roomId, userId, haveSeenMessageIds }) => {
+        if (account.id === userId) return;
+        getMessagesOtherUserHasSeen({ roomId, userId, haveSeenMessageIds });
+      },
+      friend_request: ({ creatorId }) => {
+        getFriendRequest({ userId: account.id, friendId: creatorId });
+      },
+      disconnect: () => {
+        updateOnline({ id: account.id, online: false });
+        console.log('disconnected');
+      },
+      error: ({ error }) => {
+        console.error('error', error);
+      },
+    });
     socket.emit('join_all_room', { userId: account.id });
-    initJoinAllRoomsState.isJoined = true;
+    socketRef.current = socket;
     return () => {
       socket.disconnect();
     };
@@ -121,7 +120,7 @@ const useChat = () => {
         stream: currentStream,
       });
       peer.on('signal', signal => {
-        socket.emit('answer_call', {
+        socketRef.current?.emit('answer_call', {
           roomId: chat.roomId,
           ...chat.caller,
           signal,
@@ -171,7 +170,7 @@ const useChat = () => {
         stream: currentStream,
       });
       peer.on('signal', signal => {
-        socket.emit('call_to', {
+        socketRef.current?.emit('call_to', {
           signal,
           id: account.id,
           roomId,
@@ -184,8 +183,8 @@ const useChat = () => {
           streamVideos: { ...prev.streamVideos, remote: remoteStream },
         }));
       });
-      socket.removeAllListeners('call_accepted');
-      socket.on('call_accepted', ({ signal }) => {
+      socketRef.current?.removeAllListeners('call_accepted');
+      socketRef.current?.on('call_accepted', ({ signal }) => {
         setChat(prev => ({
           ...prev,
           callState: { accepted: true },
@@ -202,7 +201,7 @@ const useChat = () => {
 
   const onDeclineCall = callerId => {
     setChat({ ...chat, callState: { ...chat.callState, hasReceived: false } });
-    socket.emit('decline_incoming_call', {
+    socketRef.current?.emit('decline_incoming_call', {
       callerId,
       roomId: chat.roomId,
     });
@@ -220,7 +219,7 @@ const useChat = () => {
   const onLeaveCall = roomId => {
     destroyCall();
     setChat(initChat);
-    socket.emit('callended', { userId: account.id, roomId });
+    socketRef.current?.emit('callended', { userId: account.id, roomId });
     chat.callState.accepted
       && sendMessage({
         roomId,
@@ -232,14 +231,15 @@ const useChat = () => {
         usersSeenMessage: [account.id],
       });
   };
+
   const destroyCall = () => {
     connectionRef.current?.destroy();
-    stopStreame(chat.streamVideos.current);
+    stopStreame(chatRef.current?.streamVideos?.current);
   };
 
   return {
     state: {
-      socket,
+      socket: socketRef.current,
       ...chat,
     },
     actions: {

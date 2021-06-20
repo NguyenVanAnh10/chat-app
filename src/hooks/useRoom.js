@@ -65,7 +65,7 @@ export const useRooms = typeRooms => {
   ] = useModel('message', roomsSelector(account));
 
   useReactEffect(() => {
-    account.id && getRooms(account.id);
+    account.id && !rooms.length && getRooms(account.id);
   }, [account.id]);
 
   if (!account.id) return [{}, {}];
