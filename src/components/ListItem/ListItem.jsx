@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, VStack } from '@chakra-ui/react';
+import { Box, Center, Spinner, VStack } from '@chakra-ui/react';
 
 import EmptyList from 'components/EmptyList';
 
@@ -8,22 +8,34 @@ const ListItem = ({
   footer,
   data = [],
   emptyText,
-  // onClickItem,
   spacing,
-  mt,
+  loading,
+  hideEmptyBox = false,
   renderItem = () => {},
+  ...rest
 }) => (
-  <Box h="100%">
-    {header && <Box>{header}</Box>}
-    {data.length
-      ? (
-        <VStack mt={mt || '5'} spacing={spacing || 2} alignItems="flex-start">
+  <VStack w="100%">
+    {header && <Box w="100%">{header}</Box>}
+    {loading && (
+      <Center w="100%">
+        <Spinner
+          thickness="3px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="orange.300"
+          size="lg"
+        />
+      </Center>
+    )}
+    {data.length && !loading
+      && (
+        <VStack w="100%" mt="5" spacing={spacing || 2} alignItems="flex-start" {...rest}>
           {data.map(d => renderItem(d))}
         </VStack>
-      )
-      : <EmptyList content={emptyText} />}
-    {footer && <Box>{footer}</Box>}
-  </Box>
+      )}
+    {!data.length && !loading && !hideEmptyBox && <EmptyList pt="6" content={emptyText} />}
+    {footer && <Box w="100%">{footer}</Box>}
+  </VStack>
 );
 
 export default ListItem;

@@ -1,36 +1,39 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import {
   Divider,
   Input,
   InputGroup,
   InputLeftElement,
-  List,
-  ListItem,
-  Text,
-  VStack,
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import debounce from 'lodash.debounce';
 
-import Avatar from 'components/Avatar';
-import EmptyList from 'components/EmptyList';
+import useUsers from 'hooks/useUsers';
+import { AccountContext } from 'App';
+import ListItem from 'components/ListItem';
 
 const SearchUserInput = ({
   placeholder,
-  usersData = [],
   hasSearchIcon = true,
   onUserClick,
   renderResultList,
+  renderItem = () => {},
   ...rest
 }) => {
-  const [users, setUsers] = useState(usersData);
+  const [keyword, setKeyword] = useState();
+  const { account } = useContext(AccountContext);
   const debounceRef = useRef();
+  const [{ usersArray: users, getUsersState: { loading } }, { getUsersByKeyword }] = useUsers();
 
   const onHandleSearch = kw => {
+    setKeyword(kw);
     if (!kw) return;
     debounceRef.current && debounceRef.current.cancel();
-    debounceRef.current = debounce(() => setUsers(usersData.filter(u => u.userName.includes(kw))),
-      300);
+    debounceRef.current = debounce(() => getUsersByKeyword({
+      userId: account.id,
+      keyword: kw,
+    }),
+    300);
     debounceRef.current();
   };
   return (
@@ -46,49 +49,23 @@ const SearchUserInput = ({
         <Input
           w="100%"
           _focus="none"
-          placeholder={placeholder || 'Search friend...'}
+          placeholder={placeholder || 'Search user...'}
           border="none"
           onChange={e => onHandleSearch(e.target.value)}
         />
       </InputGroup>
-      {!!users.length && (
-        <>
-          <Divider mb="5" mt="1" />
-          {renderResultList ? (
-            renderResultList(usersData)
-          ) : (
-            <DefaultResultList users={usersData} onUserClick={onUserClick} />
-          )}
-        </>
-      )}
-      {!users.length && <EmptyList pt="5" content="Friend not found" />}
+      {!loading && (keyword || !!users.length) && <Divider my="1" />}
+      <ListItem
+        mt="3"
+        spacing="7"
+        data={users}
+        loading={loading}
+        hideEmptyBox={!keyword}
+        emptyText="User not found"
+        renderItem={renderItem}
+      />
     </>
   );
 };
-const DefaultResultList = ({ users, onUserClick }) => (
-  <List spacing="2">
-    {users.map(u => (
-      <ListItem
-        key={u.id}
-        d="flex"
-        cursor="pointer"
-        bg="pink.50"
-        p="2"
-        borderRadius="md"
-        transition="all 0.3s ease"
-        _hover={{ bg: 'pink.100' }}
-        onClick={() => onUserClick(u)}
-      >
-        <Avatar name={u.userName} src={u.avatar} />
-        <VStack ml="4" alignItems="flex-start" spacing={0} color="gray.600">
-          <Text fontSize="md" fontWeight="bold">
-            {u.userName}
-          </Text>
-          <Text fontSize="sm">{u.email}</Text>
-        </VStack>
-      </ListItem>
-    ))}
-  </List>
-);
 
 export default SearchUserInput;

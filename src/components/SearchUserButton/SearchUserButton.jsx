@@ -11,7 +11,7 @@ import isEqual from 'lodash.isequal';
 import { SearchIcon } from '@chakra-ui/icons';
 
 import { useModel } from 'model';
-import SearchUserInput from 'components/SearchUserInput';
+import SearchFriendInput from 'components/SearchFriendInput';
 import { AccountContext } from 'App';
 
 const SearchUserButton = ({ onSelectUser }) => {
@@ -55,7 +55,7 @@ const SearchUserButton = ({ onSelectUser }) => {
         <ModalOverlay />
         <ModalContent>
           <ModalBody py="5">
-            <SearchUserInput usersData={friends} onUserClick={u => onCreateRoomChat(u.id)} />
+            <SearchFriendInput usersData={friends} onUserClick={u => onCreateRoomChat(u.id)} />
           </ModalBody>
         </ModalContent>
       </Modal>

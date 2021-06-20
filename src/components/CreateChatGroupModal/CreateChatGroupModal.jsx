@@ -23,7 +23,7 @@ import isEqual from 'lodash.isequal';
 
 import { useModel } from 'model';
 import { AccountContext } from 'App';
-import SearchUserInput from 'components/SearchUserInput';
+import SearchFriendInput from 'components/SearchFriendInput';
 
 const selector = ({ createRoom, rooms: roomsModel }) => ({
   createRoomState: createRoom,
@@ -127,7 +127,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
                     <FormErrorMessage>{error.message}</FormErrorMessage>
                     )}
                   </FormControl>
-                  <SearchUserInput
+                  <SearchFriendInput
                     mt="5"
                     usersData={friends}
                     hasSearchIcon={false}

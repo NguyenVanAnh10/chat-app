@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useBeforeUnload } from 'react-use';
 import Peer from 'simple-peer';
 import { v4 as uuid } from 'uuid';
 
@@ -25,7 +26,7 @@ const useChat = () => {
       getRoom, getMessage, getMessagesOtherUserHasSeen, sendMessage,
     },
   ] = useModel('message', () => ({}));
-  const [, { getFriendRequest }] = useModel('account', () => ({}));
+  const [, { getUser, getFriendRequest, updateOnline }] = useModel('account', () => ({}));
 
   const initChat = {
     roomId: '',
@@ -37,7 +38,14 @@ const useChat = () => {
 
   const connectionRef = useRef();
 
+  // TODO
   const [socket] = registerSocket({
+    connect: () => {
+      updateOnline({ id: account.id, online: true });
+    },
+    update_user: ({ userId }) => {
+      getUser({ id: userId });
+    },
     a_call_from: ({ signal, id, roomId }) => {
       if (id === account.id) return;
       setChat({
@@ -62,7 +70,8 @@ const useChat = () => {
     },
     send_message_success: ({ senderId, messageId, roomId }) => {
       if (account.id === senderId) return;
-      getMessage({ messageId,
+      getMessage({
+        messageId,
         userId: account.id,
         roomId,
         cachedKey: roomId });
@@ -74,8 +83,9 @@ const useChat = () => {
     friend_request: ({ creatorId }) => {
       getFriendRequest({ userId: account.id, friendId: creatorId });
     },
-    disconnect_socket: () => {
-      console.log('disconnect_socket');
+    disconnect: () => {
+      updateOnline({ id: account.id, online: false });
+      console.log('disconnected');
     },
     error: ({ error }) => {
       console.error('error', error);
@@ -90,6 +100,11 @@ const useChat = () => {
       socket.disconnect();
     };
   }, [account.id]);
+
+  useBeforeUnload(() => {
+    console.log('before upload');
+    updateOnline({ id: account.id, online: false });
+  });
 
   const onAnswerCall = async () => {
     try {

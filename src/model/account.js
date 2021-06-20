@@ -1,5 +1,7 @@
 import {
-  getMe, login, logout, addFriend, confirmFriendRequest, getFriendRequest, updateMe,
+  getMe, login, logout, addFriend,
+  confirmFriendRequest, getFriendRequest,
+  updateMe, getFriends,
 } from 'services/account';
 import { getUsers, getUser } from 'services/user';
 
@@ -15,10 +17,12 @@ const accountModel = {
     confirmFriendRequest: {}, // {[id]: { loading, error}}
     getMe: {}, // { loading, error}
     updateMe: {},
+    updateOnline: {},
     login: {},
     logout: {},
     users: {}, // {[id]: message}
-    getUsers: {}, // { loading, error}
+    getFriends: {}, // { loading, error}
+    getUsers: {}, // { ids, loading, error}
     getUser: {}, // { loading, error}
 
   },
@@ -51,6 +55,20 @@ const accountModel = {
           return { ...state, updateMe: { loading: true } };
       }
     },
+    updateOnline: (state, { status, payload }) => {
+      switch (status) {
+        case 'success':
+          return {
+            ...state,
+            me: { ...state.me, ...payload },
+            updateOnline: {},
+          };
+        case 'error':
+          return { ...state, updateOnline: { error: payload } };
+        default:
+          return { ...state, updateOnline: { loading: true } };
+      }
+    },
     login: (state, { status, payload }) => {
       switch (status) {
         case 'success':
@@ -75,7 +93,7 @@ const accountModel = {
           return { ...state, logout: { loading: true } };
       }
     },
-    getUsers: (state, { status, payload }) => {
+    getFriends: (state, { status, payload }) => {
       switch (status) {
         case 'success':
           return {
@@ -84,12 +102,48 @@ const accountModel = {
               (s, u) => ({ ...s, [u.id]: u }),
               state.users,
             ),
-            getUsers: { ids: payload.map(u => u.id) },
+            getFriends: { ids: payload.map(u => u.id) },
           };
         case 'error':
-          return { ...state, getUsers: { error: payload } };
+          return { ...state, getFriends: { error: payload } };
         default:
-          return { ...state, getUsers: { loading: true } };
+          return { ...state, getFriends: { loading: true } };
+      }
+    },
+    getUsers: (state, { status, payload }) => {
+      switch (status) {
+        case 'success':
+          return {
+            ...state,
+            users: payload.users.reduce(
+              (s, u) => ({ ...s, [u.id]: u }),
+              state.users,
+            ),
+            getUsers: {
+              ...state.getUsers,
+              [payload.keyword]: {
+                ids: payload.users.map(u => u.id),
+              },
+              error: null,
+              loading: false,
+            },
+          };
+        case 'error':
+          return { ...state,
+            getUsers: {
+              ...state.getUsers,
+              error: payload,
+              loading: false,
+            },
+          };
+        default:
+          return { ...state,
+            getUsers: {
+              ...state.getUsers,
+              loading: true,
+              error: null,
+            },
+          };
       }
     },
     getUser: (state, { status, payload }) => {
@@ -201,6 +255,13 @@ const accountModel = {
         onError(error);
       }
     },
+    updateOnline: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await updateMe(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
     login: async (payload, onSuccess, onError) => {
       try {
         onSuccess(await login(payload));
@@ -216,9 +277,16 @@ const accountModel = {
         onError(error);
       }
     },
+    getFriends: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await getFriends(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
     getUsers: async (payload, onSuccess, onError) => {
       try {
-        onSuccess(await getUsers(payload));
+        onSuccess({ keyword: payload.keyword, users: await getUsers(payload) });
       } catch (error) {
         onError(error);
       }
@@ -255,10 +323,12 @@ const accountModel = {
   actions: {
     getMe: () => ({}),
     updateMe: params => params,
+    updateOnline: params => params,
     login: params => params,
     logout: () => ({}),
-    getUsers: keyword => ({ keyword }),
-    getUser: id => ({ userId: id }),
+    getUsers: params => params,
+    getFriends: params => params,
+    getUser: params => params,
     addFriend: params => params,
     confirmFriendRequest: params => params,
     getFriendRequest: params => params,

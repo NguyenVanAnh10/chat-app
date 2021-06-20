@@ -1,8 +1,10 @@
+/* eslint-disable no-param-reassign */
 import { useContext, useEffect as useReactEffect } from 'react';
 
 import { AccountContext } from 'App';
 import { useModel } from 'model';
 import { menuKeys } from 'configs/configs';
+import useUsers from './useUsers';
 
 const roomSelector = ({ messages, rooms, seeMessages }) => ({
   messages,
@@ -12,7 +14,7 @@ const roomSelector = ({ messages, rooms, seeMessages }) => ({
 
 const useRoom = roomId => {
   const { account } = useContext(AccountContext);
-
+  const [{ users }] = useUsers();
   const [{ messages, rooms, seeMessages: seeMessagesState }, { seeMessages }] = useModel('message',
     roomSelector);
 
@@ -24,17 +26,17 @@ const useRoom = roomId => {
     {
       room: {
         ...rooms[roomId],
-        otherMembers: rooms[roomId].members.filter(
-          m => m.id !== account.id,
-        ),
+        members: rooms[roomId].userIds?.map(id => id !== account.id ? users[id] || {} : account),
+        otherMembers: rooms[roomId].userIds?.filter(id => id !== account.id)
+          .map(id => users[id] || {}),
         newMessageNumber: Object.keys(messages).filter(
           id => messages[id]?.roomId === roomId
             && !!messages[id]?.usersSeenMessage
             && !messages[id].usersSeenMessage.includes(account.id),
         ).length,
         userName:
-          rooms[roomId]?.userName
-          || rooms[roomId]?.members?.find(m => m.id !== account.id)?.userName,
+          rooms[roomId].name
+          || users[rooms[roomId].userIds?.find(id => id !== account.id)]?.userName,
       },
       seeMessagesState: seeMessagesState[roomId] || {},
     },
@@ -46,19 +48,17 @@ const roomsSelector = account => ({ messages, getRooms, rooms }) => ({
   messages,
   rooms: (getRooms.ids || []).map(id => ({
     ...rooms[id],
-    otherMembers: rooms[id].members?.filter(m => m.id !== account.id),
     newMessageNumber: rooms[id].messageIds?.filter(
       msgId => !!messages[msgId]?.usersSeenMessage
       && !messages[msgId].usersSeenMessage.includes(account.id),
     )?.length,
-    userName:
-      rooms[id].name
-      || rooms[id].members?.find(m => m.id !== account.id)?.userName,
+
   })),
 });
 // typeRooms: messages | notMessages | contactBook |all
 export const useRooms = typeRooms => {
   const { account } = useContext(AccountContext);
+  const [{ users }] = useUsers();
   const [
     { rooms },
     { getRooms, seeMessages },
@@ -69,7 +69,13 @@ export const useRooms = typeRooms => {
   }, [account.id]);
 
   if (!account.id) return [{}, {}];
-
+  rooms.forEach(room => {
+    room.members = room.userIds?.map(id => id !== account.id ? users[id] || {} : account);
+    room.otherMembers = room.userIds?.filter(id => id !== account.id)
+      .map(id => users[id] || {});
+    room.userName = room.name
+       || users.[room.userIds?.find(id => id !== account.id)]?.userName;
+  });
   switch (typeRooms) {
     case menuKeys.MESSAGES:
       return [{ rooms: rooms.filter(room => !!room.messageIds?.length) }, { seeMessages }];

@@ -164,7 +164,7 @@ const AvatarMenu = ({ onOpenProfile }) => {
       <Menu>
         <MenuButton h="fit-content" d="block" mx="auto">
           <Avatar name={account.userName} src={account.avatar} onClick={onOpen}>
-            <AvatarBadge boxSize="0.8em" bg="green.500" />
+            <AvatarBadge boxSize="0.8em" bg={account.online ? 'green.500' : 'gray.300'} />
           </Avatar>
         </MenuButton>
         <MenuList>

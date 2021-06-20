@@ -48,7 +48,7 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
 
   const handleLoadmore = () => {
     loadMoreMessages({
-      limit: 10,
+      limit: 20,
       roomId,
       skip: messages.length,
     });

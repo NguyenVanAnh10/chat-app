@@ -17,7 +17,7 @@ const NotificationItem = ({ typeNotification, friend, onConfirm, onDelete }) => 
       return (
         <HStack spacing="4" align="flex-start">
           <Avatar name={friend.userName} src={friend.avatar}>
-            <AvatarBadge boxSize="0.8em" bg="green.500" />
+            <AvatarBadge boxSize="0.8em" bg={friend.online ? 'green.500' : 'gray.300'} />
           </Avatar>
           <VStack align="flex-start">
             <Text>

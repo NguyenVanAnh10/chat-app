@@ -55,12 +55,12 @@ const ChatHeader = ({ roomId }) => {
             {room.otherMembers.length > 1
               ? room.members.map(o => (
                 <Avatar key={o.id} name={o.userName} src={o.avatar}>
-                  <AvatarBadge boxSize="0.8em" bg="green.500" />
+                  <AvatarBadge boxSize="0.8em" bg={o.online ? 'green.500' : 'gray.300'} />
                 </Avatar>
               ))
               : room.otherMembers.map(o => (
                 <Avatar key={o.id} name={o.userName} src={o.avatar}>
-                  <AvatarBadge boxSize="0.8em" bg="green.500" />
+                  <AvatarBadge boxSize="0.8em" bg={o.online ? 'green.500' : 'gray.300'} />
                 </Avatar>
               ))}
           </AvatarGroup>
