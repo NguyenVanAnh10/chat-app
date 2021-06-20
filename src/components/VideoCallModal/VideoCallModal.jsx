@@ -52,8 +52,9 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalBody
-          bg="pink.100"
+          bg="blackAlpha.900"
           d="flex"
+          color="whiteAlpha.900"
           flexDir="column"
           justifyContent="center"
           className={styles.VideoCallModal}
@@ -94,7 +95,7 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
             </AspectRatio>
           )}
           {!!receiver && !callState.accepted && (
-            <VStack mx="auto" zIndex="1">
+            <VStack mx="auto" zIndex="1" spacing="4">
               <AvatarGroup size="xl" max={3}>
                 {room.otherMembers.length > 1
                   ? room.members.map(o => (

@@ -16,7 +16,7 @@ const CallingAlertModal = ({ callerId, onDecline, isOpen, onAnswer }) => {
     caller: users[getUserState.id] || {},
   }));
   useReactEffect(() => {
-    callerId && getUser(callerId);
+    callerId && getUser({ id: callerId });
   }, [callerId]);
 
   if (!caller.id) return null;
