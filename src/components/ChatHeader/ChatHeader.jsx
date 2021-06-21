@@ -52,13 +52,13 @@ const ChatHeader = ({ roomId }) => {
             />
           )}
           <AvatarGroup size="md" max={3}>
-            {room.otherMembers.length > 1
-              ? room.members.map(o => (
+            {room.otherMembers?.length > 1
+              ? room.members?.map(o => (
                 <Avatar key={o.id} name={o.userName} src={o.avatar}>
                   <AvatarBadge boxSize="0.8em" bg={o.online ? 'green.500' : 'gray.300'} />
                 </Avatar>
               ))
-              : room.otherMembers.map(o => (
+              : room.otherMembers?.map(o => (
                 <Avatar key={o.id} name={o.userName} src={o.avatar}>
                   <AvatarBadge boxSize="0.8em" bg={o.online ? 'green.500' : 'gray.300'} />
                 </Avatar>
@@ -66,7 +66,7 @@ const ChatHeader = ({ roomId }) => {
           </AvatarGroup>
           <Text ml="2">{room.name || room.userName}</Text>
         </HStack>
-        {room.otherMembers.length === 1 && (
+        {room.otherMembers?.length === 1 && (
           <IconButton
             onClick={() => {
               onOpen();
@@ -83,7 +83,7 @@ const ChatHeader = ({ roomId }) => {
         isOpen={isOpen}
         onClose={onClose}
         room={room}
-        receiver={room?.members?.find(u => u.id !== account.id)}
+        receiver={room.members?.find(u => u.id !== account.id)}
       />
     </>
   );

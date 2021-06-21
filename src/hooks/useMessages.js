@@ -1,4 +1,4 @@
-import { useContext, useEffect as useReactEffect } from 'react';
+import { useContext, useEffect as useReactEffect, useMemo } from 'react';
 
 import { useModel } from 'model';
 import { AccountContext } from 'App';
@@ -40,9 +40,32 @@ const useMessages = (roomId, options = opts) => {
   };
 
   if (!roomId || !userId) return [{ messages: [] }, {}];
+
+  const aggregateMessages = useMemo(() => (mesagesState[cachedKey]?.ids || [])
+    .map(id => messages[id])
+    .sort((msg1, msg2) => {
+      if (msg1.createAt > msg2.createAt) return 1;
+      if (msg1.createAt < msg2.createAt) return -1;
+      return 0;
+    }).reduce((s, c, index, msgArr) => {
+      if (!index || msgArr[index - 1].senderId !== c.senderId) {
+        return [...s, c];
+      }
+      return [
+        ...(s.length > 1 ? s.slice(0, s.length - 1) : []),
+        {
+          ...c,
+          aggregateMsg: s[s.length - 1]?.aggregateMsg
+            ? [...s[s.length - 1]?.aggregateMsg, c]
+            : [s[s.length - 1], c],
+        },
+      ];
+    }, []), [messages, cachedKey]);
+
   return [
     {
       total,
+      aggregateMessages,
       messages: (mesagesState[cachedKey]?.ids || [])
         .map(id => messages[id])
         .sort((msg1, msg2) => {

@@ -21,7 +21,6 @@ export const ChatContext = createContext({});
 const ChatApp = () => {
   const { account } = useContext(AccountContext);
   const [, { getMessages }] = useModel('message', () => ({}));
-  const [, { getFriends }] = useModel('account', () => ({}));
   const { isOpen, onClose, onOpen: onOpenConversationModal } = useDisclosure();
   const { state: chatState, actions: chatActions } = useChat();
   const [menuState, setMenuState] = useMenuContext();
@@ -34,7 +33,6 @@ const ChatApp = () => {
     if (!account.id) return;
     // TODO just get all not seen messages
     getMessages({ userId: account.id, cachedKey: 'all' });
-    getFriends({ userId: account.id, friendIds: account.friendIds?.join(',') });
   }, [account.id]);
   return (
     <ChatContext.Provider value={{ state: chatState, actions: chatActions }}>

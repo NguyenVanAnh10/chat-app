@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect as useReactEffect } from 'react';
 import {
   Drawer,
   DrawerBody,
@@ -13,13 +13,24 @@ import Notification from 'entities/Notification';
 import NotificationItem from 'components/NotificationItem';
 import { useModel } from 'model';
 import { AccountContext } from 'App';
+import useUsers from 'hooks/useUsers';
+
+const selector = ({ me, users }) => ({
+  me,
+  friendRequests: me.friendRequests.map(f => ({ ...users[f.friendId], ...f })),
+  friendRequestIds: me.friendRequests.map(f => f.friendId) || [],
+});
 
 const NotificationDrawers = ({ isOpen, onClose }) => {
   const { account } = useContext(AccountContext);
 
-  const [{ friendRequests }, { confirmFriendRequest }] = useModel('account', ({ me, users }) => ({
-    friendRequests: me.friendRequests.map(f => ({ ...users[f.friendId], ...f })),
-  }));
+  const [{ friendRequests, friendRequestIds }, { confirmFriendRequest }] = useModel('account', selector);
+  const [, { getUsers }] = useUsers();
+
+  useReactEffect(() => {
+    if (!friendRequestIds.length) return;
+    getUsers({ cachedKey: friendRequestIds.join(','), userIds: friendRequestIds.join(',') });
+  }, [friendRequestIds]);
 
   return (
     <Drawer

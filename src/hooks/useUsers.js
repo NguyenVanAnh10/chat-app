@@ -12,7 +12,7 @@ const useUsers = () => {
   const cachedKey = useRef('');
   const [, forceRender] = useState({});
 
-  const getUsersByKeyword = params => {
+  const getCachedUsers = params => {
     cachedKey.current = params.keyword;
     if (getUsersState[params.keyword]) {
       forceRender({});
@@ -23,6 +23,7 @@ const useUsers = () => {
 
   return [{
     users,
+    friends: (me.friendIds || []).map(id => users[id] || {}),
     usersArray: getUsersState[cachedKey.current]?.ids?.sort((userId1, userId2) => {
       if (me.friendIds?.includes(userId1) && !me.friendIds?.includes(userId2)) return 1;
       if (!me.friendIds?.includes(userId1) && me.friendIds?.includes(userId2)) return -1;
@@ -34,7 +35,7 @@ const useUsers = () => {
     },
   },
   {
-    getUsersByKeyword,
+    getUsers: getCachedUsers,
   },
   ];
 };

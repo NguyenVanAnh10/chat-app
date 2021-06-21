@@ -284,9 +284,12 @@ const accountModel = {
         onError(error);
       }
     },
-    getUsers: async (payload, onSuccess, onError) => {
+    getUsers: async ({ cachedKey, ...payload }, onSuccess, onError) => {
       try {
-        onSuccess({ keyword: payload.keyword, users: await getUsers(payload) });
+        onSuccess({
+          keyword: payload.keyword || cachedKey,
+          users: await getUsers(payload),
+        });
       } catch (error) {
         onError(error);
       }

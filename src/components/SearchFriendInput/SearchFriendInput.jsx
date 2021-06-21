@@ -14,6 +14,7 @@ import debounce from 'lodash.debounce';
 
 import Avatar from 'components/Avatar';
 import EmptyList from 'components/EmptyList';
+import { useUpdateEffect } from 'react-use';
 
 const SearchFriendInput = ({
   placeholder,
@@ -25,6 +26,10 @@ const SearchFriendInput = ({
 }) => {
   const [users, setUsers] = useState(usersData);
   const debounceRef = useRef();
+
+  useUpdateEffect(() => {
+    setUsers(usersData);
+  }, [usersData]);
 
   const onHandleSearch = kw => {
     debounceRef.current && debounceRef.current.cancel();
@@ -67,7 +72,7 @@ const SearchFriendInput = ({
 };
 const DefaultResultList = ({ users, onUserClick }) => (
   <List spacing="2">
-    {users.map(u => (
+    {users.filter(u => !!u.id).map(u => (
       <ListItem
         key={u.id}
         d="flex"
@@ -76,7 +81,7 @@ const DefaultResultList = ({ users, onUserClick }) => (
         p="2"
         borderRadius="md"
         transition="all 0.3s ease"
-        _hover={{ bg: 'pink.100' }}
+        _hover={{ bg: 'blue.100' }}
         onClick={() => onUserClick(u)}
       >
         <Avatar name={u.userName} src={u.avatar} />

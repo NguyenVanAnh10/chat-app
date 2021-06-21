@@ -23,13 +23,13 @@ const SearchUserInput = ({
   const [keyword, setKeyword] = useState();
   const { account } = useContext(AccountContext);
   const debounceRef = useRef();
-  const [{ usersArray: users, getUsersState: { loading } }, { getUsersByKeyword }] = useUsers();
+  const [{ usersArray: users, getUsersState: { loading } }, { getUsers }] = useUsers();
 
   const onHandleSearch = kw => {
     setKeyword(kw);
     if (!kw) return;
     debounceRef.current && debounceRef.current.cancel();
-    debounceRef.current = debounce(() => getUsersByKeyword({
+    debounceRef.current = debounce(() => getUsers({
       userId: account.id,
       keyword: kw,
     }),

@@ -19,32 +19,15 @@ import Avatar from 'components/Avatar';
 import styles from './MessageList.module.scss';
 
 const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
-  const [{ messages, getMessagesState, total }, { loadMoreMessages }] = useMessages(roomId, {
-    fetchData: true,
-  });
+  const [
+    { messages, aggregateMessages, getMessagesState, total },
+    { loadMoreMessages },
+  ] = useMessages(roomId, { fetchData: true });
 
   const [{ room }] = useRoom(roomId);
   const { account } = useContext(AccountContext);
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [imgSrc, setImgSrc] = useState();
-
-  // TODO aggregate messages
-  const aggregateMessages = messages.reduce((s, c, index, msgArr) => {
-    if (!index || msgArr[index - 1].senderId !== c.senderId) {
-      return [...s, c];
-    }
-    return [
-      ...(s.length > 1 ? s.slice(0, s.length - 1) : []),
-      {
-        ...c,
-        aggregateMsg: s[s.length - 1]?.aggregateMsg
-          ? [...s[s.length - 1]?.aggregateMsg, c]
-          : [s[s.length - 1], c],
-      },
-    ];
-  }, []);
-
-  const members = room.members.reduce((s, m) => ({ ...s, [m.id]: m }), {});
 
   const handleLoadmore = () => {
     loadMoreMessages({
@@ -77,8 +60,9 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
           >
             <Avatar
               name={m.senderId !== account.id
-                ? members[m.senderId]?.userName : account.userName}
-              src={m.senderId !== account.id ? members[m.senderId]?.avatar : account.avatar}
+                ? room.membersObj?.[m.senderId]?.userName : account.userName}
+              src={m.senderId !== account.id
+                ? room.membersObj?.[m.senderId]?.avatar : account.avatar}
               size="sm"
               zIndex="2"
             />
@@ -93,7 +77,7 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
                 <MessageContent
                   roomId={roomId}
                   message={m}
-                  members={members}
+                  members={room.membersObj || {}}
                   showSeenUsers={i === msgsArr.length - 1}
                   onImageClick={() => {
                     if (m.contentType !== Message.CONTENT_TYPE_IMAGE) return;
@@ -111,7 +95,7 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
                       roomId={roomId}
                       key={mm.id || mm.keyMsg}
                       message={mm}
-                      members={members}
+                      members={room.membersObj || {}}
                       showStatusMessage={ii === aa.length - 1}
                       showSeenUsers={i === msgsArr.length - 1}
                       onImageClick={() => {
