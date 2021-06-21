@@ -99,7 +99,7 @@ ref) => {
             thickness="3px"
             speed="0.65s"
             emptyColor="gray.200"
-            color="orange.300"
+            color="blue.300"
             size="lg"
           />
         </Center>
@@ -114,7 +114,7 @@ ref) => {
               thickness="3px"
               speed="0.65s"
               emptyColor="gray.200"
-              color="orange.300"
+              color="blue.300"
               size="md"
             />
           </Center>

@@ -32,7 +32,7 @@ import NewMessageBadge from 'components/NewMessageBadge';
 import { MenuContext } from 'contexts/menuContext';
 import NotificationDrawers from 'components/NotificationDrawer';
 import NewNotificationBadge from 'components/NewNotificationsBadge';
-import { UserIcon } from 'components/CustomIcons';
+import { UserIcon, LogoutIcon, ProfileIcon } from 'components/CustomIcons';
 import UpdateAccountInfoModal from 'components/UpdateAccountInfoModal';
 import Avatar from 'components/Avatar';
 
@@ -44,11 +44,14 @@ const badges = {
 const SubSideNav = () => {
   const { menuState, setMenuState } = useContext(MenuContext);
   const menus = configs.menus.map(m => ({ ...m, badge: badges[m.id] }));
+  const { account } = useContext(AccountContext);
+
   const {
     onClose: onCloseNotificationDrawer,
     onOpen: onOpenNotificationDrawer,
     isOpen: isOpenNotificationDrawer,
   } = useDisclosure();
+
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
   const {
     onClose: onCloseAccountModal,
@@ -72,7 +75,7 @@ const SubSideNav = () => {
   if (isMobileScreen) {
     return (
       <Box
-        bg="orange.200"
+        bg="blue.600"
         w="100%"
         zIndex="4"
         pos="fixed"
@@ -80,19 +83,19 @@ const SubSideNav = () => {
         left="0"
         right="0"
       >
-        <HStack spacing="0">
+        <HStack spacing="0" fontSize="xl">
           {menus.map(m => (
             <Button
               key={m.id}
-              py="4"
-              w="100%"
-              h="auto"
+              p="4"
+              h="100%"
+              flex="1"
               color="white"
               _focus="none"
               bg="transparent"
               borderRadius="none"
-              _active={{ bg: 'orange.400' }}
-              _hover={{ bg: 'orange.300' }}
+              _active={{ bg: 'blue.400' }}
+              _hover={{ bg: 'blue.300' }}
               isActive={menuState.active === m.id}
               onClick={() => handleClick(m)}
             >
@@ -100,20 +103,21 @@ const SubSideNav = () => {
               {!!m.badge && m.badge}
             </Button>
           ))}
-          <Button
-            py="4"
-            w="100%"
-            h="auto"
+          <UserMenu
+            p="4"
+            flex="1"
             color="white"
             _focus="none"
+            h="auto"
+            lineHeight="0"
             bg="transparent"
             borderRadius="none"
-            _active={{ bg: 'orange.400' }}
-            _hover={{ bg: 'orange.300' }}
-            onClick={() => handleClick(menuKeys.ACCOUNT)}
+            _active={{ bg: 'blue.400' }}
+            _hover={{ bg: 'blue.300' }}
+            onOpenProfile={() => handleClick(menuKeys.ACCOUNT)}
           >
             <Icon fontSize="1.3rem" as={UserIcon} />
-          </Button>
+          </UserMenu>
         </HStack>
         <NotificationDrawers
           isOpen={isOpenNotificationDrawer}
@@ -124,8 +128,15 @@ const SubSideNav = () => {
     );
   }
   return (
-    <Box bg="orange.200" w="65px" py="4" zIndex="4">
-      <AvatarMenu onOpenProfile={() => handleClick(menuKeys.ACCOUNT)} />
+    <Box bg="blue.600" w="65px" py="4" zIndex="4">
+      <UserMenu
+        w="100%"
+        onOpenProfile={() => handleClick(menuKeys.ACCOUNT)}
+      >
+        <Avatar name={account.userName} src={account.avatar}>
+          <AvatarBadge boxSize="0.8em" bg={account.online ? 'green.500' : 'gray.300'} />
+        </Avatar>
+      </UserMenu>
       <VStack spacing="0" mt="10">
         {menus.map(m => (
           <Button
@@ -133,16 +144,15 @@ const SubSideNav = () => {
             py="5"
             w="100%"
             h="auto"
-            color="white"
             _focus="none"
             bg="transparent"
             borderRadius="none"
-            _active={{ bg: 'orange.400' }}
-            _hover={{ bg: 'orange.300' }}
+            _active={{ bg: 'blue.400' }}
+            _hover={{ bg: 'blue.300' }}
             isActive={menuState.active === m.id}
             onClick={() => handleClick(m)}
           >
-            <Icon fontSize="1.7rem" as={m.icon} />
+            <Icon fontSize="1.7rem" as={m.icon} color="whitesmoke" />
             {!!m.badge && m.badge}
           </Button>
         ))}
@@ -156,21 +166,33 @@ const SubSideNav = () => {
   );
 };
 
-const AvatarMenu = ({ onOpenProfile }) => {
-  const { account } = useContext(AccountContext);
+const UserMenu = ({ onOpenProfile, children, ...rest }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
       <Menu>
-        <MenuButton h="fit-content" d="block" mx="auto">
-          <Avatar name={account.userName} src={account.avatar} onClick={onOpen}>
-            <AvatarBadge boxSize="0.8em" bg={account.online ? 'green.500' : 'gray.300'} />
-          </Avatar>
+        <MenuButton {...rest}>
+          {children}
         </MenuButton>
         <MenuList>
-          <MenuItem onClick={onOpenProfile}>Profile</MenuItem>
+          <MenuItem
+            p="3"
+            lineHeight="0"
+            icon={<ProfileIcon verticalAlign="middle" />}
+            onClick={onOpenProfile}
+          >
+            Profile
+          </MenuItem>
           <MenuDivider />
-          <MenuItem onClick={onOpen}>Logout</MenuItem>
+          <MenuItem
+            p="3"
+            lineHeight="0"
+            icon={<LogoutIcon verticalAlign="middle" />}
+            onClick={onOpen}
+            color="red"
+          >
+            Logout
+          </MenuItem>
         </MenuList>
       </Menu>
       <LogoutModal isOpen={isOpen} onClose={onClose} />
