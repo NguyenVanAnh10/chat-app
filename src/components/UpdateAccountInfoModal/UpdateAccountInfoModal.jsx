@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Avatar, Button, FormControl, FormErrorMessage,
+import { Alert, AlertDescription, AlertIcon, Avatar, Button, FormControl, FormErrorMessage,
   Input, Modal, ModalBody, ModalCloseButton, ModalContent,
   ModalFooter, ModalHeader, ModalOverlay, useToast, VStack } from '@chakra-ui/react';
 import { useUpdateEffect } from 'react-use';
@@ -16,13 +16,16 @@ const UpdateAccountInfoModal = ({ isOpen, onClose }) => {
   const [{ updateState }, { updateMe }] = useModel('account', selector);
   const toast = useToast();
 
-  const { control, handleSubmit, reset } = useForm({
-    defaultValues: {
+  const { control, handleSubmit, reset } = useForm();
+
+  useEffect(() => {
+    reset({
       userName: account.userName,
       email: account.email,
       avatar: { src: account.avatar },
-    },
-  });
+    });
+  }, [account]);
+
   useUpdateEffect(() => {
     if (!updateState.loading && !updateState.error) {
       toast({
@@ -115,6 +118,14 @@ const UpdateAccountInfoModal = ({ isOpen, onClose }) => {
                 )}
               />
             </VStack>
+            {updateState.error && (
+            <Alert status="error" marginTop="5">
+              <AlertIcon />
+              <AlertDescription>
+                {updateState.error?.message || 'Something went wrong'}
+              </AlertDescription>
+            </Alert>
+            )}
           </ModalBody>
 
           <ModalFooter>
