@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Button, FormControl, FormErrorMessage, Image, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useToast, VStack } from '@chakra-ui/react';
+import { Avatar, Button, FormControl, FormErrorMessage,
+  Input, Modal, ModalBody, ModalCloseButton, ModalContent,
+  ModalFooter, ModalHeader, ModalOverlay, useToast, VStack } from '@chakra-ui/react';
 import { useUpdateEffect } from 'react-use';
 
 import { AccountContext } from 'App';
@@ -54,38 +56,38 @@ const UpdateAccountInfoModal = ({ isOpen, onClose }) => {
           <ModalHeader>Update account information</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <VStack spacing="5">
-              <Controller
-                name="avatar"
-                control={control}
-                rules={{ required: 'User name is required' }}
-                render={({ field, fieldState: { error: err, invalid } }) => (
-                  <FormControl isInvalid={invalid}>
-                    <UploadImage
-                      onSelectImage={({ base64Image, contentBlob }) => field.onChange({
-                        ...field.value,
-                        src: contentBlob,
-                        base64Image,
-                      })}
-                      renderButton={() => (
-                        <Image
-                          mx="auto"
-                          borderRadius="100%"
-                          src={field.value?.src}
-                          boxSize="120px"
-                          objectFit="cover"
-                          alt="Avatar"
-                          transition="opacity 0.3s ease"
-                          _hover={{ opacity: 0.8 }}
-                        />
-                      )}
-                    />
-                    {err && (
-                    <FormErrorMessage>{err.message}</FormErrorMessage>
+            <Controller
+              name="avatar"
+              control={control}
+              rules={{ required: 'User name is required' }}
+              render={({ field, fieldState: { error: err, invalid } }) => (
+                <FormControl isInvalid={invalid}>
+                  <UploadImage
+                    mx="auto"
+                    borderRadius="100%"
+                    cursor="pointer"
+                    onSelectImage={({ base64Image, contentBlob }) => field.onChange({
+                      ...field.value,
+                      src: contentBlob,
+                      base64Image,
+                    })}
+                    renderButton={() => (
+                      <Avatar
+                        size="2xl"
+                        name={account.userName}
+                        src={field.value?.src}
+                        transition="all 0.3s ease"
+                        _hover={{ opacity: 0.8 }}
+                      />
                     )}
-                  </FormControl>
-                )}
-              />
+                  />
+                  {err && (
+                  <FormErrorMessage>{err.message}</FormErrorMessage>
+                  )}
+                </FormControl>
+              )}
+            />
+            <VStack spacing="5" mt="9">
               <Controller
                 name="userName"
                 control={control}

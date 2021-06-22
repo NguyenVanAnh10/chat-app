@@ -7,7 +7,9 @@ import {
   haveSeenMessages,
   createRoom,
 } from 'services/message';
-import { getMe } from 'services/account';
+import accountServices from 'services/account';
+
+const { getMe } = accountServices;
 
 const messageModel = {
   name: 'message',

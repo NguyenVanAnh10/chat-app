@@ -1,9 +1,12 @@
-import {
+import accountServices from 'services/account';
+import { getUsers, getUser } from 'services/user';
+
+const {
   getMe, login, logout, addFriend,
   confirmFriendRequest, getFriendRequest,
-  updateMe, getFriends,
-} from 'services/account';
-import { getUsers, getUser } from 'services/user';
+  updateMe, getFriends, register, setPassword,
+  validateEmail,
+} = accountServices;
 
 const accountModel = {
   name: 'account',
@@ -24,7 +27,9 @@ const accountModel = {
     getFriends: {}, // { loading, error}
     getUsers: {}, // { ids, loading, error}
     getUser: {}, // { loading, error}
-
+    register: {},
+    setPassword: {},
+    validateEmail: {},
   },
   reducers: {
     getMe: (state, { status, payload }) => {
@@ -53,6 +58,45 @@ const accountModel = {
           return { ...state, updateMe: { error: payload } };
         default:
           return { ...state, updateMe: { loading: true } };
+      }
+    },
+    register: (state, { status, payload }) => {
+      switch (status) {
+        case 'success':
+          return {
+            ...state,
+            register: {},
+          };
+        case 'error':
+          return { ...state, register: { error: payload } };
+        default:
+          return { ...state, register: { loading: true } };
+      }
+    },
+    setPassword: (state, { status, payload }) => {
+      switch (status) {
+        case 'success':
+          return {
+            ...state,
+            setPassword: {},
+          };
+        case 'error':
+          return { ...state, setPassword: { error: payload } };
+        default:
+          return { ...state, setPassword: { loading: true } };
+      }
+    },
+    validateEmail: (state, { status, payload }) => {
+      switch (status) {
+        case 'success':
+          return {
+            ...state,
+            validateEmail: {},
+          };
+        case 'error':
+          return { ...state, validateEmail: { error: payload } };
+        default:
+          return { ...state, validateEmail: { loading: true } };
       }
     },
     updateOnline: (state, { status, payload }) => {
@@ -255,6 +299,27 @@ const accountModel = {
         onError(error);
       }
     },
+    register: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await register(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
+    setPassword: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await setPassword(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
+    validateEmail: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await validateEmail(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
     updateOnline: async (payload, onSuccess, onError) => {
       try {
         onSuccess(await updateMe(payload));
@@ -326,6 +391,9 @@ const accountModel = {
   actions: {
     getMe: () => ({}),
     updateMe: params => params,
+    register: params => params,
+    setPassword: params => params,
+    validateEmail: params => params,
     updateOnline: params => params,
     login: params => params,
     logout: () => ({}),

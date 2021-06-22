@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useUpdateEffect } from 'react-use';
 import {
   Modal,
   ModalOverlay,
@@ -14,38 +15,41 @@ import {
   AlertIcon,
   AlertDescription,
   FormErrorMessage,
+  Text,
 } from '@chakra-ui/react';
 import { useForm, Controller } from 'react-hook-form';
 
-import api from 'services/api';
+import { useModel } from 'model';
 
 const RegisterModal = ({ isOpen, onClose }) => {
-  const [{ error, success }, setStatus] = useState({});
   const { control, handleSubmit, reset } = useForm({ defaultValues: {} });
+  const [isSuccess, setIsSuccess] = useState();
+  const [{ registerState: { loading, error } }, { register }] = useModel('account', state => ({
+    registerState: state.register,
+  }));
+
+  useUpdateEffect(() => {
+    if (!loading && !error) {
+      setIsSuccess(true);
+      reset();
+    }
+  }, [loading]);
 
   const onHandleSubmit = handleSubmit(data => {
-    api.POST('/register', data).then(({ error: err }) => {
-      setStatus({ success: !err, error: err });
-      !err && reset({});
-    });
+    register(data);
   });
-  const onHandleClose = () => {
-    onClose();
-    setStatus({});
-  };
 
   return (
-    <Modal size="xl" isCentered isOpen={isOpen} onClose={onHandleClose}>
+    <Modal size="xl" isCentered isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Register account</ModalHeader>
+        <ModalHeader>Account registration</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {success ? (
-            <div>
-              We just have sent a mail for register confirmation, please check
-              email
-            </div>
+          {isSuccess ? (
+            <Text>
+              We just have sent registration confirmation email, please check email
+            </Text>
           ) : (
             <form>
               <Controller
@@ -89,12 +93,16 @@ const RegisterModal = ({ isOpen, onClose }) => {
         </ModalBody>
 
         <ModalFooter>
-          {!success && (
-            <Button colorScheme="blue" onClick={onHandleSubmit}>
+          {!isSuccess && (
+            <Button
+              colorScheme="blue"
+              isLoading={loading}
+              onClick={onHandleSubmit}
+            >
               Register
             </Button>
           )}
-          <Button variant="ghost" ml={3} onClick={onHandleClose}>
+          <Button variant="ghost" ml={3} onClick={onClose}>
             Close
           </Button>
         </ModalFooter>

@@ -7,6 +7,7 @@ const UploadImage = ({
   maxSize = 1,
   onSelectImage,
   renderButton = () => {},
+  ...rest
 }) => {
   const toast = useToast();
 
@@ -46,8 +47,8 @@ const UploadImage = ({
     }
   };
   return (
-    <Box>
-      <Box onClick={handleClick} width="auto" cursor="pointer">
+    <>
+      <Box onClick={handleClick} width="min-content" {...rest}>
         {renderButton()}
       </Box>
       <Input
@@ -58,7 +59,7 @@ const UploadImage = ({
         multiple
         display="none"
       />
-    </Box>
+    </>
   );
 };
 

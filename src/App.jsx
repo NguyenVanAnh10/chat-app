@@ -5,6 +5,7 @@ import React, {
 } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { Center, ChakraProvider, Spinner } from '@chakra-ui/react';
+import { useCookie } from 'react-use';
 
 import { useModel } from 'model';
 import ChatList from 'pages/ChatApp';
@@ -38,9 +39,11 @@ const R = ({ authorize, location, ...rest }) => {
     loading: getMeState.loading,
     error: getMeState.error,
   }));
+  const [token] = useCookie('token_user');
+
   const { account } = useContext(AccountContext);
   useReactEffect(() => {
-    getMe();
+    token && getMe();
   }, []);
   if (loading) {
     return (

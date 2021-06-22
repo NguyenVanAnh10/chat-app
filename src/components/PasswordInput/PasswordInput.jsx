@@ -1,11 +1,12 @@
 import React, { forwardRef } from 'react';
 import {
-  Button,
+  IconButton,
   Input,
   InputGroup,
   InputRightElement,
   useDisclosure,
 } from '@chakra-ui/react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 
 const PasswordInput = forwardRef(({ placeholder, ...rest }, ref) => {
   const { isOpen, onToggle } = useDisclosure();
@@ -18,9 +19,15 @@ const PasswordInput = forwardRef(({ placeholder, ...rest }, ref) => {
         {...rest}
       />
       <InputRightElement width="4.5rem">
-        <Button h="1.75rem" size="sm" onClick={onToggle}>
-          {isOpen ? 'Hide' : 'Show'}
-        </Button>
+        <IconButton
+          bg="transparent"
+          _focus="none"
+          _hover="none"
+          h="1.75rem"
+          size="lg"
+          onClick={onToggle}
+          icon={isOpen ? <ViewIcon /> : <ViewOffIcon />}
+        />
       </InputRightElement>
     </InputGroup>
   );

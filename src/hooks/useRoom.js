@@ -89,7 +89,7 @@ export const useRooms = typeRooms => {
       .map(id => users[id] || {}),
     userName: room.name
        || users.[room.userIds?.find(id => id !== account.id)]?.userName,
-  })), [rooms, users]);
+  })), [rooms, users, account]);
 
   switch (typeRooms) {
     case menuKeys.MESSAGES:
