@@ -9,7 +9,7 @@ import exceptionImage from 'statics/images/warning.png';
 const ExceptionPage = () => {
   const history = useHistory();
   return (
-    <VStack minH="100vh" justify="center" spacing="5" bg="orange.50">
+    <VStack minH="100vh" justify="center" spacing="5" bg="white">
       <Image w="8rem" src={exceptionImage} alt="excepion page" />
       <Box textAlign="center">
         <Heading as="h3" fontSize="3xl">

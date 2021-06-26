@@ -1,4 +1,3 @@
-@import 'emoji-mart/css/emoji-mart.css';
 html {
   font-size: 16px;
   @media (max-width: 767.98px) {
@@ -19,9 +18,24 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-  transition: background-color 5000s ease-in-out 0s;
+input:-webkit-autofill {
+  &:hover,
+  &:focus,
+  &:active {
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 0.3em;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background-color: rgb(196, 196, 196);
+  width: 100%;
 }

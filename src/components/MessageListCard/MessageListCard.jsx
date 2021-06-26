@@ -88,7 +88,9 @@ ref) => {
       spacing="3"
       alignItems="flex-start"
       w="100%"
-      p="2"
+      px="2"
+      pt="2"
+      pb="0"
       onScroll={onHandleSeeNewMessages}
       className={classNames(className, styles.MessageListCard)}
       {...rest}

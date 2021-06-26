@@ -1,60 +1,62 @@
-import React, { useContext } from 'react';
+import React, {
+  useContext, Suspense, useRef,
+  useState, useCallback, useEffect,
+  memo,
+} from 'react';
 import {
+  Button,
   HStack,
   IconButton,
-  Input,
-  InputGroup,
-  InputRightElement,
   Popover,
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
 } from '@chakra-ui/react';
 import { v4 as uuid } from 'uuid';
-import { useForm, Controller } from 'react-hook-form';
+import { Editor, EditorState, Modifier } from 'draft-js';
 
 import { useModel } from 'model';
-import useRoom from 'hooks/useRoom';
 import { AccountContext } from 'App';
 import Message from 'entities/Message';
 import UploadImage from 'components/UploadImage';
-import NimblePicker from 'components/EmojiPicker';
-import { ImageIcon, EmojiIcon, PaperPlaneIcon } from 'components/CustomIcons';
+import { ImageIcon, PaperPlaneIcon } from 'components/CustomIcons';
+import decorator, { getResetEditorState } from './emojiDecorator';
 
 import styles from './MessageInput.module.scss';
+import 'draft-js/dist/Draft.css';
+
+const EmojiPicker = React.lazy(() => import('components/EmojiPicker'));
 
 const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
   const { account } = useContext(AccountContext);
-  const [{ room }] = useRoom(roomId);
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty(decorator));
 
-  const [, { sendMessage, seeMessages }] = useModel(
-    'message',
-    () => ({}),
-  );
+  const inputRef = useRef();
+  const editorStateRef = useRef();
 
-  const onHandleFocusInput = () => {
-    if (!room.newMessageNumber) return;
-    seeMessages({ roomId, userId: account.id });
-  };
-  const { control, handleSubmit, reset, setFocus } = useForm({ message: '' });
+  const [, { sendMessage }] = useModel('message', () => ({}));
 
-  const handleSubmitMessage = handleSubmit(data => {
-    if (!data.message) return;
+  useEffect(() => {
+    editorStateRef.current = editorState;
+  }, [editorState]);
+
+  const handleSubmitMessage = useCallback(() => {
+    const message = editorStateRef.current.getCurrentContent().getPlainText(' ');
+    if (!message) return;
     sendMessage({
       roomId,
       keyMsg: uuid(),
       contentType: Message.CONTENT_TYPE_TEXT,
-      content: data.message,
+      content: message,
       createAt: Date.now(),
       senderId: account.id,
       usersSeenMessage: [account.id],
     });
-    reset({ message: '' });
-    setFocus('message');
+    setEditorState(getResetEditorState(editorStateRef.current));
     bottomMessagesBoxRef.current?.scrollIntoView(false);
-  });
+  }, []);
 
-  const handleSendImage = imageSource => {
+  const handleSendImage = useCallback(imageSource => {
     if (!imageSource.base64Image || !imageSource.contentBlob) return;
 
     sendMessage({
@@ -67,95 +69,98 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
       senderId: account.id,
       usersSeenMessage: [account.id],
     });
-    bottomMessagesBoxRef.current?.scrollIntoView(false);
-  };
-  const hanleKeyDown = e => {
-    if (e.keyCode !== 13) return;
-    handleSubmitMessage();
-  };
+    setTimeout(() => {
+      bottomMessagesBoxRef.current?.scrollIntoView(false);
+    });
+  }, []);
+
+  const onSelectEmoji = useCallback(({ key }) => {
+    const newContentState = Modifier.insertText(
+      editorStateRef.current.getCurrentContent(),
+      editorStateRef.current.getSelection(),
+      `${key} `,
+    );
+
+    const newState = EditorState.push(
+      editorStateRef.current,
+      newContentState,
+      'insert-characters',
+    );
+    setEditorState(newState);
+  }, []);
+
   return (
     <HStack
       w="100%"
       py="3"
-      pr="3"
-      spacing="2"
+      px="3"
+      spacing="0"
       borderTop="1px solid #EDF2F7"
+      className={styles.MessageInput}
+      align="flex-start"
       {...rest}
     >
-      <form className="form" onSubmit={handleSubmitMessage}>
-        <Controller
-          name="message"
-          control={control}
-          defaultValue=""
-          rules={{ required: true }}
-          render={({ field }) => (
-            <InputGroup>
-              <InputRightElement>
-                <Popover placement="bottom-end">
-                  <PopoverTrigger>
-                    <IconButton
-                      bg="transparent"
-                      _active="none"
-                      _hover="none"
-                      _focus="none"
-                      color="black"
-                      icon={(
-                        <EmojiIcon
-                          fontSize="1.8rem"
-                          bg="yellow"
-                          borderRadius="full"
-                        />
-                      )}
-                    />
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className={styles.Picker}
-                    _focus="none"
-                    border="none"
-                  >
-                    <PopoverArrow />
-                    {/* TODO: remove emoji mart, build own emoji */}
-                    <NimblePicker
-                      sheetSize={32}
-                      onClick={icon => field.onChange(`${field.value}${icon.native}`)}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </InputRightElement>
-              <Input
-                border="none"
-                _focus="none"
-                _focusWithin="none"
-                bg="transparent"
-                placeholder="Type message..."
-                onFocus={onHandleFocusInput}
-                onKeyDown={hanleKeyDown}
-                {...field}
-              />
-            </InputGroup>
+      <Editor
+        ref={inputRef}
+        placeholder="Type message..."
+        editorState={editorState}
+        onChange={setEditorState}
+      />
+      <HStack spacing="0">
+        <EmojiPickerButton onSelectEmoji={onSelectEmoji} />
+        <UploadImage
+          onSelectImage={handleSendImage}
+          renderButton={() => (
+            <IconButton
+              colorScheme="blue"
+              variant="ghost"
+              _focus="none"
+              fontSize="1.9rem"
+              size="md"
+              icon={<ImageIcon />}
+            />
           )}
         />
-      </form>
-      <UploadImage
-        onSelectImage={handleSendImage}
-        renderButton={() => (
-          <IconButton
-            bg="transparent"
-            _hover={{ bg: 'blue.100' }}
-            icon={<ImageIcon color="blue.400" fontSize="2rem" />}
-          />
-        )}
-      />
-      <IconButton
-        bg="transparent"
-        color="blue.400"
-        fontSize="1.6rem"
-        _hover={{ bg: 'blue.50' }}
-        icon={<PaperPlaneIcon />}
-        onClick={handleSubmitMessage}
-      />
+        <IconButton
+          colorScheme="blue"
+          variant="ghost"
+          fontSize="1.5rem"
+          size="md"
+          _focus="none"
+          icon={<PaperPlaneIcon />}
+          onClick={handleSubmitMessage}
+        />
+      </HStack>
     </HStack>
   );
 };
 
+const EmojiPickerButton = memo(({ onSelectEmoji }) => (
+  <Popover placement="bottom-end">
+    <PopoverTrigger>
+      <Button
+        colorScheme="blue"
+        variant="ghost"
+        _focus="none"
+        fontSize="1.3rem"
+        size="md"
+        px="0"
+      >
+        &#x1F604;
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent
+      className={styles.Picker}
+      _focus="none"
+      border="none"
+    >
+      <PopoverArrow />
+      <Suspense fallback={<div>Loading...</div>}>
+        <EmojiPicker
+          onSelect={onSelectEmoji}
+        />
+      </Suspense>
+    </PopoverContent>
+  </Popover>
+));
 export default MessageInput;

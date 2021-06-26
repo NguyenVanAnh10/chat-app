@@ -38,7 +38,6 @@ const ChatBox = ({ roomId }) => {
         bottomMessagesBoxRef={bottomMessagesBoxRef}
       />
       <MessageInput
-        pl="3"
         roomId={roomId}
         bottomMessagesBoxRef={bottomMessagesBoxRef}
       />

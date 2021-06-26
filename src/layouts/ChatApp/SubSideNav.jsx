@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, lazy, Suspense } from 'react';
 import {
   Alert,
   AlertDescription,
@@ -30,11 +30,12 @@ import { useModel } from 'model';
 import configs, { menuKeys } from 'configs/configs';
 import NewMessageBadge from 'components/NewMessageBadge';
 import { MenuContext } from 'contexts/menuContext';
-import NotificationDrawers from 'components/NotificationDrawer';
 import NewNotificationBadge from 'components/NewNotificationsBadge';
 import { UserIcon, LogoutIcon, ProfileIcon } from 'components/CustomIcons';
 import UpdateAccountInfoModal from 'components/UpdateAccountInfoModal';
 import Avatar from 'components/Avatar';
+
+const NotificationDrawers = lazy(() => import('components/NotificationDrawer'));
 
 const badges = {
   [menuKeys.MESSAGES]: <NewMessageBadge />,
@@ -157,10 +158,12 @@ const SubSideNav = () => {
           </Button>
         ))}
       </VStack>
-      <NotificationDrawers
-        isOpen={isOpenNotificationDrawer}
-        onClose={onCloseNotificationDrawer}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <NotificationDrawers
+          isOpen={isOpenNotificationDrawer}
+          onClose={onCloseNotificationDrawer}
+        />
+      </Suspense>
       <UpdateAccountInfoModal isOpen={isOpenAccountModal} onClose={onCloseAccountModal} />
     </Box>
   );

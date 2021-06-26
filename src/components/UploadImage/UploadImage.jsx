@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef, memo } from 'react';
 import { Box, Input, useToast } from '@chakra-ui/react';
 
 import { getBase64 } from 'utils';
 
-const UploadImage = ({
+const UploadImage = memo(({
   maxSize = 1,
   onSelectImage,
   renderButton = () => {},
@@ -61,6 +61,6 @@ const UploadImage = ({
       />
     </>
   );
-};
+});
 
 export default UploadImage;

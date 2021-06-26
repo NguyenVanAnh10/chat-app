@@ -2,16 +2,20 @@ import React, {
   createContext,
   useContext,
   useEffect as useReactEffect,
+  lazy,
+  Suspense,
 } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { Center, ChakraProvider, Spinner } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import { useCookie } from 'react-use';
 
 import { useModel } from 'model';
-import ChatList from 'pages/ChatApp';
-import Login from 'pages/Login';
-import Register from 'pages/Register';
-import ExceptionPage from 'pages/ExceptionPage';
+import LoadingPage from 'pages/LoadingPage';
+
+const ChatList = lazy(() => import('pages/ChatApp'));
+const Login = lazy(() => import('pages/Login'));
+const ExceptionPage = lazy(() => import('pages/ExceptionPage'));
+const Register = lazy(() => import('pages/Register'));
 
 export const AccountContext = createContext({});
 
@@ -23,12 +27,14 @@ function App() {
   return (
     <ChakraProvider>
       <AccountContext.Provider value={{ account }}>
-        <Switch>
-          <R authorize exact path="/" component={ChatList} />
-          <R path="/login" component={Login} />
-          <R path="/register" component={Register} />
-          <R path="*" component={ExceptionPage} />
-        </Switch>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Switch>
+            <R authorize exact path="/" component={ChatList} />
+            <R path="/login" component={Login} />
+            <R path="/register" component={Register} />
+            <R path="*" component={ExceptionPage} />
+          </Switch>
+        </Suspense>
       </AccountContext.Provider>
     </ChakraProvider>
   );
@@ -45,17 +51,10 @@ const R = ({ authorize, location, ...rest }) => {
   useReactEffect(() => {
     token && getMe();
   }, []);
+
   if (loading) {
     return (
-      <Center minH="100vh">
-        <Spinner
-          thickness="3px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.400"
-          size="lg"
-        />
-      </Center>
+      <LoadingPage />
     );
   }
   if (!authorize) {

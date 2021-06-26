@@ -110,7 +110,7 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
             </HStack>
           </Stack>
         ))}
-        <div ref={bottomMessagesBoxRef} />
+        <div className="bottom-anchor-scroller" ref={bottomMessagesBoxRef}>&nbsp;</div>
       </MessageListCard>
       <ReviewImageModal isOpen={isOpen} onClose={onClose} imgSrc={imgSrc} />
     </>

@@ -1,15 +1,10 @@
-.Picker {
+.MessageInput {
   :global {
-    .emoji-mart-scroll {
-      border-bottom: 0;
-      margin-bottom: 6px;
-    }
-
-    .emoji-mart-scroll + .emoji-mart-bar {
-      display: none;
-    }
-    .emoji-mart-light {
-      width: unset !important;
+    .DraftEditor-root {
+      max-height: 70px;
+      overflow-y: auto;
+      align-self: center;
+      flex: 1;
     }
   }
 }
