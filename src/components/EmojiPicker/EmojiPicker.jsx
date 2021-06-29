@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SimpleGrid, Text, VStack, Box, HStack, Button, IconButton, Tooltip } from '@chakra-ui/react';
+import debounce from 'lodash.debounce';
 
 import Emoji from 'components/Emoji';
 import emojiBlocks from './emoji';
@@ -105,6 +106,7 @@ const EmojiPicker = memo(({ onSelect }) => {
 // TODO refactor
 const PickerHeader = memo(({ containerRef, data: d }) => {
   const data = d.map(dd => ({ ...dd, tabRef: useRef() }));
+  const containerScrollDebounceRef = useRef();
 
   // container observer
   const [observeTarget] = useObserver({
@@ -155,19 +157,23 @@ const PickerHeader = memo(({ containerRef, data: d }) => {
   }, []);
 
   const onScrollEmojiListener = e => {
-    const selectedTabRect = selectedTabRef.current.getBoundingClientRect();
-    const tabContainerRect = selectedTabRef.current.parentElement.getBoundingClientRect();
-    const selectedTabLeftPosition = selectedTabRect.left - tabContainerRect.left;
-    const selectedTabRightPosition = selectedTabLeftPosition + selectedTabRect.width;
-    if (e.target.scrollTop < prevScrollTopContainerRef.current
+    containerScrollDebounceRef.current?.cancel();
+    containerScrollDebounceRef.current = debounce(() => {
+      const selectedTabRect = selectedTabRef.current.getBoundingClientRect();
+      const tabContainerRect = selectedTabRef.current.parentElement.getBoundingClientRect();
+      const selectedTabLeftPosition = selectedTabRect.left - tabContainerRect.left;
+      const selectedTabRightPosition = selectedTabLeftPosition + selectedTabRect.width;
+      if (e.target.scrollTop < prevScrollTopContainerRef.current
        && selectedTabLeftPosition < 0) {
-      scrollEmojiTabRef.current.scrollLeft += selectedTabLeftPosition;
-    }
-    if (e.target.scrollTop > prevScrollTopContainerRef.current
+        scrollEmojiTabRef.current.scrollLeft += selectedTabLeftPosition;
+      }
+      if (e.target.scrollTop > prevScrollTopContainerRef.current
       && selectedTabRightPosition > tabContainerRect.width) {
-      scrollEmojiTabRef.current.scrollLeft += selectedTabRightPosition - tabContainerRect.width;
-    }
-    prevScrollTopContainerRef.current = e.target.scrollTop;
+        scrollEmojiTabRef.current.scrollLeft += selectedTabRightPosition - tabContainerRect.width;
+      }
+      prevScrollTopContainerRef.current = e.target.scrollTop;
+    }, 300);
+    containerScrollDebounceRef.current();
   };
 
   useEffect(() => {
