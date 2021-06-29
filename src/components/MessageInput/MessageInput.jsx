@@ -54,7 +54,7 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
     });
     setEditorState(getResetEditorState(editorStateRef.current));
     bottomMessagesBoxRef.current?.scrollIntoView(false);
-  }, []);
+  }, [roomId]);
 
   const handleSendImage = useCallback(imageSource => {
     if (!imageSource.base64Image || !imageSource.contentBlob) return;
@@ -72,7 +72,7 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
     setTimeout(() => {
       bottomMessagesBoxRef.current?.scrollIntoView(false);
     });
-  }, []);
+  }, [roomId]);
 
   const onSelectEmoji = useCallback(({ key }) => {
     const newContentState = Modifier.insertText(
