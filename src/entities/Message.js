@@ -1,4 +1,4 @@
-import data from 'components/EmojiPicker/data.json';
+import data from 'components/EmojiPicker/data';
 
 const { emojis } = data;
 export default class Message {

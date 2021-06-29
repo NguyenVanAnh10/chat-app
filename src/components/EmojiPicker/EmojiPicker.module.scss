@@ -1,0 +1,28 @@
+.EmojiPicker {
+  scroll-behavior: smooth;
+  ::-webkit-scrollbar {
+    width: 0.3em;
+    height: 0.3em;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background-color: rgb(196, 196, 196);
+  }
+}
+.PickerHeader {
+  :global {
+    .icons-bar {
+      scroll-behavior: smooth;
+      -ms-overflow-style: none !important;  /* IE and Edge */
+      scrollbar-width: none !important;  /* Firefox */
+      &::-webkit-scrollbar {
+        display: none !important;
+      }
+    }
+  }
+}

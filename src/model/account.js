@@ -15,7 +15,9 @@ const accountModel = {
       friendIds: [],
       addFriends: [],
       friendRequests: [],
+      frequentlyUsedIcons: [],
     },
+    addFrequentlyUsedIcon: {}, // {loading, error}
     addFriend: {}, // {[id]: { loading, error}}
     confirmFriendRequest: {}, // {[id]: { loading, error}}
     getMe: {}, // { loading, error}
@@ -58,6 +60,20 @@ const accountModel = {
           return { ...state, updateMe: { error: payload } };
         default:
           return { ...state, updateMe: { loading: true } };
+      }
+    },
+    addFrequentlyUsedIcon: (state, { status, payload }) => {
+      switch (status) {
+        case 'success':
+          return {
+            ...state,
+            me: { ...state.me, ...payload },
+            updateMe: {},
+          };
+        case 'error':
+          return { ...state, addFrequentlyUsedIcon: { error: payload } };
+        default:
+          return { ...state, addFrequentlyUsedIcon: { loading: true } };
       }
     },
     register: (state, { status, payload }) => {
@@ -299,6 +315,13 @@ const accountModel = {
         onError(error);
       }
     },
+    addFrequentlyUsedIcon: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await updateMe(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
     register: async (payload, onSuccess, onError) => {
       try {
         onSuccess(await register(payload));
@@ -403,6 +426,7 @@ const accountModel = {
     addFriend: params => params,
     confirmFriendRequest: params => params,
     getFriendRequest: params => params,
+    addFrequentlyUsedIcon: params => params,
   },
 };
 

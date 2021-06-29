@@ -1,138 +1,56 @@
+/* eslint-disable react/react-in-jsx-scope */
+/* eslint-disable react/jsx-filename-extension */
+import {
+  SymbolIcon, EmojiIcon, ActivityIcon,
+  TravelIcon, CakeIcon, ObjectIcon,
+  FlagIcon, AnimalIcon, ClockIcon,
+} from 'components/CustomIcons';
+
 export default [
   {
-    key: '0',
+    key: 'frequently_used',
     title: 'Frequently Used',
+    icon: <ClockIcon />,
   },
   {
-    key: '2',
-    title: 'Smileys & People',
+    key: 'feelings_and_people',
+    title: 'Feelings & People',
+    icon: <EmojiIcon />,
   },
   {
-    key: '4',
+    key: 'symbols',
+    title: 'Symbols',
+    icon: <SymbolIcon />,
+  },
+  {
+    key: 'travel_and_places',
+    title: 'Travel & Places',
+    icon: <TravelIcon />,
+  },
+  {
+    key: 'food_and_drink',
+    title: 'Food & Drink',
+    icon: <CakeIcon />,
+  },
+  {
+    key: 'objects',
+    title: 'Objects',
+    icon: <ObjectIcon />,
+  },
+  {
+    key: 'activity',
+    title: 'Activity',
+    icon: <ActivityIcon />,
+  },
+  {
+    key: 'animals_and_nature',
     title: 'Animals & Nature',
+    icon: <AnimalIcon />,
   },
   {
-    key: '6',
-    title: 'Smileys & People',
-  },
-  {
-    key: '8',
-    title: 'Animals & Nature',
-  },
-  {
-    key: '10',
-    title: 'Frequently Used',
-  },
-  {
-    key: '12',
-    title: 'Smileys & People',
-  },
-  {
-    key: '14',
-    title: 'Animals & Nature',
+    key: 'flags',
+    title: 'Flags',
+    icon: <FlagIcon />,
   },
 
-  {
-    key: '16',
-    title: 'Smileys & People',
-  },
-  {
-    key: '18',
-    title: 'Animals & Nature',
-  },
-  {
-    key: '20',
-    title: 'Frequently Used',
-  },
-  {
-    key: '22',
-    title: 'Smileys & People',
-  },
-  {
-    key: '24',
-    title: 'Animals & Nature',
-  },
-
-  {
-    key: '26',
-    title: 'Smileys & People',
-  },
-  {
-    key: '28',
-    title: 'Animals & Nature',
-  },
-  {
-    key: '30',
-    title: 'Frequently Used',
-  },
-  {
-    key: '32',
-    title: 'Smileys & People',
-  },
-  {
-    key: '34',
-    title: 'Animals & Nature',
-  },
-
-  {
-    key: '36',
-    title: 'Smileys & People',
-  },
-  {
-    key: '38',
-    title: 'Animals & Nature',
-  },
-  {
-    key: '40',
-    title: 'Frequently Used',
-  },
-  {
-    key: '42',
-    title: 'Smileys & People',
-  },
-  {
-    key: '44',
-    title: 'Animals & Nature',
-  },
-  {
-    key: '46',
-    title: 'Smileys & People',
-  },
-  {
-    key: '48',
-    title: 'Animals & Nature',
-  },
-  {
-    key: '60',
-    title: 'Frequently Used',
-  },
-  {
-    key: '62',
-    title: 'Smileys & People',
-  },
-  {
-    key: '64',
-    title: 'Animals & Nature',
-  },
-  {
-    key: '66',
-    title: 'Smileys & People',
-  },
-  {
-    key: '68',
-    title: 'Animals & Nature',
-  },
-
-  {
-    key: '80',
-    title: 'Frequently Used',
-  },
-  {
-    key: '82',
-    title: 'Smileys & People',
-  },
-  {
-    key: '84',
-    title: 'Animals & Nature',
-  },
 ];

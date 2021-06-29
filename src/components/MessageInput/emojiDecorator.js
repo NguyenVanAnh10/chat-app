@@ -3,7 +3,7 @@ import React from 'react';
 import { CompositeDecorator, EditorState, Modifier, RichUtils } from 'draft-js';
 
 import Emoji from 'components/Emoji';
-import data from 'components/EmojiPicker/data.json';
+import data from 'components/EmojiPicker/data';
 import Message from 'entities/Message';
 
 const { emojis } = data;

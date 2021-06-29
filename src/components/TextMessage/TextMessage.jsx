@@ -7,7 +7,7 @@ import Message from 'entities/Message';
 import Emoji from 'components/Emoji';
 import { v4 as uuid } from 'uuid';
 
-import data from 'components/EmojiPicker/data.json';
+import data from 'components/EmojiPicker/data';
 
 const { emojis } = data;
 

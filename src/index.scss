@@ -26,16 +26,4 @@ input:-webkit-autofill {
   }
 }
 
-::-webkit-scrollbar {
-  width: 0.3em;
-}
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  border-radius: 3px;
-  background-color: rgb(196, 196, 196);
-  width: 100%;
-}
