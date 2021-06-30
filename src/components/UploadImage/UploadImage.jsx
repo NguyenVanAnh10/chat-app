@@ -4,7 +4,7 @@ import { Box, Input, useToast } from '@chakra-ui/react';
 import { getBase64 } from 'utils';
 
 const UploadImage = memo(({
-  maxSize = 1,
+  maxSize = 5,
   onSelectImage,
   renderButton = () => {},
   ...rest
@@ -23,10 +23,18 @@ const UploadImage = memo(({
       sizeImages += image.size;
     }
     inputImageRef.current.value = '';
-    // 1B
+    if (imageUrls[0].type !== 'image/jpeg' && imageUrls[0].type !== 'image/png') {
+      toast({
+        description: 'The file format must be jpeg(jpg) or png',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
     if (sizeImages > maxSize * 1024 * 1024) {
       toast({
-        description: `Size file has to less ${maxSize}MB`,
+        description: `The image size has to less ${maxSize}MB`,
         status: 'error',
         duration: 5000,
         isClosable: true,

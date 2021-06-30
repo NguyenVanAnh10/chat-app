@@ -32,6 +32,7 @@ const UpdateAccountInfoModal = ({ isOpen, onClose }) => {
         description: 'Update successfully',
         status: 'success',
         duration: 9000,
+        isClosable: true,
       });
       handleClose();
     }
