@@ -109,7 +109,7 @@ const PickerHeader = memo(({ containerRef, data: d }) => {
   const containerScrollDebounceRef = useRef();
 
   // container observer
-  const [observeTarget] = useObserver({
+  const [{ observeTarget }, { setObserveTarget }] = useObserver({
     containerRef,
     sentinels: {
       top: data.map(dd => dd.topSentinelRef),
@@ -117,7 +117,6 @@ const PickerHeader = memo(({ containerRef, data: d }) => {
     },
   });
 
-  const [selectedTab, setSelectedTab] = useState();
   const selectedTabRef = useRef();
 
   const [{ left, right }, setDisableNavigationBar] = useState({
@@ -132,7 +131,6 @@ const PickerHeader = memo(({ containerRef, data: d }) => {
     const activedTabRef = data.find(dd => dd.emojiBlockRef.current
        === observeTarget);
     if (!activedTabRef) return;
-    setSelectedTab(activedTabRef.tabRef);
     selectedTabRef.current = activedTabRef.tabRef.current;
   }, [observeTarget]);
 
@@ -236,15 +234,14 @@ const PickerHeader = memo(({ containerRef, data: d }) => {
               colorScheme="blue"
               variant="ghost"
               ref={e.tabRef}
-              isActive={e.tabRef === selectedTab}
+              isActive={e.emojiBlockRef.current === observeTarget}
               icon={e.icon}
               fontSize="xl"
               border="none"
               _focus="none"
               onClick={() => {
-                setSelectedTab(e.tabRef);
+                setObserveTarget(e.emojiBlockRef.current);
                 selectedTabRef.current = e.tabRef.current;
-                // TODO behavior: smooth
                 e.emojiBlockRef.current?.scrollIntoView(true);
               }}
             />

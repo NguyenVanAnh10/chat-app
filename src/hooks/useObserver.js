@@ -1,17 +1,32 @@
 import { useEffect, useRef, useState } from 'react';
+import debounce from 'lodash.debounce';
 
-// TODO return [stuck, target] IntersectionObserver.callback observer bottom always run after the observer header
+// TODO return [stuck, target] + refactor
 const useObserver = ({
   containerRef,
   sentinels = { top: [], bottom: [] },
 }) => {
-  const [state, setState] = useState([]);
+  const [state, setState] = useState();
   const isScrollDownRef = useRef(false);
   const prevScrollTopRef = useRef(0);
+  const isSetStateByScrollEventListener = useRef(true);
+  const debounceRef = useRef();
+
+  const setObserveTarget = target => {
+    setState(target);
+    isSetStateByScrollEventListener.current = false;
+  };
 
   const scrollListener = e => {
     isScrollDownRef.current = e.target.scrollTop > prevScrollTopRef.current;
     prevScrollTopRef.current = e.target.scrollTop;
+    debounceRef.current?.cancel();
+    debounceRef.current = debounce(() => {
+      if (!isSetStateByScrollEventListener.current) {
+        isSetStateByScrollEventListener.current = true;
+      }
+    }, 300);
+    debounceRef.current();
   };
 
   useEffect(() => {
@@ -24,6 +39,8 @@ const useObserver = ({
   useEffect(() => {
     const observerHeader = new IntersectionObserver(
       records => {
+        if (!isSetStateByScrollEventListener.current) return;
+
         for (const record of records) {
           const targetInfo = record.boundingClientRect;
           const stickyTarget = record.target.parentElement;
@@ -31,7 +48,7 @@ const useObserver = ({
 
           if (targetInfo.bottom < rootBoundsInfo.top) {
             // setState([true, stickyTarget]);
-            setState([stickyTarget]);
+            setState(stickyTarget);
             return;
           }
 
@@ -55,6 +72,8 @@ const useObserver = ({
 
     const observerBottom = new IntersectionObserver(
       records => {
+        if (!isSetStateByScrollEventListener.current) return;
+
         for (const record of records) {
           const targetInfo = record.boundingClientRect;
           const stickyTarget = record.target.parentElement;
@@ -64,7 +83,7 @@ const useObserver = ({
           if (targetInfo.bottom > rootBoundsInfo.top
             && !isScrollDownRef.current && ratio === 1) {
             // setState([true, stickyTarget]);
-            setState([stickyTarget]);
+            setState(stickyTarget);
             return;
           }
 
@@ -86,7 +105,7 @@ const useObserver = ({
     sentinels.bottom.forEach(el => observerBottom.observe(el.current));
   }, []);
 
-  return state;
+  return [{ observeTarget: state }, { setObserveTarget }];
 };
 
 export default useObserver;
