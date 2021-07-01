@@ -27,7 +27,7 @@ function App() {
   return (
     <ChakraProvider>
       <AccountContext.Provider value={{ account }}>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingPage />}>
           <Switch>
             <R authorize exact path="/" component={ChatList} />
             <R path="/login" component={Login} />
