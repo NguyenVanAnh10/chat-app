@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
 import {
   Modal,
@@ -35,12 +35,24 @@ const RegisterModal = ({ isOpen, onClose }) => {
     }
   }, [loading]);
 
+  useEffect(() => {
+    if (isOpen) return;
+    setIsSuccess(false);
+    reset();
+  }, [isOpen]);
+
   const onHandleSubmit = handleSubmit(data => {
     register(data);
   });
 
   return (
-    <Modal size="xl" isCentered isOpen={isOpen} onClose={onClose}>
+    <Modal
+      size="xl"
+      isCentered
+      isOpen={isOpen}
+      onClose={onClose}
+      closeOnOverlayClick={false}
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Account registration</ModalHeader>
