@@ -67,7 +67,7 @@ const MobileLayout = () => {
   const { menuState } = useContext(MenuContext);
 
   return (
-    <Flex h="100vh" w="100%" overflow="hidden">
+    <Flex h="100%" w="100%" overflow="hidden">
       {(!!menuState.active && !!menuState[menuState.active]?.roomId) ? (
         <MainContent />
       ) : (

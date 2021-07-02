@@ -1,5 +1,5 @@
-import React, { useContext, useRef } from 'react';
-import { VStack } from '@chakra-ui/react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useBreakpointValue, VStack } from '@chakra-ui/react';
 
 import MessageList from 'components/MessageList';
 import MessageInput from 'components/MessageInput';
@@ -12,9 +12,19 @@ import styles from './ChatBox.module.scss';
 const ChatBox = ({ roomId }) => {
   const { account } = useContext(AccountContext);
   const [{ room, seeMessagesState }, { seeMessages }] = useRoom(roomId);
+  const isMobileScreen = useBreakpointValue({ base: true, md: false });
+  const [height, setHeight] = useState(() => window.innerHeight || '100vh');
 
   const messagesContainerRef = useRef();
   const bottomMessagesBoxRef = useRef();
+  const chatBoxRef = useRef();
+
+  useEffect(() => {
+    window.addEventListener('resize', e => {
+      if (!chatBoxRef.current || !isMobileScreen) return;
+      setHeight(e.target.innerHeight);
+    });
+  }, [isMobileScreen]);
 
   const onHandleSeeNewMessages = () => {
     if (!room.newMessageNumber || seeMessagesState.loading) return;
@@ -24,7 +34,9 @@ const ChatBox = ({ roomId }) => {
   if (!roomId) return null;
   return (
     <VStack
+      ref={chatBoxRef}
       className={styles.ChatBox}
+      h={`${height}px`}
       w="100%"
       spacing="0"
       onClick={onHandleSeeNewMessages}

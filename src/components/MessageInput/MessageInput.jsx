@@ -31,7 +31,7 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
   const { account } = useContext(AccountContext);
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty(decorator));
 
-  const inputRef = useRef();
+  const domEditorRef = useRef();
   const editorStateRef = useRef();
 
   const [, { sendMessage }] = useModel('message', () => ({}));
@@ -42,7 +42,10 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
 
   const handleSubmitMessage = useCallback(() => {
     const message = editorStateRef.current.getCurrentContent().getPlainText(' ');
-    if (!message) return;
+    if (!message) {
+      domEditorRef.current.focus();
+      return;
+    }
     sendMessage({
       roomId,
       keyMsg: uuid(),
@@ -101,7 +104,7 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
       {...rest}
     >
       <Editor
-        ref={inputRef}
+        ref={domEditorRef}
         placeholder="Type message..."
         editorState={editorState}
         onChange={setEditorState}
