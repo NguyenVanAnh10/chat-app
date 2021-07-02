@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState, useMemo, createRef } from 'react';
 import { SimpleGrid, Text, VStack, Box, HStack, Button, IconButton, Tooltip } from '@chakra-ui/react';
 import debounce from 'lodash.debounce';
 
@@ -20,12 +20,19 @@ const EmojiPicker = memo(({ onSelect }) => {
 
   const [, { addFrequentlyUsedIcon }] = useModel('account', () => ({}));
 
-  const data = emojiBlocks.map(e => ({
+  const data = useMemo(() => emojiBlocks.map(e => e.key === 'frequently_used' ? ({
     ...e,
-    emojiBlockRef: useRef(),
-    topSentinelRef: useRef(),
-    bottomSentinelRef: useRef(),
-  }));
+    emojiIds: account.frequentlyUsedIcons || [],
+    emojiBlockRef: createRef(),
+    topSentinelRef: createRef(),
+    bottomSentinelRef: createRef(),
+  }) : ({
+    ...e,
+    emojiIds: catagory[e.key],
+    emojiBlockRef: createRef(),
+    topSentinelRef: createRef(),
+    bottomSentinelRef: createRef(),
+  })), []);
 
   return (
     <Box
@@ -66,17 +73,7 @@ const EmojiPicker = memo(({ onSelect }) => {
               {e.title}
             </Text>
             <SimpleGrid columns={8} spacing="3">
-              {e.key === 'frequently_used' ? (account.frequentlyUsedIcons || []).map(id => (
-                <Emoji
-                  key={id}
-                  coordinates={emojis[id]}
-                  text={id}
-                  onClick={() => onSelect({
-                    key: id,
-                    coordinates: emojis[id],
-                  })}
-                />
-              )) : catagory[e.key].map(id => (
+              {e.emojiIds.map(id => (
                 <Emoji
                   key={id}
                   coordinates={emojis[id]}
@@ -86,7 +83,7 @@ const EmojiPicker = memo(({ onSelect }) => {
                       key: id,
                       coordinates: emojis[id],
                     });
-                    !account.frequentlyUsedIcons?.includes(id)
+                    e.key !== 'frequently_used' && !account.frequentlyUsedIcons?.includes(id)
                     && addFrequentlyUsedIcon({
                       id: account.id,
                       frequentlyUsedIcon: id,

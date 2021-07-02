@@ -7,13 +7,16 @@ const useObserver = ({
   sentinels = { top: [], bottom: [] },
 }) => {
   const [state, setState] = useState();
+  const stateRef = useRef();
   const isScrollDownRef = useRef(false);
   const prevScrollTopRef = useRef(0);
   const isSetStateByScrollEventListener = useRef(true);
   const debounceRef = useRef();
 
   const setObserveTarget = target => {
+    if (stateRef.current === target) return;
     setState(target);
+    stateRef.current = target;
     isSetStateByScrollEventListener.current = false;
   };
 
@@ -46,8 +49,11 @@ const useObserver = ({
           const stickyTarget = record.target.parentElement;
           const rootBoundsInfo = record.rootBounds;
 
+          if (stateRef.current === stickyTarget) return;
+
           if (targetInfo.bottom < rootBoundsInfo.top) {
             // setState([true, stickyTarget]);
+            stateRef.current = stickyTarget;
             setState(stickyTarget);
             return;
           }
@@ -80,9 +86,12 @@ const useObserver = ({
           const rootBoundsInfo = record.rootBounds;
           const ratio = record.intersectionRatio;
 
+          if (stateRef.current === stickyTarget) return;
+
           if (targetInfo.bottom > rootBoundsInfo.top
             && !isScrollDownRef.current && ratio === 1) {
             // setState([true, stickyTarget]);
+            stateRef.current = stickyTarget;
             setState(stickyTarget);
             return;
           }
