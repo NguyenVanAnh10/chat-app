@@ -7,7 +7,7 @@ const useMenuContext = () => {
   const [menuState, setMenuState] = useState({
     active: menuKeys.MESSAGES,
     [menuKeys.MESSAGES]: {},
-  }); // {active, roomId, ...opts }
+  }); // {active, conversationId, ...opts }
   return [menuState, setMenuState];
 };
 export default useMenuContext;

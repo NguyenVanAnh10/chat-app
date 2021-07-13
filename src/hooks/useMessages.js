@@ -5,41 +5,41 @@ import { AccountContext } from 'App';
 
 const opts = { fetchData: false };
 
-const selector = ({ messages, getMessages, rooms }) => ({
+const selector = ({ messages, getMessages, conversations }) => ({
   mesagesState: getMessages,
   messages,
-  rooms,
+  conversations,
 });
-const useMessages = (roomId, options = opts) => {
+const useMessages = (conversationId, options = opts) => {
   const {
     account: { id: userId },
   } = useContext(AccountContext);
 
-  const cachedKey = roomId || 'all';
+  const cachedKey = conversationId || 'all';
   const [
-    { messages, mesagesState, rooms },
+    { messages, mesagesState, conversations },
     { getMessages, sendMessage, seeMessages },
   ] = useModel('message', selector);
 
-  const total = rooms[cachedKey]?.messageIds?.length || 0;
+  const total = conversations[cachedKey]?.messageIds?.length || 0;
   // TODO
   useReactEffect(() => {
-    roomId
+    conversationId
       && userId
       && options.fetchData
       && (!mesagesState[cachedKey]
       || (mesagesState[cachedKey]?.ids?.length < 20
         && mesagesState[cachedKey]?.ids?.length < total))
-      && getMessages({ roomId, userId, limit: 20, skip: 0, cachedKey });
-  }, [roomId, userId]);
+      && getMessages({ conversationId, userId, limit: 20, skip: 0, cachedKey });
+  }, [conversationId, userId]);
 
-  const loadMoreMessages = ({ roomId: chatRoomId, limit, skip }) => {
-    chatRoomId
+  const loadMoreMessages = ({ conversationId: chatconversationId, limit, skip }) => {
+    chatconversationId
       && userId
-      && getMessages({ roomId: chatRoomId, userId, limit, skip, cachedKey });
+      && getMessages({ conversationId: chatconversationId, userId, limit, skip, cachedKey });
   };
 
-  if (!roomId || !userId) return [{ messages: [] }, {}];
+  if (!conversationId || !userId) return [{ messages: [] }, {}];
 
   const aggregateMessages = useMemo(() => (mesagesState[cachedKey]?.ids || [])
     .map(id => messages[id])

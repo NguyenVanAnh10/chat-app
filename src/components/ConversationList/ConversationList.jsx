@@ -5,49 +5,49 @@ import {
 
 import { AddUsersIcon, AddUserIcon } from 'components/CustomIcons';
 import { AccountContext } from 'App';
-import useRoom, { useRooms } from 'hooks/useRoom';
+import useConversation, { useConversations } from 'hooks/useConversation';
 import CreateChatGroupModal from 'components/CreateChatGroupModal';
 import ListItem from 'components/ListItem';
 import { menuKeys } from 'configs/configs';
 import { MenuContext } from 'contexts/menuContext';
-import RoomItem from 'components/RoomItem';
+import ConversationItem from 'components/ConversationItem';
 import AddFriendModal from 'components/AddFriendModal';
 
-const RoomList = ({ roomListType }) => {
+const ConversationList = ({ conversationListType }) => {
   const { account } = useContext(AccountContext);
   const { menuState, setMenuState } = useContext(MenuContext);
-  const selectedRoomId = menuState[menuState.active]?.roomId;
+  const selectedconversationId = menuState[menuState.active]?.conversationId;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [{ rooms }, { seeMessages }] = useRooms(roomListType);
-  const [{ seeMessagesState }] = useRoom(selectedRoomId);
+  const [{ conversations }, { seeMessages }] = useConversations(conversationListType);
+  const [{ seeMessagesState }] = useConversation(selectedconversationId);
 
-  const onHandleClick = room => {
+  const onHandleClick = conversation => {
     setMenuState(prev => ({
       ...prev,
-      [menuState.active]: { ...prev[menuState.active], roomId: room.id },
+      [menuState.active]: { ...prev[menuState.active], conversationId: conversation.id },
     }));
-    onHandleSeeNewMessages(room);
+    onHandleSeeNewMessages(conversation);
   };
-  const onHandleSelectRoom = id => {
+  const onHandleSelectConversation = id => {
     setMenuState(prev => ({
       ...prev,
-      [menuState.active]: { ...prev[menuState.active], roomId: id },
+      [menuState.active]: { ...prev[menuState.active], conversationId: id },
     }));
   };
 
-  const onHandleSeeNewMessages = room => {
-    if (!room.newMessageNumber || seeMessagesState.loading) return;
-    seeMessages({ roomId: room.id, userId: account.id });
+  const onHandleSeeNewMessages = conversation => {
+    if (!conversation.newMessageNumber || seeMessagesState.loading) return;
+    seeMessages({ conversationId: conversation.id, userId: account.id });
   };
 
-  switch (roomListType) {
+  switch (conversationListType) {
     case menuKeys.CONTACT_BOOK:
       return (
         <Box pt="5">
           <ListItem
-            data={rooms}
+            data={conversations}
             emptyText="No friend"
             header={(
               <HStack justifyContent="space-between">
@@ -62,12 +62,12 @@ const RoomList = ({ roomListType }) => {
                 />
               </HStack>
             )}
-            renderItem={room => (
-              <RoomItem
-                key={room.id}
-                room={room}
-                active={selectedRoomId === room.id}
-                onClick={() => onHandleClick(room)}
+            renderItem={conversation => (
+              <ConversationItem
+                key={conversation.id}
+                conversation={conversation}
+                active={selectedconversationId === conversation.id}
+                onClick={() => onHandleClick(conversation)}
               />
             )}
           />
@@ -78,7 +78,7 @@ const RoomList = ({ roomListType }) => {
       return (
         <Box pt="5">
           <ListItem
-            data={rooms}
+            data={conversations}
             emptyText="No message"
             header={(
               <HStack justifyContent="space-between">
@@ -92,23 +92,23 @@ const RoomList = ({ roomListType }) => {
                 />
               </HStack>
             )}
-            renderItem={room => (
-              <RoomItem
-                key={room.id}
-                room={room}
-                active={selectedRoomId === room.id}
-                onClick={() => onHandleClick(room)}
+            renderItem={conversation => (
+              <ConversationItem
+                key={conversation.id}
+                conversation={conversation}
+                active={selectedconversationId === conversation.id}
+                onClick={() => onHandleClick(conversation)}
               />
             )}
           />
           <CreateChatGroupModal
             isOpen={isOpen}
             onClose={onClose}
-            onSelectRoom={onHandleSelectRoom}
+            onSelectConversation={onHandleSelectConversation}
           />
         </Box>
       );
   }
 };
 
-export default RoomList;
+export default ConversationList;

@@ -20,13 +20,13 @@ const useChat = () => {
   const socketRef = useRef();
   const [,
     {
-      getRoom, getMessage, getMessagesOtherUserHasSeen, sendMessage,
+      getConversation, getMessage, getMessagesOtherUserHasSeen, sendMessage,
     },
   ] = useModel('message', () => ({}));
   const [, { getUser, getFriendRequest, updateOnline }] = useModel('account', () => ({}));
 
   const initChat = {
-    roomId: '',
+    conversationId: '',
     caller: {},
     streamVideos: {}, // {current, remote}
     callState: {}, // {hasReceived, accepted, declined}
@@ -48,11 +48,11 @@ const useChat = () => {
       update_user: ({ userId }) => {
         getUser({ id: userId });
       },
-      a_call_from: ({ signal, id, roomId }) => {
+      a_call_from: ({ signal, id, conversationId }) => {
         if (id === account.id) return;
         setChat({
           ...initChat,
-          roomId,
+          conversationId,
           caller: { signal, id },
           callState: { hasReceived: true },
         });
@@ -67,20 +67,20 @@ const useChat = () => {
           setChat({ ...initChat, callState: { declined: true } });
         }
       },
-      user_has_added_new_room: ({ roomId }) => {
-        getRoom({ roomId, userId: account.id });
+      user_has_added_new_conversation: ({ conversationId }) => {
+        getConversation({ conversationId, userId: account.id });
       },
-      send_message_success: ({ senderId, messageId, roomId }) => {
+      send_message_success: ({ senderId, messageId, conversationId }) => {
         if (account.id === senderId) return;
         getMessage({
           messageId,
           userId: account.id,
-          roomId,
-          cachedKey: roomId });
+          conversationId,
+          cachedKey: conversationId });
       },
-      user_has_seen_messages: ({ roomId, userId, haveSeenMessageIds }) => {
+      user_has_seen_messages: ({ conversationId, userId, haveSeenMessageIds }) => {
         if (account.id === userId) return;
-        getMessagesOtherUserHasSeen({ roomId, userId, haveSeenMessageIds });
+        getMessagesOtherUserHasSeen({ conversationId, userId, haveSeenMessageIds });
       },
       friend_request: ({ creatorId }) => {
         getFriendRequest({ userId: account.id, friendId: creatorId });
@@ -93,7 +93,7 @@ const useChat = () => {
         console.error('error', error);
       },
     });
-    socket.emit('join_all_room', { userId: account.id });
+    socket.emit('join_all_conversation', { userId: account.id });
     socketRef.current = socket;
     return () => {
       socket.disconnect();
@@ -121,7 +121,7 @@ const useChat = () => {
       });
       peer.on('signal', signal => {
         socketRef.current?.emit('answer_call', {
-          roomId: chat.roomId,
+          conversationId: chat.conversationId,
           ...chat.caller,
           signal,
         });
@@ -143,7 +143,7 @@ const useChat = () => {
     }
   };
 
-  const onCallUser = async roomId => {
+  const onCallUser = async conversationId => {
     try {
       const currentStream = await turnOnCameraAndAudio();
       setChat({ ...initChat, streamVideos: { current: currentStream } });
@@ -173,7 +173,7 @@ const useChat = () => {
         socketRef.current?.emit('call_to', {
           signal,
           id: account.id,
-          roomId,
+          conversationId,
         });
       });
 
@@ -203,10 +203,10 @@ const useChat = () => {
     setChat({ ...chat, callState: { ...chat.callState, hasReceived: false } });
     socketRef.current?.emit('decline_incoming_call', {
       callerId,
-      roomId: chat.roomId,
+      conversationId: chat.conversationId,
     });
     sendMessage({
-      roomId: chat.roomId,
+      conversationId: chat.conversationId,
       contentType: Message.CONTENT_TYPE_NOTIFICATION,
       content: Notification.NOTIFICATION_DECLINE_CALL,
       keyMsg: uuid(),
@@ -216,13 +216,13 @@ const useChat = () => {
     });
   };
 
-  const onLeaveCall = roomId => {
+  const onLeaveCall = conversationId => {
     destroyCall();
     setChat(initChat);
-    socketRef.current?.emit('callended', { userId: account.id, roomId });
+    socketRef.current?.emit('callended', { userId: account.id, conversationId });
     chat.callState.accepted
       && sendMessage({
-        roomId,
+        conversationId,
         contentType: Message.CONTENT_TYPE_NOTIFICATION,
         content: Notification.NOTIFICATION_ENDED_CALL,
         keyMsg: uuid(),

@@ -8,9 +8,9 @@ const MainContent = () => {
   const { menuState } = useContext(MenuContext);
   switch (menuState.active) {
     case menuKeys.CONTACT_BOOK:
-      return <ChatBox roomId={menuState[menuState.active]?.roomId} />;
+      return <ChatBox conversationId={menuState[menuState.active]?.conversationId} />;
     default:
-      return <ChatBox roomId={menuState[menuState.active]?.roomId} />;
+      return <ChatBox conversationId={menuState[menuState.active]?.conversationId} />;
   }
 };
 export default MainContent;

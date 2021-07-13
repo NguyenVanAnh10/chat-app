@@ -4,14 +4,14 @@ import { useBreakpointValue, VStack } from '@chakra-ui/react';
 import MessageList from 'components/MessageList';
 import MessageInput from 'components/MessageInput';
 import ChatHeader from 'components/ChatHeader';
-import useRoom from 'hooks/useRoom';
+import useConversation from 'hooks/useConversation';
 import { AccountContext } from 'App';
 
 import styles from './ChatBox.module.scss';
 
-const ChatBox = ({ roomId }) => {
+const ChatBox = ({ conversationId }) => {
   const { account } = useContext(AccountContext);
-  const [{ room, seeMessagesState }, { seeMessages }] = useRoom(roomId);
+  const [{ conversation, seeMessagesState }, { seeMessages }] = useConversation(conversationId);
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
   const [height, setHeight] = useState(() => window.innerHeight || '100vh');
 
@@ -27,11 +27,11 @@ const ChatBox = ({ roomId }) => {
   }, [isMobileScreen]);
 
   const onHandleSeeNewMessages = () => {
-    if (!room.newMessageNumber || seeMessagesState.loading) return;
-    seeMessages({ roomId, userId: account.id });
+    if (!conversation.newMessageNumber || seeMessagesState.loading) return;
+    seeMessages({ conversationId, userId: account.id });
   };
 
-  if (!roomId) return null;
+  if (!conversationId) return null;
   return (
     <VStack
       ref={chatBoxRef}
@@ -43,14 +43,14 @@ const ChatBox = ({ roomId }) => {
       onMouseEnter={onHandleSeeNewMessages}
       onMouseLeave={onHandleSeeNewMessages}
     >
-      <ChatHeader roomId={roomId} />
+      <ChatHeader conversationId={conversationId} />
       <MessageList
-        roomId={roomId}
+        conversationId={conversationId}
         ref={messagesContainerRef}
         bottomMessagesBoxRef={bottomMessagesBoxRef}
       />
       <MessageInput
-        roomId={roomId}
+        conversationId={conversationId}
         bottomMessagesBoxRef={bottomMessagesBoxRef}
       />
     </VStack>

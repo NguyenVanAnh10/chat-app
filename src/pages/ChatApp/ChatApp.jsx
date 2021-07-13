@@ -68,7 +68,7 @@ const MobileLayout = () => {
 
   return (
     <Flex h="100%" w="100%" overflow="hidden">
-      {(!!menuState.active && !!menuState[menuState.active]?.roomId) ? (
+      {(!!menuState.active && !!menuState[menuState.active]?.conversationId) ? (
         <MainContent />
       ) : (
         <>

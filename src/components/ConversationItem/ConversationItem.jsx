@@ -9,9 +9,9 @@ import classNames from 'classnames';
 
 import Avatar from 'components/Avatar';
 
-import styles from './RoomItem.module.scss';
+import styles from './ConversationItem.module.scss';
 
-const RoomItem = ({ room, active, onClick }) => (
+const ConversationItem = ({ conversation, active, onClick }) => (
   <HStack
     p="1"
     spacing="3"
@@ -23,23 +23,23 @@ const RoomItem = ({ room, active, onClick }) => (
     _hover={{ bg: 'purple.50' }}
     className={classNames({ [styles.active]: active })}
   >
-    {room.otherMembers.filter(m => !!m.id).length > 0 ? (
+    {conversation.otherMembers.filter(m => !!m.id).length > 0 ? (
       <AvatarGroup size="md" max={3}>
-        {room.otherMembers.length > 1
-          ? room.members.map(o => (
+        {conversation.otherMembers.length > 1
+          ? conversation.members.map(o => (
             <Avatar key={o.id} name={o.userName} src={o.avatar}>
               <AvatarBadge boxSize="0.8em" bg={o.online ? 'green.500' : 'gray.300'} />
             </Avatar>
           ))
-          : room.otherMembers.map(o => (
+          : conversation.otherMembers.map(o => (
             <Avatar key={o.id} name={o.userName} src={o.avatar}>
               <AvatarBadge boxSize="0.8em" bg={o.online ? 'green.500' : 'gray.300'} />
             </Avatar>
           ))}
       </AvatarGroup>
     ) : null}
-    <Text>{room.name || room.userName}</Text>
-    {!!room.newMessageNumber && (
+    <Text>{conversation.name || conversation.userName}</Text>
+    {!!conversation.newMessageNumber && (
       <Text
         ml="auto !important"
         borderRadius="100%"
@@ -51,10 +51,10 @@ const RoomItem = ({ room, active, onClick }) => (
         height="5"
         textAlign="center"
       >
-        {room.newMessageNumber}
+        {conversation.newMessageNumber}
       </Text>
     )}
   </HStack>
 );
 
-export default RoomItem;
+export default ConversationItem;

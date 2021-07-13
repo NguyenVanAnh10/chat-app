@@ -27,7 +27,7 @@ import 'draft-js/dist/Draft.css';
 
 const EmojiPicker = React.lazy(() => import('components/EmojiPicker'));
 
-const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
+const MessageInput = ({ conversationId, bottomMessagesBoxRef, ...rest }) => {
   const { account } = useContext(AccountContext);
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty(decorator));
 
@@ -47,7 +47,7 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
       return;
     }
     sendMessage({
-      roomId,
+      conversationId,
       keyMsg: uuid(),
       contentType: Message.CONTENT_TYPE_TEXT,
       content: message,
@@ -57,13 +57,13 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
     });
     setEditorState(getResetEditorState(editorStateRef.current));
     bottomMessagesBoxRef.current?.scrollIntoView(false);
-  }, [roomId]);
+  }, [conversationId]);
 
   const handleSendImage = useCallback(imageSource => {
     if (!imageSource.base64Image || !imageSource.contentBlob) return;
 
     sendMessage({
-      roomId,
+      conversationId,
       keyMsg: uuid(),
       contentType: Message.CONTENT_TYPE_IMAGE,
       contentBlob: imageSource.contentBlob,
@@ -75,7 +75,7 @@ const MessageInput = ({ roomId, bottomMessagesBoxRef, ...rest }) => {
     setTimeout(() => {
       bottomMessagesBoxRef.current?.scrollIntoView(false);
     });
-  }, [roomId]);
+  }, [conversationId]);
 
   const onSelectEmoji = useCallback(({ key }) => {
     const newContentState = Modifier.insertText(

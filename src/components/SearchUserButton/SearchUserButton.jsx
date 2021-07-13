@@ -15,10 +15,10 @@ import SearchFriendInput from 'components/SearchFriendInput';
 import { AccountContext } from 'App';
 
 const SearchUserButton = ({ onSelectUser }) => {
-  const [{ rooms }] = useModel(
+  const [{ conversations }] = useModel(
     'message',
-    ({ rooms: roomsModel }) => ({
-      rooms: Object.keys(roomsModel).map(id => roomsModel[id]),
+    ({ conversations: conversationsModel }) => ({
+      conversations: Object.keys(conversationsModel).map(id => conversationsModel[id]),
     }),
   );
   const [{ friends }] = useModel(
@@ -30,9 +30,10 @@ const SearchUserButton = ({ onSelectUser }) => {
   const { account } = useContext(AccountContext);
   const { isOpen, onClose, onOpen } = useDisclosure();
 
-  const onCreateRoomChat = toUserId => {
-    const room = rooms.find(r => isEqual(r.userIds.sort(), [account.id, toUserId].sort()));
-    onSelectUser(room.id);
+  const onCreateConversationChat = toUserId => {
+    const conversation = conversations.find(r => isEqual(r.userIds.sort(),
+      [account.id, toUserId].sort()));
+    onSelectUser(conversation.id);
     onClose();
   };
 
@@ -55,7 +56,10 @@ const SearchUserButton = ({ onSelectUser }) => {
         <ModalOverlay />
         <ModalContent>
           <ModalBody py="5">
-            <SearchFriendInput usersData={friends} onUserClick={u => onCreateRoomChat(u.id)} />
+            <SearchFriendInput
+              usersData={friends}
+              onUserClick={u => onCreateConversationChat(u.id)}
+            />
           </ModalBody>
         </ModalContent>
       </Modal>

@@ -25,13 +25,13 @@ import { AccountContext } from 'App';
 import SearchFriendInput from 'components/SearchFriendInput';
 import useUsers from 'hooks/useUsers';
 
-const selector = ({ createRoom, rooms: roomsModel }) => ({
-  createRoomState: createRoom,
-  rooms: Object.keys(roomsModel).map(id => roomsModel[id]),
+const selector = ({ createConversation, conversations: conversationsModel }) => ({
+  createConversationState: createConversation,
+  conversations: Object.keys(conversationsModel).map(id => conversationsModel[id]),
 });
 
-const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
-  const [{ createRoomState, rooms }, { createRoom }] = useModel('message', selector);
+const CreateChatGroupModal = ({ isOpen, onClose, onSelectConversation }) => {
+  const [{ createConversationState, conversations }, { createConversation }] = useModel('message', selector);
   const [{ friends }] = useUsers();
 
   const toast = useToast();
@@ -39,18 +39,18 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
   const { account } = useContext(AccountContext);
 
   useUpdateEffect(() => {
-    if (createRoomState.loading || createRoomState.error) return;
-    onSelectRoom(createRoomState.id);
+    if (createConversationState.loading || createConversationState.error) return;
+    onSelectConversation(createConversationState.id);
     onClose();
-  }, [createRoomState]);
+  }, [createConversationState]);
 
   const onHandleSumbit = handleSubmit(data => {
     if (data.userIds.length < 2) return;
     const userIds = [account.id, ...data.userIds.map(u => u.id)].sort().join(',');
-    const room = rooms.find(r => r.userIds.sort().join(',') === userIds);
+    const conversation = conversations.find(r => r.userIds.sort().join(',') === userIds);
 
-    if (room) {
-      onSelectRoom(room.id);
+    if (conversation) {
+      onSelectConversation(conversation.id);
       toast({
         description: 'Group existed',
         status: 'error',
@@ -60,7 +60,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
       onClose();
       return;
     }
-    createRoom({
+    createConversation({
       name: data.name,
       userIds,
       createrId: account.id,
@@ -84,7 +84,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
             rules={{ required: 'Set group name' }}
             render={({ field, fieldState: { error, invalid } }) => (
               <FormControl isInvalid={invalid}>
-                <Input placeholder="Room name" {...field} />
+                <Input placeholder="Conversation name" {...field} />
                 {error && (
                 <FormErrorMessage>{error.message}</FormErrorMessage>
                 )}
@@ -143,7 +143,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectRoom }) => {
           <Button
             colorScheme="blue"
             onClick={onHandleSumbit}
-            isLoading={createRoomState.loading}
+            isLoading={createConversationState.loading}
           >
             Create
           </Button>

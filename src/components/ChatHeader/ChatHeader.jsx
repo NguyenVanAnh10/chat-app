@@ -13,21 +13,21 @@ import { PhoneIcon, ArrowBackIcon } from '@chakra-ui/icons';
 import { AccountContext } from 'App';
 import VideoCallModal from 'components/VideoCallModal';
 import { ChatContext } from 'pages/ChatApp';
-import useRoom from 'hooks/useRoom';
+import useConversation from 'hooks/useConversation';
 import { MenuContext } from 'contexts/menuContext';
 import Avatar from 'components/Avatar';
 
-const ChatHeader = ({ roomId }) => {
+const ChatHeader = ({ conversationId }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { account } = useContext(AccountContext);
-  const [{ room }] = useRoom(roomId);
+  const [{ conversation }] = useConversation(conversationId);
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
   const { setMenuState } = useContext(MenuContext);
 
   const {
     actions: { onCallUser },
   } = useContext(ChatContext);
-  if (!roomId) return null;
+  if (!conversationId) return null;
   return (
     <>
       <HStack
@@ -52,25 +52,25 @@ const ChatHeader = ({ roomId }) => {
             />
           )}
           <AvatarGroup size="md" max={3}>
-            {room.otherMembers?.length > 1
-              ? room.members?.map(o => (
+            {conversation.otherMembers?.length > 1
+              ? conversation.members?.map(o => (
                 <Avatar key={o.id} name={o.userName} src={o.avatar}>
                   <AvatarBadge boxSize="0.8em" bg={o.online ? 'green.500' : 'gray.300'} />
                 </Avatar>
               ))
-              : room.otherMembers?.map(o => (
+              : conversation.otherMembers?.map(o => (
                 <Avatar key={o.id} name={o.userName} src={o.avatar}>
                   <AvatarBadge boxSize="0.8em" bg={o.online ? 'green.500' : 'gray.300'} />
                 </Avatar>
               ))}
           </AvatarGroup>
-          <Text ml="2">{room.name || room.userName}</Text>
+          <Text ml="2">{conversation.name || conversation.userName}</Text>
         </HStack>
-        {room.otherMembers?.length === 1 && (
+        {conversation.otherMembers?.length === 1 && (
           <IconButton
             onClick={() => {
               onOpen();
-              onCallUser(room.id);
+              onCallUser(conversation.id);
             }}
             size="lg"
             fontSize="1.5rem"
@@ -82,8 +82,8 @@ const ChatHeader = ({ roomId }) => {
       <VideoCallModal
         isOpen={isOpen}
         onClose={onClose}
-        room={room}
-        receiver={room.members?.find(u => u.id !== account.id)}
+        conversation={conversation}
+        receiver={conversation.members?.find(u => u.id !== account.id)}
       />
     </>
   );

@@ -4,19 +4,19 @@ import { Icon, Text } from '@chakra-ui/react';
 import BubbleMessage from 'components/BubbleMessage';
 import Notification from 'entities/Notification';
 import { AccountContext } from 'App';
-import useRoom from 'hooks/useRoom';
+import useConversation from 'hooks/useConversation';
 import MessageStatus from 'components/MessageStatus';
 import { MissedCallIcon, VideoCallIcon } from 'components/CustomIcons';
 
 const NotificationMessage = ({
   message,
   // numbers,
-  roomId,
+  conversationId,
   members,
   showStatusMessage,
 }) => {
   const { account } = useContext(AccountContext);
-  const [{ room }] = useRoom(roomId);
+  const [{ conversation }] = useConversation(conversationId);
 
   switch (message.content) {
     case Notification.NOTIFICATION_MISS_CALL:
@@ -28,18 +28,18 @@ const NotificationMessage = ({
         >
           {account.id === message.senderId ? (
             <Text>
-              {room.otherMembers?.length > 1
-                ? room.name
-                : room.otherMembers?.[0]?.userName}
+              {conversation.otherMembers?.length > 1
+                ? conversation.name
+                : conversation.otherMembers?.[0]?.userName}
               missed your video chat
             </Text>
           ) : (
             <Text>
               you missed a video chat with
               {' '}
-              {room.otherMembers?.length > 1
-                ? room.name
-                : room.otherMembers?.[0]?.userName}
+              {conversation.otherMembers?.length > 1
+                ? conversation.name
+                : conversation.otherMembers?.[0]?.userName}
             </Text>
           )}
         </BubbleMessage>
@@ -69,18 +69,18 @@ const NotificationMessage = ({
           {account.id !== message.senderId ? (
             <Text color="blue" fontWeight="bold" fontStyle="italic">
               <Icon as={MissedCallIcon} mr="2" />
-              {room.otherMembers?.length > 1
-                ? room.name
-                : room.otherMembers?.[0]?.userName}
+              {conversation.otherMembers?.length > 1
+                ? conversation.name
+                : conversation.otherMembers?.[0]?.userName}
               &nbsp; missed your video chat
             </Text>
           ) : (
             <Text color="red.500" fontWeight="bold" fontStyle="italic">
               <Icon as={MissedCallIcon} mr="2" />
               you missed a video chat with &nbsp;
-              {room.otherMembers?.length > 1
-                ? room.name
-                : room.otherMembers?.[0]?.userName}
+              {conversation.otherMembers?.length > 1
+                ? conversation.name
+                : conversation.otherMembers?.[0]?.userName}
             </Text>
           )}
           {showStatusMessage && (

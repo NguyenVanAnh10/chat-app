@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import { RepeatIcon } from '@chakra-ui/icons';
 
-import useRoom from 'hooks/useRoom';
+import useConversation from 'hooks/useConversation';
 import { AccountContext } from 'App';
 import useMessages from 'hooks/useMessages';
 import MessageListCard from 'components/MessageListCard';
@@ -18,13 +18,13 @@ import Avatar from 'components/Avatar';
 
 import styles from './MessageList.module.scss';
 
-const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
+const MessageList = forwardRef(({ conversationId, bottomMessagesBoxRef }, ref) => {
   const [
     { messages, aggregateMessages, getMessagesState, total },
     { loadMoreMessages },
-  ] = useMessages(roomId, { fetchData: true });
+  ] = useMessages(conversationId, { fetchData: true });
 
-  const [{ room }] = useRoom(roomId);
+  const [{ conversation }] = useConversation(conversationId);
   const { account } = useContext(AccountContext);
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [imgSrc, setImgSrc] = useState();
@@ -32,7 +32,7 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
   const handleLoadmore = () => {
     loadMoreMessages({
       limit: 20,
-      roomId,
+      conversationId,
       skip: messages.length,
     });
   };
@@ -42,12 +42,12 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
       <MessageListCard
         ref={ref}
         total={total}
-        roomId={roomId}
+        conversationId={conversationId}
         messages={messages}
         className={styles.MessageList}
         getState={getMessagesState} // {loading, error}
         isLoadmore={total > messages.length}
-        isNewMessages={room.newMessageNumber}
+        isNewMessages={conversation.newMessageNumber}
         bottomMessagesBoxRef={bottomMessagesBoxRef}
         onLoadmore={handleLoadmore}
       >
@@ -60,9 +60,9 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
           >
             <Avatar
               name={m.senderId !== account.id
-                ? room.membersObj?.[m.senderId]?.userName : account.userName}
+                ? conversation.membersObj?.[m.senderId]?.userName : account.userName}
               src={m.senderId !== account.id
-                ? room.membersObj?.[m.senderId]?.avatar : account.avatar}
+                ? conversation.membersObj?.[m.senderId]?.avatar : account.avatar}
               size="sm"
               zIndex="2"
             />
@@ -75,9 +75,9 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
               )}
               {!m.aggregateMsg ? (
                 <MessageContent
-                  roomId={roomId}
+                  conversationId={conversationId}
                   message={m}
-                  members={room.membersObj || {}}
+                  members={conversation.membersObj || {}}
                   showSeenUsers={i === msgsArr.length - 1}
                   onImageClick={() => {
                     if (m.contentType !== Message.CONTENT_TYPE_IMAGE) return;
@@ -92,10 +92,10 @@ const MessageList = forwardRef(({ roomId, bottomMessagesBoxRef }, ref) => {
                 >
                   {m.aggregateMsg.map((mm, ii, aa) => (
                     <MessageContent
-                      roomId={roomId}
+                      conversationId={conversationId}
                       key={mm.id || mm.keyMsg}
                       message={mm}
-                      members={room.membersObj || {}}
+                      members={conversation.membersObj || {}}
                       showStatusMessage={ii === aa.length - 1}
                       showSeenUsers={i === msgsArr.length - 1}
                       onImageClick={() => {

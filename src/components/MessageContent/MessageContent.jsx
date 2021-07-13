@@ -7,7 +7,7 @@ import NotificationMessage from 'components/NotificationMessage';
 import TextMessage from 'components/TextMessage';
 
 const MessageContent = ({
-  roomId,
+  conversationId,
   message,
   members,
   containerRef,
@@ -32,7 +32,7 @@ const MessageContent = ({
     case Message.CONTENT_TYPE_NOTIFICATION:
       return (
         <NotificationMessage
-          roomId={roomId}
+          conversationId={conversationId}
           showStatusMessage={showStatusMessage}
           message={message}
           members={members}

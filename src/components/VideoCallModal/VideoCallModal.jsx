@@ -20,9 +20,9 @@ import Avatar from 'components/Avatar';
 
 import styles from './VideoCallModal.module.scss';
 
-const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
+const VideoCallModal = ({ receiver = null, isOpen, onClose, conversation = {} }) => {
   const {
-    state: { streamVideos, callState, roomId },
+    state: { streamVideos, callState, conversationId },
     actions: { onLeaveCall },
   } = useContext(ChatContext);
 
@@ -97,11 +97,11 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
           {!!receiver && !callState.accepted && (
             <VStack mx="auto" zIndex="1" spacing="4">
               <AvatarGroup size="xl" max={3}>
-                {room.otherMembers.length > 1
-                  ? room.members.map(o => (
+                {conversation.otherMembers.length > 1
+                  ? conversation.members.map(o => (
                     <Avatar key={o.id} name={o.userName} src={o.avatar} />
                   ))
-                  : room.otherMembers.map(o => (
+                  : conversation.otherMembers.map(o => (
                     <Avatar key={o.id} name={o.userName} src={o.avatar} />
                   ))}
               </AvatarGroup>
@@ -129,7 +129,7 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, room = {} }) => {
             icon={<HangoutPhoneIcon />}
             m="0 auto"
             onClick={() => {
-              onLeaveCall(roomId || room.id);
+              onLeaveCall(conversationId || conversation.id);
               onClose();
             }}
           />

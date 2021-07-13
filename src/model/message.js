@@ -1,11 +1,11 @@
 import {
   getMessage,
   getMessages,
-  getRoom,
-  getRooms,
+  getConversation,
+  getConversations,
   sendMessage,
   haveSeenMessages,
-  createRoom,
+  createConversation,
 } from 'services/message';
 import accountServices from 'services/account';
 
@@ -17,10 +17,10 @@ const messageModel = {
     messages: {}, // {[id]: message}
     getMessages: {}, // {[cachedKey]: {ids: [], loading: Boolean, error: {}}}
     getMessage: {},
-    rooms: {},
-    getRooms: { ids: [] }, // {ids: [], loading, error}
-    getRoom: {},
-    createRoom: {},
+    conversations: {},
+    getConversations: { ids: [] }, // {ids: [], loading, error}
+    getConversation: {},
+    createConversation: {},
     seeMessages: {},
     sendMessage: {},
   },
@@ -84,11 +84,12 @@ const messageModel = {
               },
             },
             getMessage: { [payload.cachedKey]: {} },
-            rooms: {
-              ...state.rooms,
-              [payload.message.roomId]: {
-                ...state.rooms[payload.message.roomId],
-                messageIds: [...(state.rooms[payload.message.roomId].messageIds || []),
+            conversations: {
+              ...state.conversations,
+              [payload.message.conversationId]: {
+                ...state.conversations[payload.message.conversationId],
+                messageIds: [
+                  ...(state.conversations[payload.message.conversationId].messageIds || []),
                   payload.message.id],
               },
             },
@@ -111,56 +112,56 @@ const messageModel = {
           };
       }
     },
-    getRooms: (state, { status, payload }) => {
+    getConversations: (state, { status, payload }) => {
       switch (status) {
         case 'success':
           return {
             ...state,
-            rooms: payload.reduce(
+            conversations: payload.reduce(
               (s, r) => ({ ...s, [r.id]: r }),
-              state.rooms,
+              state.conversations,
             ),
-            getRooms: {
-              ...state.getRooms,
+            getConversations: {
+              ...state.getConversations,
               ids: payload.map(r => r.id),
             },
           };
         case 'error':
-          return { ...state, getRooms: { error: payload } };
+          return { ...state, getConversations: { error: payload } };
         default:
-          return { ...state, getRooms: { loading: true } };
+          return { ...state, getConversations: { loading: true } };
       }
     },
-    getRoom: (state, { status, payload }) => {
+    getConversation: (state, { status, payload }) => {
       switch (status) {
         case 'success':
           return {
             ...state,
-            rooms: { ...state.rooms, [payload.id]: payload },
-            getRooms: {
-              ids: state.getRooms.ids.includes(payload.id)
-                ? state.getRooms.ids
-                : [...state.getRooms.ids, payload.id],
+            conversations: { ...state.conversations, [payload.id]: payload },
+            getConversations: {
+              ids: state.getConversations.ids.includes(payload.id)
+                ? state.getConversations.ids
+                : [...state.getConversations.ids, payload.id],
             },
-            getRoom: { id: payload.id },
+            getConversation: { id: payload.id },
           };
         case 'error':
-          return { ...state, getRoom: { error: payload } };
+          return { ...state, getConversation: { error: payload } };
         default:
-          return { ...state, getRoom: { loading: true } };
+          return { ...state, getConversation: { loading: true } };
       }
     },
-    createRoom: (state, { status, payload }) => {
+    createConversation: (state, { status, payload }) => {
       switch (status) {
         case 'success':
           return {
             ...state,
-            createRoom: payload,
+            createConversation: payload,
           };
         case 'error':
-          return { ...state, createRoom: { error: payload } };
+          return { ...state, createConversation: { error: payload } };
         default:
-          return { ...state, createRoom: { loading: true } };
+          return { ...state, createConversation: { loading: true } };
       }
     },
     sendMessage: (state, { status, payload }) => {
@@ -219,9 +220,9 @@ const messageModel = {
             },
             getMessages: {
               ...state.getMessages,
-              [payload.roomId]: {
+              [payload.conversationId]: {
                 ids: [
-                  ...(state.getMessages[payload.roomId]?.ids || []),
+                  ...(state.getMessages[payload.conversationId]?.ids || []),
                   payload.keyMsg,
                 ],
               },
@@ -240,7 +241,7 @@ const messageModel = {
             ),
             seeMessages: {
               ...state.seeMessages,
-              [payload.roomId]: {},
+              [payload.conversationId]: {},
             },
           };
         case 'error':
@@ -248,7 +249,7 @@ const messageModel = {
             ...state,
             seeMessages: {
               ...state.seeMessages,
-              [payload.roomId]: {
+              [payload.conversationId]: {
                 error: payload.error,
               },
             },
@@ -258,7 +259,7 @@ const messageModel = {
             ...state,
             seeMessages: {
               ...state.seeMessages,
-              [payload.roomId]: {
+              [payload.conversationId]: {
                 loading: true,
               },
             },
@@ -297,31 +298,31 @@ const messageModel = {
         onError({ cachedKey, error });
       }
     },
-    getRooms: async (payload, onSuccess, onError) => {
+    getConversations: async (payload, onSuccess, onError) => {
       try {
         if (!payload.userId) {
           // eslint-disable-next-line no-param-reassign
           payload.userId = (await getMe()).id;
         }
-        onSuccess(await getRooms(payload.userId));
+        onSuccess(await getConversations(payload.userId));
       } catch (error) {
         onError(error);
       }
     },
-    createRoom: async (payload, onSuccess, onError) => {
+    createConversation: async (payload, onSuccess, onError) => {
       try {
-        onSuccess(await createRoom(payload));
+        onSuccess(await createConversation(payload));
       } catch (error) {
         onError(error);
       }
     },
-    getRoom: async (payload, onSuccess, onError) => {
+    getConversation: async (payload, onSuccess, onError) => {
       try {
         if (!payload.userId) {
           // eslint-disable-next-line no-param-reassign
           payload.userId = (await getMe()).id;
         }
-        onSuccess(await getRoom(payload));
+        onSuccess(await getConversation(payload));
       } catch (error) {
         onError(error);
       }
@@ -329,7 +330,7 @@ const messageModel = {
     sendMessage: async ({ keyMsg, ...payload }, onSuccess, onError) => {
       try {
         onSuccess({
-          cachedKey: payload.roomId,
+          cachedKey: payload.conversationId,
           keyMsg,
           message: (await sendMessage(payload)).message,
         });
@@ -339,9 +340,12 @@ const messageModel = {
     },
     seeMessages: async (payload, onSuccess, onError) => {
       try {
-        onSuccess({ roomId: payload.roomId, messages: await haveSeenMessages(payload) });
+        onSuccess({
+          conversationId: payload.conversationId,
+          messages: await haveSeenMessages(payload),
+        });
       } catch (error) {
-        onError({ roomId: payload.roomId, error: {} });
+        onError({ conversationId: payload.conversationId, error: {} });
       }
     },
     getMessagesOtherUserHasSeen: async (payload, onSuccess, onError) => {
@@ -355,9 +359,9 @@ const messageModel = {
   actions: {
     getMessages: params => params,
     getMessage: params => params,
-    getRoom: params => params,
-    getRooms: userId => ({ userId }),
-    createRoom: params => params,
+    getConversation: params => params,
+    getConversations: userId => ({ userId }),
+    createConversation: params => params,
     sendMessage: params => params,
     seeMessages: params => params,
     getMessagesOtherUserHasSeen: params => params,

@@ -5,21 +5,21 @@ import debounce from 'lodash.debounce';
 import classNames from 'classnames';
 
 import { AccountContext } from 'App';
-import useRoom from 'hooks/useRoom';
+import useConversation from 'hooks/useConversation';
 
 import styles from './MessageListCard.module.scss';
 
 const MessageListCard = forwardRef(({
-  roomId, messages, getState: { loading, error }, bottomMessagesBoxRef, isNewMessages,
+  conversationId, messages, getState: { loading, error }, bottomMessagesBoxRef, isNewMessages,
   className, children, isLoadmore, onLoadmore, threshold = 50, total, ...rest },
 ref) => {
   const { account } = useContext(AccountContext);
-  const [{ room, seeMessagesState }, { seeMessages }] = useRoom(roomId);
+  const [{ conversation, seeMessagesState }, { seeMessages }] = useConversation(conversationId);
 
   const prevScrollTopRef = useRef(0);
   const debounceRef = useRef();
-  const prevRoomIdRef = useRef();
-  const isChangeRoomRef = useRef();
+  const prevconversationIdRef = useRef();
+  const isChangeConversationRef = useRef();
 
   useEffect(() => {
     ref.current.addEventListener('scroll', handleScroll);
@@ -27,19 +27,19 @@ ref) => {
   }, [onLoadmore]);
 
   useLayoutEffect(() => {
-    // check change room
+    // check change conversation
     prevScrollTopRef.current = 0;
-    if (prevRoomIdRef.current !== roomId) {
-      isChangeRoomRef.current = true;
+    if (prevconversationIdRef.current !== conversationId) {
+      isChangeConversationRef.current = true;
     }
-  }, [roomId]);
+  }, [conversationId]);
 
   useLayoutEffect(() => {
     // set scrollbar at bottom when first time get messages
-    if (isChangeRoomRef.current
+    if (isChangeConversationRef.current
        && (messages.length >= 20 || messages.length === total)) {
-      prevRoomIdRef.current = roomId;
-      isChangeRoomRef.current = false;
+      prevconversationIdRef.current = conversationId;
+      isChangeConversationRef.current = false;
       bottomMessagesBoxRef.current?.scrollIntoView(false);
     }
     if (isNewMessages) {
@@ -49,7 +49,7 @@ ref) => {
 
   useUpdateEffect(() => {
     // loadmore successful
-    if (!isChangeRoomRef.current && !error && !loading
+    if (!isChangeConversationRef.current && !error && !loading
       && ref.current?.scrollTop <= threshold) {
       ref.current?.scrollTo({
         top: 100,
@@ -60,10 +60,10 @@ ref) => {
   }, [loading, error]);
 
   const onHandleSeeNewMessages = e => {
-    if (!room.newMessageNumber || seeMessagesState.loading
+    if (!conversation.newMessageNumber || seeMessagesState.loading
       || prevScrollTopRef.current <= e.target.scrollTop) return;
     seeMessages({
-      roomId,
+      conversationId,
       userId: account.id,
     });
   };
@@ -95,7 +95,7 @@ ref) => {
       className={classNames(className, styles.MessageListCard)}
       {...rest}
     >
-      {loading && isChangeRoomRef.current ? (
+      {loading && isChangeConversationRef.current ? (
         <Center w="100%" className={className} {...rest}>
           <Spinner
             thickness="3px"
