@@ -2,8 +2,10 @@ import React, { useContext } from 'react';
 import { Flex } from '@chakra-ui/react';
 
 import ConversationList from 'components/ConversationList';
+import FriendList from 'components/FriendList';
 import SearchUserButton from 'components/SearchUserButton';
 import { MenuContext } from 'contexts/menuContext';
+import { menuKeys } from 'configs/configs';
 
 const MainSideNav = () => {
   const { menuState, setMenuState } = useContext(MenuContext);
@@ -29,13 +31,19 @@ const MainSideNav = () => {
           }))}
         />
       </Flex>
-      <MainSideNavContent mainSideType={menuState.active} />
+      <SideNavContent />
     </Flex>
   );
 };
 
-// TODO: have many type main side nav in the future
-const MainSideNavContent = ({
-  mainSideType,
-}) => <ConversationList conversationListType={mainSideType} />;
+const SideNavContent = () => {
+  const { menuState } = useContext(MenuContext);
+
+  switch (menuState.active) {
+    case menuKeys.CONTACT_BOOK:
+      return <FriendList />;
+    default:
+      return <ConversationList />;
+  }
+};
 export default MainSideNav;

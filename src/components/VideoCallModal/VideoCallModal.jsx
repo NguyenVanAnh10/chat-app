@@ -97,11 +97,11 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, conversation = {} })
           {!!receiver && !callState.accepted && (
             <VStack mx="auto" zIndex="1" spacing="4">
               <AvatarGroup size="xl" max={3}>
-                {conversation.otherMembers.length > 1
+                {conversation.members.length > 2
                   ? conversation.members.map(o => (
                     <Avatar key={o.id} name={o.userName} src={o.avatar} />
                   ))
-                  : conversation.otherMembers.map(o => (
+                  : conversation.members.map(o => (
                     <Avatar key={o.id} name={o.userName} src={o.avatar} />
                   ))}
               </AvatarGroup>

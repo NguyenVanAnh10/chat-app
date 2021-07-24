@@ -1,4 +1,4 @@
-import React, { useContext, useEffect as useReactEffect } from 'react';
+import React from 'react';
 import {
   Drawer,
   DrawerBody,
@@ -11,26 +11,13 @@ import {
 import ListItem from 'components/ListItem';
 import Notification from 'entities/Notification';
 import NotificationItem from 'components/NotificationItem';
-import { useModel } from 'model';
-import { AccountContext } from 'App';
-import useUsers from 'hooks/useUsers';
-
-const selector = ({ me, users }) => ({
-  me,
-  friendRequests: me.friendRequests.map(f => ({ ...users[f.friendId], ...f })),
-  friendRequestIds: me.friendRequests.map(f => f.friendId) || [],
-});
+import usefriends from 'hooks/useFriends';
+import FriendShip from 'entities/FriendShip';
 
 const NotificationDrawers = ({ isOpen, onClose }) => {
-  const { account } = useContext(AccountContext);
-
-  const [{ friendRequests, friendRequestIds }, { confirmFriendRequest }] = useModel('account', selector);
-  const [, { getUsers }] = useUsers();
-
-  useReactEffect(() => {
-    if (!friendRequestIds.length) return;
-    getUsers({ cachedKey: friendRequestIds.join(','), userIds: friendRequestIds.join(',') });
-  }, [friendRequestIds]);
+  const [{ friendRequestRequesters }, { confirmFriendRequest }] = usefriends({
+    forceFetchingFriendRequesters: true,
+  });
 
   return (
     <Drawer
@@ -46,15 +33,15 @@ const NotificationDrawers = ({ isOpen, onClose }) => {
           <ListItem
             mt="3"
             spacing="7"
-            data={friendRequests}
+            data={friendRequestRequesters}
             emptyText="No notification"
             renderItem={friend => (
               <NotificationItem
                 friend={friend}
                 typeNotification={Notification.NOTIFICATION_FRIEND_REQUEST}
                 onConfirm={() => confirmFriendRequest({
-                  userId: account.id,
-                  friendId: friend.friendId,
+                  friendshipId: friend.friendship.id,
+                  status: FriendShip.ACCEPTED,
                 })}
               />
             )}

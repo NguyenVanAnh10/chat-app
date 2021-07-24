@@ -20,10 +20,14 @@ const Register = lazy(() => import('pages/Register'));
 export const AccountContext = createContext({});
 
 function App() {
-  const [{ account }] = useModel('account', ({ me }) => ({
+  const [{ account }, { getMe }] = useModel('account', ({ me }) => ({
     account: me,
   }));
+  const [token] = useCookie('user_token');
 
+  useReactEffect(() => {
+    token && getMe();
+  }, []);
   return (
     <ChakraProvider>
       <AccountContext.Provider value={{ account }}>
@@ -40,17 +44,14 @@ function App() {
   );
 }
 
+const selector = ({ getMe: getMeState }) => ({
+  loading: getMeState.loading,
+  error: getMeState.error,
+});
 const R = ({ authorize, location, ...rest }) => {
-  const [{ loading }, { getMe }] = useModel('account', ({ getMe: getMeState }) => ({
-    loading: getMeState.loading,
-    error: getMeState.error,
-  }));
-  const [token] = useCookie('token_user');
+  const [{ loading }] = useModel('account', selector);
 
   const { account } = useContext(AccountContext);
-  useReactEffect(() => {
-    token && getMe();
-  }, []);
 
   if (loading) {
     return (

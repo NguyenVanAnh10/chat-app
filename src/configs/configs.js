@@ -1,5 +1,10 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/react-in-jsx-scope */
 import { ContactBookIcon, NotificationBellIcon } from 'components/CustomIcons';
 import { ChatIcon } from '@chakra-ui/icons';
+import Message from 'layouts/Navigation/Message';
+import ContactBook from 'layouts/Navigation/ContactBook';
+import Notification from 'layouts/Navigation/Notification';
 
 export const menuKeys = {
   MESSAGES: 'MESSAGES',
@@ -14,17 +19,17 @@ const configs = {
     {
       id: menuKeys.MESSAGES,
       title: 'Messages',
-      icon: ChatIcon,
+      render: () => <Message icon={ChatIcon} />,
     },
     {
       id: menuKeys.CONTACT_BOOK,
       title: 'Contact Book',
-      icon: ContactBookIcon,
+      render: () => <ContactBook icon={ContactBookIcon} />,
     },
     {
       id: menuKeys.NOTIFICATION,
       title: 'Notification',
-      icon: NotificationBellIcon,
+      render: () => <Notification icon={NotificationBellIcon} />,
     },
   ],
 };

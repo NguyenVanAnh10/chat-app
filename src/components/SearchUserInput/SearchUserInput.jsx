@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Divider,
   Input,
@@ -8,29 +8,25 @@ import {
 import { SearchIcon } from '@chakra-ui/icons';
 import debounce from 'lodash.debounce';
 
-import useUsers from 'hooks/useUsers';
-import { AccountContext } from 'App';
 import ListItem from 'components/ListItem';
+import useUsers from 'hooks/useUsers';
 
 const SearchUserInput = ({
   placeholder,
   hasSearchIcon = true,
-  onUserClick,
   renderResultList,
   renderItem = () => {},
   ...rest
 }) => {
   const [keyword, setKeyword] = useState();
-  const { account } = useContext(AccountContext);
   const debounceRef = useRef();
-  const [{ usersArray: users, getUsersState: { loading } }, { getUsers }] = useUsers();
+  const [{ arrayUsers: users, getUsersState: { loading } }, { getUsers }] = useUsers();
 
   const onHandleSearch = kw => {
     setKeyword(kw);
     if (!kw) return;
     debounceRef.current && debounceRef.current.cancel();
     debounceRef.current = debounce(() => getUsers({
-      userId: account.id,
       keyword: kw,
     }),
     300);
@@ -42,7 +38,6 @@ const SearchUserInput = ({
         {hasSearchIcon && (
           <InputLeftElement
             pointerEvents="none"
-            // eslint-disable-next-line react/no-children-prop
             children={<SearchIcon color="gray.300" />}
           />
         )}

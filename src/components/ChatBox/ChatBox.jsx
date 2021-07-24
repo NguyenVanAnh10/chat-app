@@ -1,59 +1,48 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useBreakpointValue, VStack } from '@chakra-ui/react';
+import React, { useRef, memo, useContext } from 'react';
+import { VStack } from '@chakra-ui/react';
 
 import MessageList from 'components/MessageList';
 import MessageInput from 'components/MessageInput';
 import ChatHeader from 'components/ChatHeader';
-import useConversation from 'hooks/useConversation';
-import { AccountContext } from 'App';
+import MainLayout from 'layouts/MainLayout';
+import { MenuContext } from 'contexts/menuContext';
+import useMessages from 'hooks/useMessages';
 
-import styles from './ChatBox.module.scss';
+const ChatBox = memo(() => {
+  const { menuState } = useContext(MenuContext);
+  const { conversationId, friendId } = menuState[menuState.active];
 
-const ChatBox = ({ conversationId }) => {
-  const { account } = useContext(AccountContext);
-  const [{ conversation, seeMessagesState }, { seeMessages }] = useConversation(conversationId);
-  const isMobileScreen = useBreakpointValue({ base: true, md: false });
-  const [height, setHeight] = useState(() => window.innerHeight || '100vh');
-
+  const [
+    { unseenMessagesState, seeMessagesState, conversation },
+    { seeMessages },
+  ] = useMessages({ conversationId, friendId });
   const messagesContainerRef = useRef();
   const bottomMessagesBoxRef = useRef();
-  const chatBoxRef = useRef();
-
-  useEffect(() => {
-    window.addEventListener('resize', e => {
-      if (!chatBoxRef.current || !isMobileScreen) return;
-      setHeight(e.target.innerHeight);
-    });
-  }, [isMobileScreen]);
 
   const onHandleSeeNewMessages = () => {
-    if (!conversation.newMessageNumber || seeMessagesState.loading) return;
-    seeMessages({ conversationId, userId: account.id });
+    if (!unseenMessagesState.total || seeMessagesState.loading) return;
+    seeMessages({ conversationId: conversationId || conversation.id });
   };
 
-  if (!conversationId) return null;
   return (
-    <VStack
-      ref={chatBoxRef}
-      className={styles.ChatBox}
-      h={`${height}px`}
-      w="100%"
-      spacing="0"
-      onClick={onHandleSeeNewMessages}
-      onMouseEnter={onHandleSeeNewMessages}
-      onMouseLeave={onHandleSeeNewMessages}
-    >
-      <ChatHeader conversationId={conversationId} />
-      <MessageList
-        conversationId={conversationId}
-        ref={messagesContainerRef}
-        bottomMessagesBoxRef={bottomMessagesBoxRef}
-      />
-      <MessageInput
-        conversationId={conversationId}
-        bottomMessagesBoxRef={bottomMessagesBoxRef}
-      />
-    </VStack>
+    <MainLayout>
+      <VStack
+        w="100%"
+        spacing="0"
+        onClick={onHandleSeeNewMessages}
+        onMouseEnter={onHandleSeeNewMessages}
+        onMouseLeave={onHandleSeeNewMessages}
+      >
+        <ChatHeader />
+        <MessageList
+          ref={messagesContainerRef}
+          bottomMessagesBoxRef={bottomMessagesBoxRef}
+        />
+        <MessageInput
+          bottomMessagesBoxRef={bottomMessagesBoxRef}
+        />
+      </VStack>
+    </MainLayout>
   );
-};
+});
 export default ChatBox;

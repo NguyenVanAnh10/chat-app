@@ -1,338 +1,261 @@
+import produce from 'immer';
+import remove from 'lodash.remove';
+import reverse from 'lodash.reverse';
+
 import {
   getMessage,
   getMessages,
-  getConversation,
-  getConversations,
   sendMessage,
-  haveSeenMessages,
-  createConversation,
+  seenMessages,
+  getUnseenMessages,
 } from 'services/message';
-import accountServices from 'services/account';
-
-const { getMe } = accountServices;
+import Conversation from 'entities/Conversation';
 
 const messageModel = {
   name: 'message',
   state: {
     messages: {}, // {[id]: message}
     getMessages: {}, // {[cachedKey]: {ids: [], loading: Boolean, error: {}}}
+    getUnseenMessages: {},
     getMessage: {},
-    conversations: {},
-    getConversations: { ids: [] }, // {ids: [], loading, error}
-    getConversation: {},
-    createConversation: {},
     seeMessages: {},
     sendMessage: {},
   },
   reducers: {
-    getMessages: (state, { status, payload }) => {
+    getMessages: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            messages: payload.messages.reduce(
-              (s, msg) => ({ ...s, [msg.id]: msg }),
-              state.messages,
-            ),
-            getMessages: {
-              ...state.getMessages,
-              [payload.cachedKey]: { ids: [
-                ...(state.getMessages[payload.cachedKey]?.ids || []),
-                ...payload.messages
-                  .map(m => m.id)
-                  .filter(id => !state.getMessages[payload.cachedKey]?.ids?.includes(id)),
-              ] },
-            },
-          };
+          state.messages = payload.messages.reduce(
+            (s, msg) => ({ ...s, [msg.id]: msg }),
+            state.messages,
+          );
+          state.getMessages[payload.cachedKey] = {
+            total: payload.total,
+            ids: [
+              ...reverse(payload.messages
+                .map(m => m.id)
+                .filter(id => !state.getMessages[payload.cachedKey]?.ids?.includes(id))),
+              ...(state.getMessages[payload.cachedKey]?.ids || []),
+            ] };
+          break;
         case 'error':
-          return {
-            ...state,
-            getMessages: {
-              ...state.getMessages,
-              [payload.cachedKey]: { error: payload.error },
-            },
+          state.getMessages[payload.cachedKey] = {
+            ...state.getMessages[payload.cachedKey],
+            error: payload.error,
           };
+          break;
         default:
-          return {
-            ...state,
-            getMessages: {
-              ...state.getMessages,
-              [payload.cachedKey]: {
-                loading: true,
-                ...state.getMessages[payload.cachedKey],
-              },
-            },
+          state.getMessages[payload.cachedKey] = {
+            loading: true,
+            ...state.getMessages[payload.cachedKey],
           };
+          break;
       }
-    },
-    getMessage: (state, { status, payload }) => {
+    }),
+    getMessagesWithoutLoading: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            messages: {
-              ...state.messages,
-              [payload.message.id]: payload.message,
-            },
-            getMessages: {
-              ...state.getMessages,
-              [payload.cachedKey]: {
-                ids: [
-                  ...(state.getMessages[payload.cachedKey]?.ids || []),
-                  payload.message.id,
-                ],
-              },
-            },
-            getMessage: { [payload.cachedKey]: {} },
-            conversations: {
-              ...state.conversations,
-              [payload.message.conversationId]: {
-                ...state.conversations[payload.message.conversationId],
-                messageIds: [
-                  ...(state.conversations[payload.message.conversationId].messageIds || []),
-                  payload.message.id],
-              },
-            },
-          };
-        case 'error':
-          return {
-            ...state,
-            getMessage: {
-              [payload.cachedKey]: {
-                error: payload.error,
-              },
-            },
-          };
-        default:
-          return {
-            ...state,
-            getMessage: {
-              [payload.cachedKey]: { loading: true },
-            },
-          };
-      }
-    },
-    getConversations: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            conversations: payload.reduce(
-              (s, r) => ({ ...s, [r.id]: r }),
-              state.conversations,
-            ),
-            getConversations: {
-              ...state.getConversations,
-              ids: payload.map(r => r.id),
-            },
-          };
-        case 'error':
-          return { ...state, getConversations: { error: payload } };
-        default:
-          return { ...state, getConversations: { loading: true } };
-      }
-    },
-    getConversation: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            conversations: { ...state.conversations, [payload.id]: payload },
-            getConversations: {
-              ids: state.getConversations.ids.includes(payload.id)
-                ? state.getConversations.ids
-                : [...state.getConversations.ids, payload.id],
-            },
-            getConversation: { id: payload.id },
-          };
-        case 'error':
-          return { ...state, getConversation: { error: payload } };
-        default:
-          return { ...state, getConversation: { loading: true } };
-      }
-    },
-    createConversation: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            createConversation: payload,
-          };
-        case 'error':
-          return { ...state, createConversation: { error: payload } };
-        default:
-          return { ...state, createConversation: { loading: true } };
-      }
-    },
-    sendMessage: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            messages: {
-              ...state.messages,
-              [payload.keyMsg]: undefined,
-              [payload.message.id]: {
-                ...payload.message,
-                contentBlob: state.messages[payload.keyMsg].contentBlob,
-              },
-            },
-            getMessages: {
-              ...state.getMessages,
-              [payload.cachedKey]: {
-                ids: [
-                  ...(state.getMessages[payload.cachedKey]?.ids || []).filter(
-                    id => id !== payload.keyMsg,
-                  ),
-                  payload.message.id,
-                ],
-              },
-            },
-            sendMessage: {
-              [payload.keyMsg]: undefined,
-            },
-          };
-        case 'error':
-          return {
-            ...state,
-            messages: {
-              ...state.messages,
-              [payload.keyMsg]: {
-                ...state.messages[payload.keyMsg],
-                error: payload.error,
-              },
-            },
-            sendMessage: {
-              [payload.keyMsg]: { error: payload.error },
-            },
-          };
-        default:
-          return {
-            ...state,
-            messages: {
-              ...state.messages,
-              [payload.keyMsg]: payload,
-            },
-            sendMessage: {
-              [payload.keyMsg]: {
-                loading: true,
-              },
-            },
-            getMessages: {
-              ...state.getMessages,
-              [payload.conversationId]: {
-                ids: [
-                  ...(state.getMessages[payload.conversationId]?.ids || []),
-                  payload.keyMsg,
-                ],
-              },
-            },
-          };
-      }
-    },
-    seeMessages: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            messages: payload.messages.reduce(
-              (s, m) => ({ ...s, [m.id]: m }),
-              state.messages,
-            ),
-            seeMessages: {
-              ...state.seeMessages,
-              [payload.conversationId]: {},
-            },
-          };
-        case 'error':
-          return {
-            ...state,
-            seeMessages: {
-              ...state.seeMessages,
-              [payload.conversationId]: {
-                error: payload.error,
-              },
-            },
-          };
-        default:
-          return {
-            ...state,
-            seeMessages: {
-              ...state.seeMessages,
-              [payload.conversationId]: {
-                loading: true,
-              },
-            },
-          };
-      }
-    },
-    getMessagesOtherUserHasSeen: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            messages: payload.reduce(
-              (s, m) => ({ ...s, [m.id]: m }),
-              state.messages,
-            ),
-          };
+          state.messages = payload.messages.reduce(
+            (s, msg) => ({ ...s, [msg.id]: msg }),
+            state.messages,
+          );
+          state.getMessages[payload.cachedKey] = {
+            total: payload.total,
+            ids: [
+              ...reverse(payload.messages
+                .map(m => m.id)
+                .filter(id => !state.getMessages[payload.cachedKey]?.ids?.includes(id))),
+              ...(state.getMessages[payload.cachedKey]?.ids || []),
+            ] };
+          break;
         case 'error':
           return state;
         default:
           return state;
       }
-    },
+    }),
+    getMessage: produce((state, status, payload) => {
+      switch (status) {
+        case 'success':
+          state.messages[payload.message.id] = payload.message;
+          state.getMessages[payload.cachedKey] = {
+            total: payload.total,
+            ids: [
+              ...(state.getMessages[payload.cachedKey]?.ids || []),
+              payload.message.id,
+            ],
+          };
+          break;
+        case 'error':
+          state.getMessage[payload.cachedKey] = {
+            error: payload.error,
+          };
+          break;
+        default:
+          state.getMessage[payload.cachedKey] = { loading: true };
+          break;
+      }
+    }),
+    sendMessage: produce((state, status, payload) => {
+      switch (status) {
+        case 'success':
+          delete state.messages[payload.keyMsg];
+          state.messages[payload.message.id] = { ...payload.message };
+
+          if (typeof payload.message.conversation === 'object') {
+            state.messages[payload.message.id].conversation = payload.message.conversation.id;
+            delete state.getMessages[payload.cachedKey];
+            state.getMessages[payload.message.conversation.id] = {
+              total: 1,
+              ids: [payload.message.id],
+            };
+            state.sendMessage = {};
+
+            break;
+          }
+
+          state.getMessages[payload.cachedKey] = {
+            total: (state.getMessages[payload.cachedKey]?.total || 0) + 1,
+            ids: [
+              ...(state.getMessages[payload.cachedKey]?.ids || []).filter(
+                id => id !== payload.keyMsg,
+              ),
+              payload.message.id,
+            ],
+          };
+          state.sendMessage = {};
+          break;
+        case 'error':
+          state.sendMessage = { error: payload };
+          state.messages[payload.keyMsg] = {
+            ...state.messages[payload.keyMsg],
+            error: payload.error,
+          };
+          break;
+        default:
+          state.sendMessage = { loading: true };
+          state.messages[payload.keyMsg] = { sending: true, ...payload };
+          state.getMessages[payload.conversationId || payload.friendId] = {
+            ...state.getMessages[payload.conversationId || payload.friendId],
+            ids: !state.getMessages[payload.conversationId || payload.friendId]?.ids
+              ?.includes(payload.keyMsg) ? [
+                ...(state.getMessages[payload.conversationId || payload.friendId]?.ids || []),
+                payload.keyMsg,
+              ] : [...(state.getMessages[payload.conversationId || payload.friendId]?.ids || [])],
+          };
+          break;
+      }
+    }),
+    seeMessages: produce((state, status, payload) => {
+      switch (status) {
+        case 'success':
+          state.messages = payload.messages.reduce(
+            (s, m) => ({ ...s, [m.id]: m }),
+            state.messages,
+          );
+          state.seeMessages[payload.conversationId] = {};
+          state.getUnseenMessages.all.total -= payload.total || 0;
+          remove(state.getUnseenMessages.all, id => payload.messages.some(m => m.id === id));
+          delete state.getUnseenMessages[payload.conversationId];
+          break;
+        case 'error':
+          state.seeMessages[payload.conversationId] = { error: payload };
+          break;
+        default:
+          state.seeMessages[payload.conversationId] = {
+            loading: true,
+          };
+          break;
+      }
+    }),
+    getMessagesOtherUserHasSeen: produce((state, status, payload) => {
+      switch (status) {
+        case 'success':
+          state.messages = payload.reduce(
+            (s, m) => ({ ...s, [m.id]: m }),
+            state.messages,
+          );
+          break;
+        case 'error':
+          return state;
+        default:
+          return state;
+      }
+    }),
+    getUnseenMessages: produce((state, status, payload) => {
+      switch (status) {
+        case 'success':
+          state.messages = payload.messages.reduce(
+            (s, msg) => ({ ...s, [msg.id]: msg }),
+            state.messages,
+          );
+          state.getUnseenMessages[payload.cachedKey] = {
+            total: payload.total,
+            ids: [
+              ...(state.getUnseenMessages[payload.cachedKey]?.ids || []),
+              ...payload.messages
+                .map(m => m.id)
+                .filter(id => !state.getUnseenMessages[payload.cachedKey]?.ids?.includes(id)),
+            ] };
+          break;
+        case 'error':
+          state.getUnseenMessages[payload.cachedKey] = {
+            ...state.getUnseenMessages[payload.cachedKey],
+            error: payload.error,
+          };
+          break;
+        default:
+          state.getUnseenMessages[payload.cachedKey] = {
+            loading: true,
+            ...state.getUnseenMessages[payload.cachedKey],
+          };
+          break;
+      }
+    }),
   },
   effects: {
-    getMessages: async ({ cachedKey, ...payload }, onSuccess, onError) => {
+    getMessages: async (payload, onSuccess, onError) => {
+      const { cachedKey, ...params } = payload;
       try {
-        onSuccess({ cachedKey, messages: await getMessages(payload) });
+        const { messages, total } = await getMessages(params);
+        onSuccess({ cachedKey, messages, total });
+      } catch (error) {
+        onError({ cachedKey, error });
+      }
+    },
+    getMessagesWithoutLoading: async (payload, onSuccess, onError) => {
+      const { cachedKey, ...params } = payload;
+      try {
+        const { messages, total } = await getMessages(params);
+        onSuccess({ cachedKey, messages, total });
+      } catch (error) {
+        onError({ cachedKey, error });
+      }
+    },
+    getUnseenMessages: async (payload, onSuccess, onError) => {
+      const { cachedKey, ...params } = payload;
+      try {
+        const { messages, total } = await getUnseenMessages(params);
+        onSuccess({ cachedKey, messages, total });
       } catch (error) {
         onError({ cachedKey, error });
       }
     },
     getMessage: async ({ cachedKey, ...payload }, onSuccess, onError) => {
       try {
-        onSuccess({ cachedKey, message: await getMessage(payload) });
+        const { message, total } = await getMessage(payload);
+        onSuccess({ cachedKey, message, total });
       } catch (error) {
         onError({ cachedKey, error });
       }
     },
-    getConversations: async (payload, onSuccess, onError) => {
-      try {
-        if (!payload.userId) {
-          // eslint-disable-next-line no-param-reassign
-          payload.userId = (await getMe()).id;
-        }
-        onSuccess(await getConversations(payload.userId));
-      } catch (error) {
-        onError(error);
-      }
-    },
-    createConversation: async (payload, onSuccess, onError) => {
-      try {
-        onSuccess(await createConversation(payload));
-      } catch (error) {
-        onError(error);
-      }
-    },
-    getConversation: async (payload, onSuccess, onError) => {
-      try {
-        if (!payload.userId) {
-          // eslint-disable-next-line no-param-reassign
-          payload.userId = (await getMe()).id;
-        }
-        onSuccess(await getConversation(payload));
-      } catch (error) {
-        onError(error);
-      }
-    },
     sendMessage: async ({ keyMsg, ...payload }, onSuccess, onError) => {
       try {
+        const message = await sendMessage(payload);
         onSuccess({
-          cachedKey: payload.conversationId,
+          cachedKey: payload.conversationId || payload.friendId,
           keyMsg,
-          message: (await sendMessage(payload)).message,
+          message,
         });
       } catch (error) {
         onError({ keyMsg, error });
@@ -340,9 +263,11 @@ const messageModel = {
     },
     seeMessages: async (payload, onSuccess, onError) => {
       try {
+        const { messages, total } = await seenMessages(payload);
         onSuccess({
           conversationId: payload.conversationId,
-          messages: await haveSeenMessages(payload),
+          messages,
+          total,
         });
       } catch (error) {
         onError({ conversationId: payload.conversationId, error: {} });
@@ -358,13 +283,21 @@ const messageModel = {
   },
   actions: {
     getMessages: params => params,
+    getMessagesWithoutLoading: params => params,
     getMessage: params => params,
-    getConversation: params => params,
-    getConversations: userId => ({ userId }),
-    createConversation: params => params,
+    getUnseenMessages: params => params,
     sendMessage: params => params,
     seeMessages: params => params,
     getMessagesOtherUserHasSeen: params => params,
+  },
+  crossReducers: {
+    sendMessage: produce((state, payload) => {
+      const { conversation } = payload.message;
+      if (typeof conversation === 'object') {
+        state.conversation.conversations[conversation.id] = new Conversation(conversation);
+        state.conversation.getConversations.ids.push(conversation.id);
+      }
+    }),
   },
 };
 

@@ -1,54 +1,51 @@
-import { useContext, useEffect as useReactEffect, useMemo } from 'react';
+import { useEffect as useReactEffect, useMemo } from 'react';
 
 import { useModel } from 'model';
-import { AccountContext } from 'App';
+import { useConversation } from './useConversations';
 
-const opts = { fetchData: false };
-
-const selector = ({ messages, getMessages, conversations }) => ({
-  mesagesState: getMessages,
+const selector = ({ getUnseenMessages, getMessages, messages, seeMessages, sendMessage }) => ({
+  unseenMessagesState: getUnseenMessages,
+  messagesState: getMessages,
   messages,
-  conversations,
+  seeMessagesState: seeMessages,
+  sendMessageState: sendMessage,
 });
-const useMessages = (conversationId, options = opts) => {
-  const {
-    account: { id: userId },
-  } = useContext(AccountContext);
-
-  const cachedKey = conversationId || 'all';
+const useMessages = ({ conversationId, friendId, skip = 0, limit = 20 }, options) => {
+  const [{ conversation }] = useConversation({ friendId, conversationId });
+  let cachedKey = conversationId || conversation.id || 'all';
+  if (!options?.forceFetchingUnseenMessages && !conversationId && !conversation.id) {
+    cachedKey = friendId;
+  }
   const [
-    { messages, mesagesState, conversations },
-    { getMessages, sendMessage, seeMessages },
+    { messages, unseenMessagesState, messagesState, seeMessagesState, sendMessageState },
+    { getUnseenMessages, getMessages, seeMessages, sendMessage },
   ] = useModel('message', selector);
 
-  const total = conversations[cachedKey]?.messageIds?.length || 0;
-  // TODO
   useReactEffect(() => {
-    conversationId
-      && userId
-      && options.fetchData
-      && (!mesagesState[cachedKey]
-      || (mesagesState[cachedKey]?.ids?.length < 20
-        && mesagesState[cachedKey]?.ids?.length < total))
-      && getMessages({ conversationId, userId, limit: 20, skip: 0, cachedKey });
-  }, [conversationId, userId]);
+    if (!options?.forceFetchingUnseenMessages || unseenMessagesState[cachedKey]
+      || unseenMessagesState[cachedKey]?.loading) return;
+    getUnseenMessages({ cachedKey, conversationId });
+  }, []);
 
-  const loadMoreMessages = ({ conversationId: chatconversationId, limit, skip }) => {
-    chatconversationId
-      && userId
-      && getMessages({ conversationId: chatconversationId, userId, limit, skip, cachedKey });
-  };
+  useReactEffect(() => {
+    if ((!conversationId && !conversation.id) || !options?.forceFetchingMessages
+    || messagesState[cachedKey]?.loading || sendMessageState.loading) return;
+    if ((messagesState[cachedKey]
+        && !(messagesState[cachedKey].ids?.length < messagesState[cachedKey].total
+        && messagesState[cachedKey].ids?.length < limit))) return;
 
-  if (!conversationId || !userId) return [{ messages: [] }, {}];
+    getMessages({
+      limit,
+      skip,
+      cachedKey,
+      conversationId: conversationId || conversation.id,
+    });
+  }, [cachedKey]);
 
-  const aggregateMessages = useMemo(() => (mesagesState[cachedKey]?.ids || [])
+  const aggregateMessages = useMemo(() => (messagesState[cachedKey]?.ids || [])
     .map(id => messages[id])
-    .sort((msg1, msg2) => {
-      if (msg1.createAt > msg2.createAt) return 1;
-      if (msg1.createAt < msg2.createAt) return -1;
-      return 0;
-    }).reduce((s, c, index, msgArr) => {
-      if (!index || msgArr[index - 1].senderId !== c.senderId) {
+    .reduce((s, c, index, arr) => {
+      if (index === 0 || arr[index - 1].sender !== c.sender) {
         return [...s, c];
       }
       return [
@@ -60,22 +57,19 @@ const useMessages = (conversationId, options = opts) => {
             : [s[s.length - 1], c],
         },
       ];
-    }, []), [messages, cachedKey]);
+    },
+    []),
+  [messages, cachedKey]);
 
   return [
     {
-      total,
-      aggregateMessages,
-      messages: (mesagesState[cachedKey]?.ids || [])
-        .map(id => messages[id])
-        .sort((msg1, msg2) => {
-          if (msg1.createAt > msg2.createAt) return 1;
-          if (msg1.createAt < msg2.createAt) return -1;
-          return 0;
-        }),
-      getMessagesState: mesagesState[cachedKey] || {},
+      messages: aggregateMessages,
+      messagesState: messagesState[cachedKey] || {},
+      unseenMessagesState: unseenMessagesState[cachedKey] || {},
+      seeMessagesState: seeMessagesState[cachedKey] || {},
+      conversation,
     },
-    { getMessages, sendMessage, seeMessages, loadMoreMessages },
+    { getMessages, seeMessages, sendMessage },
   ];
 };
 export default useMessages;

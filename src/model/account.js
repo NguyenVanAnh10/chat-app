@@ -1,304 +1,263 @@
-import accountServices from 'services/account';
-import { getUsers, getUser } from 'services/user';
+/* eslint-disable no-param-reassign */
+import produce from 'immer';
 
-const {
-  getMe, login, logout, addFriend,
-  confirmFriendRequest, getFriendRequest,
-  updateMe, getFriends, register, setPassword,
+import {
+  getMe,
+  login,
+  logout,
+  updateMe,
+  getFriend,
+  getFriends,
+  setPassword,
+  updateOnline,
   validateEmail,
-} = accountServices;
+  updateStaticMe,
+  registerAccount,
+  addFriendRequest,
+  getFriendRequester,
+  confirmFriendRequest,
+  getFriendRequestAddressees,
+} from 'services/account';
+import { mergeObjects } from 'utils';
 
 const accountModel = {
   name: 'account',
   state: {
-    me: {
-      friendIds: [],
-      addFriends: [],
-      friendRequests: [],
-      frequentlyUsedIcons: [],
-    },
-    addFrequentlyUsedIcon: {}, // {loading, error}
-    addFriend: {}, // {[id]: { loading, error}}
-    confirmFriendRequest: {}, // {[id]: { loading, error}}
+    me: {},
     getMe: {}, // { loading, error}
     updateMe: {},
+    getFriends: {
+      ids: [],
+    }, // { loading, error}
+    getFriend: {
+    }, // { loading, error}
+    addressees: {
+      ids: [],
+    },
+    requesters: {
+      ids: [],
+    },
+    confirmFriendRequest: {}, // {[id]: { loading, error}}
+    registerAccount: {},
+    validateEmail: {},
+    setPassword: {},
     updateOnline: {},
     login: {},
     logout: {},
-    users: {}, // {[id]: message}
-    getFriends: {}, // { loading, error}
-    getUsers: {}, // { ids, loading, error}
-    getUser: {}, // { loading, error}
-    register: {},
-    setPassword: {},
-    validateEmail: {},
+    statics: {
+      icons: [],
+    },
   },
   reducers: {
-    getMe: (state, { status, payload }) => {
+    getMe: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            me: { ...state.me, ...payload },
-            getMe: {},
-          };
+          const { statics, ...data } = payload;
+          state.me = data;
+          state.statics.icons = statics?.icons || state.statics.icons;
+          state.getMe = {};
+          break;
         case 'error':
-          return { ...state, getMe: { error: payload } };
+          state.getMe = { error: payload };
+          break;
         default:
-          return { ...state, getMe: { loading: true } };
+          state.getMe = { loading: true };
+          break;
       }
-    },
-    updateMe: (state, { status, payload }) => {
+    }),
+    updateMe: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            me: { ...state.me, ...payload },
-            updateMe: {},
-          };
+          state.me = payload;
+          state.updateMe = {};
+          return;
         case 'error':
-          return { ...state, updateMe: { error: payload } };
+          state.updateMe.error = payload;
+          break;
         default:
-          return { ...state, updateMe: { loading: true } };
+          state.updateMe.loading = true;
       }
-    },
-    addFrequentlyUsedIcon: (state, { status, payload }) => {
+    }),
+    getFriends: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            me: { ...state.me, ...payload },
-            updateMe: {},
-          };
+          state.getFriends.ids = payload.map(u => u.id);
+          break;
         case 'error':
-          return { ...state, addFrequentlyUsedIcon: { error: payload } };
+          state.getFriends.error = payload;
+          return;
         default:
-          return { ...state, addFrequentlyUsedIcon: { loading: true } };
+          state.getFriends.loading = true;
       }
-    },
-    register: (state, { status, payload }) => {
+    }),
+    getFriend: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            register: {},
-          };
+          state.getFriends.ids.push(payload.id);
+          state.getFriend = {};
+          break;
         case 'error':
-          return { ...state, register: { error: payload } };
+          state.getFriend.error = payload;
+          return;
         default:
-          return { ...state, register: { loading: true } };
+          state.getFriend.loading = true;
       }
-    },
-    setPassword: (state, { status, payload }) => {
+    }),
+    getFriendRequestAddressees: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            setPassword: {},
+          state.addressees = {
+            ids: payload.map(a => a.id),
           };
+          break;
         case 'error':
-          return { ...state, setPassword: { error: payload } };
+          state.addressees.error = payload;
+          break;
         default:
-          return { ...state, setPassword: { loading: true } };
+          state.addressees.loading = true;
+          break;
       }
-    },
-    validateEmail: (state, { status, payload }) => {
+    }),
+    addFriendRequest: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            validateEmail: {},
-          };
+          state.addressees.ids.push(payload.id);
+          state.addressees.error = null;
+          state.addressees.loading = false;
+          break;
         case 'error':
-          return { ...state, validateEmail: { error: payload } };
+          state.addressees.loading = false;
+          state.addressees.error = payload;
+          break;
         default:
-          return { ...state, validateEmail: { loading: true } };
+          state.addressees.loading = true;
+          break;
       }
-    },
-    updateOnline: (state, { status, payload }) => {
+    }),
+    getFriendRequester: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            me: { ...state.me, ...payload },
-            updateOnline: {},
+          state.requesters = {
+            ids: payload.map(a => a.id),
           };
+          break;
         case 'error':
-          return { ...state, updateOnline: { error: payload } };
+          state.requesters.error = payload;
+          break;
         default:
-          return { ...state, updateOnline: { loading: true } };
+          state.requesters.loading = true;
+          break;
       }
-    },
-    login: (state, { status, payload }) => {
+    }),
+    confirmFriendRequest: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            me: { ...state.me, ...payload },
-            login: {},
-          };
+          state.requesters.ids = state.addressees.ids.filter(id => id !== payload.friendship.id);
+          state.getFriends.ids.push(payload.id);
+          state.confirmFriendRequest = {};
+          break;
         case 'error':
-          return { ...state, login: { error: payload } };
+          state.confirmFriendRequest = { error: payload };
+          break;
         default:
-          return { ...state, login: { loading: true } };
+          state.confirmFriendRequest.loading = true;
+          break;
       }
-    },
-    logout: (state, { status, payload }) => {
+    }),
+    registerAccount: produce((state, status, payload) => {
+      switch (status) {
+        case 'success':
+          state.registerAccount = {};
+          break;
+        case 'error':
+          state.registerAccount.error = payload;
+          break;
+        default:
+          state.registerAccount.loading = true;
+          break;
+      }
+    }),
+    validateEmail: produce((state, status, payload) => {
+      switch (status) {
+        case 'success':
+          state.validateEmail = {};
+          break;
+        case 'error':
+          state.validateEmail.error = payload;
+          break;
+        default:
+          state.validateEmail.loading = true;
+          break;
+      }
+    }),
+    setPassword: produce((state, status, payload) => {
+      switch (status) {
+        case 'success':
+          state.setPassword = {};
+          break;
+        case 'error':
+          state.setPassword.error = payload;
+          break;
+        default:
+          state.setPassword.loading = true;
+          break;
+      }
+    }),
+    updateOnline: produce((state, status, payload) => {
+      switch (status) {
+        case 'success':
+          state.updateOnline = {};
+          state.me.online = payload.online;
+          break;
+        case 'error':
+          state.updateOnline.error = payload;
+          break;
+        default:
+          state.updateOnline.loading = true;
+          break;
+      }
+    }),
+    login: produce((state, status, payload) => {
+      switch (status) {
+        case 'success':
+          state.me = payload;
+          state.login = {};
+          break;
+        case 'error':
+          state.login = { error: payload };
+          break;
+        default:
+          state.login.loading = true;
+      }
+    }),
+    logout: produce((state, status, payload) => {
       switch (status) {
         case 'success':
           return state;
         case 'error':
-          return { ...state, logout: { error: payload } };
+          state.logout.error = payload;
+          break;
         default:
-          return { ...state, logout: { loading: true } };
+          state.logout.loading = true;
+          break;
       }
-    },
-    getFriends: (state, { status, payload }) => {
+    }),
+    updateStatic: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          return {
-            ...state,
-            users: payload.reduce(
-              (s, u) => ({ ...s, [u.id]: u }),
-              state.users,
-            ),
-            getFriends: { ids: payload.map(u => u.id) },
-          };
+          state.statics.icons = payload.icons;
+          state.statics.error = null;
+          state.statics.loading = false;
+          break;
         case 'error':
-          return { ...state, getFriends: { error: payload } };
+          state.statics.error = payload;
+          state.statics.loading = false;
+          break;
         default:
-          return { ...state, getFriends: { loading: true } };
+          state.statics.loading = true;
+          break;
       }
-    },
-    getUsers: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            users: payload.users.reduce(
-              (s, u) => ({ ...s, [u.id]: u }),
-              state.users,
-            ),
-            getUsers: {
-              ...state.getUsers,
-              [payload.keyword]: {
-                ids: payload.users.map(u => u.id),
-              },
-              error: null,
-              loading: false,
-            },
-          };
-        case 'error':
-          return { ...state,
-            getUsers: {
-              ...state.getUsers,
-              error: payload,
-              loading: false,
-            },
-          };
-        default:
-          return { ...state,
-            getUsers: {
-              ...state.getUsers,
-              loading: true,
-              error: null,
-            },
-          };
-      }
-    },
-    getUser: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            users: {
-              ...state.users,
-              [payload.id]: payload,
-            },
-            getUser: { id: payload.id },
-          };
-        case 'error':
-          return { ...state, getUser: { error: payload } };
-        default:
-          return { ...state, getUser: { loading: true } };
-      }
-    },
-    addFriend: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            me: {
-              ...state.me,
-              addFriends: [...state.me.addFriends, payload],
-            },
-            addFriend: {},
-          };
-        case 'error':
-          return {
-            ...state,
-            addFriend: { [payload.friendId]: { error: payload.error } },
-          };
-        default:
-          return {
-            ...state,
-            addFriend: {
-              [payload.friendId]: { loading: true },
-            },
-          };
-      }
-    },
-    confirmFriendRequest: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            me: {
-              ...state.me,
-              friendIds: [...state.me.friendIds, payload.friendId],
-              friendRequests: state.me.friendRequests.filter(f => f.friendId !== payload.friendId),
-            },
-            confirmFriendRequest: {},
-          };
-        case 'error':
-          return {
-            ...state,
-            confirmFriendRequest: { [payload.friendId]: { error: payload.error } },
-          };
-        default:
-          return {
-            ...state,
-            confirmFriendRequest: {
-              [payload.friendId]: { loading: true },
-            },
-          };
-      }
-    },
-    getFriendRequest: (state, { status, payload }) => {
-      switch (status) {
-        case 'success':
-          return {
-            ...state,
-            me: {
-              ...state.me,
-              friendRequests: [...state.me.friendRequests, payload],
-            },
-            getFriendRequest: {},
-          };
-        case 'error':
-          return {
-            ...state,
-            getFriendRequest: { [payload.friendId]: { error: payload.error } },
-          };
-        default:
-          return {
-            ...state,
-            getFriendRequest: {
-              [payload.friendId]: { loading: true },
-            },
-          };
-      }
-    },
+    }),
   },
   effects: {
     getMe: async (payload, onSuccess, onError) => {
@@ -315,23 +274,51 @@ const accountModel = {
         onError(error);
       }
     },
-    addFrequentlyUsedIcon: async (payload, onSuccess, onError) => {
+    getFriends: async (payload, onSuccess, onError) => {
       try {
-        onSuccess(await updateMe(payload));
+        onSuccess(await getFriends(payload));
       } catch (error) {
         onError(error);
       }
     },
-    register: async (payload, onSuccess, onError) => {
+    getFriend: async (payload, onSuccess, onError) => {
       try {
-        onSuccess(await register(payload));
+        onSuccess(await getFriend(payload));
       } catch (error) {
         onError(error);
       }
     },
-    setPassword: async (payload, onSuccess, onError) => {
+    getFriendRequestAddressees: async (payload, onSuccess, onError) => {
       try {
-        onSuccess(await setPassword(payload));
+        onSuccess(await getFriendRequestAddressees(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
+    addFriendRequest: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await addFriendRequest(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
+    getFriendRequester: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await getFriendRequester(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
+    confirmFriendRequest: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await confirmFriendRequest(payload));
+      } catch (error) {
+        onError({ error, friendId: payload.friendId });
+      }
+    },
+    registerAccount: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await registerAccount(payload));
       } catch (error) {
         onError(error);
       }
@@ -343,9 +330,16 @@ const accountModel = {
         onError(error);
       }
     },
+    setPassword: async (payload, onSuccess, onError) => {
+      try {
+        onSuccess(await setPassword(payload));
+      } catch (error) {
+        onError(error);
+      }
+    },
     updateOnline: async (payload, onSuccess, onError) => {
       try {
-        onSuccess(await updateMe(payload));
+        onSuccess(await updateOnline(payload));
       } catch (error) {
         onError(error);
       }
@@ -365,68 +359,57 @@ const accountModel = {
         onError(error);
       }
     },
-    getFriends: async (payload, onSuccess, onError) => {
+    updateStatic: async (payload, onSuccess, onError) => {
       try {
-        onSuccess(await getFriends(payload));
+        onSuccess(await updateStaticMe(payload));
       } catch (error) {
         onError(error);
-      }
-    },
-    getUsers: async ({ cachedKey, ...payload }, onSuccess, onError) => {
-      try {
-        onSuccess({
-          keyword: payload.keyword || cachedKey,
-          users: await getUsers(payload),
-        });
-      } catch (error) {
-        onError(error);
-      }
-    },
-    getUser: async (payload, onSuccess, onError) => {
-      try {
-        onSuccess(await getUser(payload));
-      } catch (error) {
-        onError(error);
-      }
-    },
-    addFriend: async (payload, onSuccess, onError) => {
-      try {
-        onSuccess(await addFriend(payload));
-      } catch (error) {
-        onError({ error, friendId: payload.friendId });
-      }
-    },
-    confirmFriendRequest: async (payload, onSuccess, onError) => {
-      try {
-        onSuccess(await confirmFriendRequest(payload));
-      } catch (error) {
-        onError({ error, friendId: payload.friendId });
-      }
-    },
-    getFriendRequest: async (payload, onSuccess, onError) => {
-      try {
-        onSuccess(await getFriendRequest(payload));
-      } catch (error) {
-        onError({ error, friendId: payload.friendId });
       }
     },
   },
   actions: {
     getMe: () => ({}),
     updateMe: params => params,
-    register: params => params,
+    registerAccount: params => params,
     setPassword: params => params,
     validateEmail: params => params,
     updateOnline: params => params,
     login: params => params,
     logout: () => ({}),
-    getUsers: params => params,
+    getFriend: id => id,
     getFriends: params => params,
-    getUser: params => params,
-    addFriend: params => params,
+    addFriendRequest: params => params,
     confirmFriendRequest: params => params,
-    getFriendRequest: params => params,
-    addFrequentlyUsedIcon: params => params,
+    getFriendRequestAddressees: params => params,
+    getFriendRequester: params => params,
+    updateStatic: params => params,
+  },
+  crossReducers: {
+    getMe: produce((state, payload) => {
+      const data = { ...payload };
+      delete data.createdAt;
+      delete data.statics;
+      state.user.users[payload.id] = mergeObjects([state.user.users[payload.id], data]);
+    }),
+    getFriend: produce((state, payload) => {
+      state.user.users[payload.id] = mergeObjects([state.user.users[payload.id], payload]);
+    }),
+    getFriends: produce((state, payload) => {
+      payload.forEach(p => {
+        state.user.users[p.id] = mergeObjects([state.user.users[p.id], p]);
+      });
+    }),
+    confirmFriendRequest: produce((state, payload) => {
+      state.user.users[payload.id] = mergeObjects([state.user.users[payload.id], payload]);
+    }),
+    addFriendRequest: produce((state, payload) => {
+      state.user.users[payload.id] = mergeObjects([state.user.users[payload.id], payload]);
+    }),
+    getFriendRequester: produce((state, payload) => {
+      payload.forEach(p => {
+        state.user.users[p.id] = mergeObjects([state.user.users[p.id], p]);
+      });
+    }),
   },
 };
 

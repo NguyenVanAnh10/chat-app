@@ -23,6 +23,9 @@ const api = async ({ method, path, params }) => {
     case 'POST':
       opts.body = JSON.stringify(params);
       break;
+    case 'PUT':
+      opts.body = JSON.stringify(params);
+      break;
     default:
       break;
   }
@@ -43,9 +46,8 @@ const api = async ({ method, path, params }) => {
   }
 };
 
-const apis = {
+export default {
   GET: (path, params) => api({ method: 'GET', path, params }),
   POST: (path, params) => api({ method: 'POST', path, params }),
+  PUT: (path, params) => api({ method: 'PUT', path, params }),
 };
-
-export default apis;

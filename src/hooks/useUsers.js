@@ -1,43 +1,28 @@
-import { useModel } from 'model';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
-const selector = ({ users, getUsers, me }) => ({
+import { useModel } from 'model';
+
+const selector = ({ users, getUsers }) => ({
   users,
-  me,
   getUsersState: getUsers,
 });
 
 const useUsers = () => {
-  const [{ users, me, getUsersState }, { getUsers }] = useModel('account', selector);
-  const cachedKey = useRef('');
-  const [, forceRender] = useState({});
+  const [{ users, getUsersState }, { getUsers, getUser }] = useModel('user', selector);
+  const [kw, setKw] = useState('');
 
-  const getCachedUsers = params => {
-    cachedKey.current = params.keyword;
-    if (getUsersState[params.keyword]) {
-      forceRender({});
-      return;
-    }
-    getUsers(params);
+  const getUsersByKeyword = ({ keyword }) => {
+    setKw(keyword);
+    if (getUsersState[keyword]) return;
+    getUsers({ keyword });
   };
 
   return [{
     users,
-    friends: (me.friendIds || []).map(id => users[id] || {}),
-    usersArray: getUsersState[cachedKey.current]?.ids?.sort((userId1, userId2) => {
-      if (me.friendIds?.includes(userId1) && !me.friendIds?.includes(userId2)) return 1;
-      if (!me.friendIds?.includes(userId1) && me.friendIds?.includes(userId2)) return -1;
-      return 0;
-    })?.map(id => users[id]) || [],
-    getUsersState: {
-      loading: getUsersState.loading,
-      error: getUsersState.error,
-    },
-  },
-  {
-    getUsers: getCachedUsers,
-  },
-  ];
+    getUsersState: getUsersState[kw] || {},
+    arrayUsers: (getUsersState[kw]?.ids || []).map(id => users[id] || {}),
+
+  }, { getUsers: getUsersByKeyword, getUser }];
 };
 
 export default useUsers;

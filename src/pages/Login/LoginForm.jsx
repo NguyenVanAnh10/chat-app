@@ -24,9 +24,14 @@ import styles from './Login.module.scss';
 const LoginForm = ({ onOpenRegister, loginState: { error, loading } }) => {
   const { control, handleSubmit } = useForm();
 
-  const [, { login }] = useModel('account', () => ({}));
+  const [, { login }] = useModel('account', state => state);
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
   const onHandleLogin = handleSubmit(user => login(user));
+  const handleKeyDown = e => {
+    if (e.keyCode === 13) {
+      onHandleLogin();
+    }
+  };
 
   return (
     <Flex
@@ -36,13 +41,14 @@ const LoginForm = ({ onOpenRegister, loginState: { error, loading } }) => {
       className={styles.LoginWrapper}
       bg="blue.200"
       bgGradient="linear(blue.200 0%,blue.100 70%)"
+      onKeyDown={handleKeyDown}
     >
       <Box
         boxShadow="md"
         bg="whiteAlpha.900"
         borderRadius="md"
         padding="8"
-        color="blackAlpha.800"
+        color="gray.600"
       >
         <Heading size="lg" textAlign="center">AloRice</Heading>
         <form className="form">

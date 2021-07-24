@@ -18,22 +18,22 @@ import { useUpdateEffect } from 'react-use';
 
 const SearchFriendInput = ({
   placeholder,
-  usersData = [],
+  friendData = [],
   hasSearchIcon = true,
-  onUserClick,
+  onFriendClick,
   renderResultList,
   ...rest
 }) => {
-  const [users, setUsers] = useState(usersData);
+  const [friends, setFriends] = useState(friendData);
   const debounceRef = useRef();
 
   useUpdateEffect(() => {
-    setUsers(usersData);
-  }, [usersData]);
+    setFriends(friendData);
+  }, [friendData]);
 
   const onHandleSearch = kw => {
     debounceRef.current && debounceRef.current.cancel();
-    debounceRef.current = debounce(() => setUsers(usersData
+    debounceRef.current = debounce(() => setFriends(friendData
       .filter(u => u.userName.includes(kw))),
     300);
     debounceRef.current();
@@ -56,44 +56,37 @@ const SearchFriendInput = ({
           onChange={e => onHandleSearch(e.target.value)}
         />
       </InputGroup>
-      {!!users.length && (
+      {!!friends.length && (
         <>
           <Divider mb="5" mt="1" />
-          {renderResultList ? (
-            renderResultList(users)
-          ) : (
-            <DefaultResultList users={users} onUserClick={onUserClick} />
-          )}
+          <List spacing="2">
+            {friends.filter(u => !!u.id).map(u => (
+              <ListItem
+                key={u.id}
+                d="flex"
+                cursor="pointer"
+                bg="pink.50"
+                p="2"
+                borderRadius="md"
+                transition="all 0.3s ease"
+                _hover={{ bg: 'blue.100' }}
+                onClick={() => onFriendClick(u)}
+              >
+                <Avatar name={u.userName} src={u.avatar} />
+                <VStack ml="4" alignItems="flex-start" spacing={0} color="gray.600">
+                  <Text fontSize="md" fontWeight="bold">
+                    {u.userName}
+                  </Text>
+                  <Text fontSize="sm">{u.email}</Text>
+                </VStack>
+              </ListItem>
+            ))}
+          </List>
         </>
       )}
-      {!users.length && <EmptyList pt="5" content="Friend not found" />}
+      {!friends.length && <EmptyList pt="5" content="Friend not found" />}
     </>
   );
 };
-const DefaultResultList = ({ users, onUserClick }) => (
-  <List spacing="2">
-    {users.filter(u => !!u.id).map(u => (
-      <ListItem
-        key={u.id}
-        d="flex"
-        cursor="pointer"
-        bg="pink.50"
-        p="2"
-        borderRadius="md"
-        transition="all 0.3s ease"
-        _hover={{ bg: 'blue.100' }}
-        onClick={() => onUserClick(u)}
-      >
-        <Avatar name={u.userName} src={u.avatar} />
-        <VStack ml="4" alignItems="flex-start" spacing={0} color="gray.600">
-          <Text fontSize="md" fontWeight="bold">
-            {u.userName}
-          </Text>
-          <Text fontSize="sm">{u.email}</Text>
-        </VStack>
-      </ListItem>
-    ))}
-  </List>
-);
 
 export default SearchFriendInput;

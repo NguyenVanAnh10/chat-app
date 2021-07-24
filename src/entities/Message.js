@@ -2,11 +2,11 @@ import data from 'components/EmojiPicker/data';
 
 const { emojis } = data;
 export default class Message {
-  static CONTENT_TYPE_NOTIFICATION = 'CONTENT_TYPE_NOTIFICATION';
-  static CONTENT_TYPE_IMAGE = 'CONTENT_TYPE_IMAGE';
-  static CONTENT_TYPE_VIDEO = 'CONTENT_TYPE_VIDEO';
-  static CONTENT_TYPE_AUDIO = 'CONTENT_TYPE_AUDIO';
-  static CONTENT_TYPE_TEXT = 'CONTENT_TYPE_TEXT';
+  static CONTENT_TYPE_NOTIFICATION = 'NOTIFICATION';
+  static CONTENT_TYPE_IMAGE = 'IMAGE';
+  static CONTENT_TYPE_VIDEO = 'VIDEO';
+  static CONTENT_TYPE_AUDIO = 'AUDIO';
+  static CONTENT_TYPE_TEXT = 'TEXT';
   // eslint-disable-next-line no-useless-escape
   static EMOJI_CODE_REGEX = /\:([A-U]|[a-t])[0-9]{1,2}/g;
 

@@ -1,4 +1,4 @@
-import React, { useContext, useState, forwardRef } from 'react';
+import React, { useContext, useState, forwardRef, useRef, useLayoutEffect } from 'react';
 import {
   HStack,
   IconButton,
@@ -6,63 +6,82 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { RepeatIcon } from '@chakra-ui/icons';
+import { usePrevious } from 'react-use';
 
-import useConversation from 'hooks/useConversation';
 import { AccountContext } from 'App';
-import useMessages from 'hooks/useMessages';
 import MessageListCard from 'components/MessageListCard';
 import ReviewImageModal from 'components/ReviewImageModal';
 import MessageContent from 'components/MessageContent';
 import Message from 'entities/Message';
 import Avatar from 'components/Avatar';
+import useMessages from 'hooks/useMessages';
+import useUsers from 'hooks/useUsers';
+import { MenuContext } from 'contexts/menuContext';
 
-import styles from './MessageList.module.scss';
+import { useConversation } from 'hooks/useConversations';
 
-const MessageList = forwardRef(({ conversationId, bottomMessagesBoxRef }, ref) => {
+const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
+  const { menuState } = useContext(MenuContext);
+  const { conversationId, friendId } = menuState[menuState.active];
+
   const [
-    { messages, aggregateMessages, getMessagesState, total },
-    { loadMoreMessages },
-  ] = useMessages(conversationId, { fetchData: true });
+    { messages, messagesState: { total, loading, error, ids } },
+    { getMessages, sendMessage },
+  ] = useMessages({ conversationId, friendId }, { forceFetchingMessages: true });
+  const [{ conversation }] = useConversation({ friendId, conversationId });
+  const [{ users }] = useUsers();
 
-  const [{ conversation }] = useConversation(conversationId);
   const { account } = useContext(AccountContext);
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [imgSrc, setImgSrc] = useState();
 
   const handleLoadmore = () => {
-    loadMoreMessages({
+    if (ids?.length >= total) return;
+    getMessages({
       limit: 20,
-      conversationId,
-      skip: messages.length,
+      conversationId: conversation.id,
+      cachedKey: conversation.id,
+      skip: ids?.length,
     });
   };
+
+  const lastMessageRef = useRef();
+  const prevMessageNumber = usePrevious(ids?.length);
+
+  useLayoutEffect(() => {
+    if (!prevMessageNumber && !loading && !error) {
+      bottomMessagesBoxRef.current?.scrollIntoView(false);
+      return;
+    }
+    if (prevMessageNumber && !loading && !error) {
+      ref.current.scrollTop = lastMessageRef.current.offsetTop - 8;
+    }
+  }, [loading]);
+
+  useLayoutEffect(() => {
+    bottomMessagesBoxRef.current?.scrollIntoView(false);
+  }, [conversationId, friendId]);
 
   return (
     <>
       <MessageListCard
         ref={ref}
         total={total}
-        conversationId={conversationId}
-        messages={messages}
-        className={styles.MessageList}
-        getState={getMessagesState} // {loading, error}
-        isLoadmore={total > messages.length}
-        isNewMessages={conversation.newMessageNumber}
-        bottomMessagesBoxRef={bottomMessagesBoxRef}
+        hasLoadmore={ids?.length < total}
+        firstLoading={loading && typeof prevMessageNumber === 'undefined'}
+        loadingMore={loading && typeof prevMessageNumber !== 'undefined'}
         onLoadmore={handleLoadmore}
       >
-        {aggregateMessages.map((m, i, msgsArr) => (
+        {messages.map((m, i) => (
           <Stack
             key={m.id || m.keyMsg}
             spacing="1"
             w="100%"
-            direction={m.senderId !== account.id ? 'row' : 'row-reverse'}
+            direction={m.sender !== account.id ? 'row' : 'row-reverse'}
           >
             <Avatar
-              name={m.senderId !== account.id
-                ? conversation.membersObj?.[m.senderId]?.userName : account.userName}
-              src={m.senderId !== account.id
-                ? conversation.membersObj?.[m.senderId]?.avatar : account.avatar}
+              name={users[m.sender]?.userName}
+              src={users[m.sender]?.avatar}
               size="sm"
               zIndex="2"
             />
@@ -71,14 +90,20 @@ const MessageList = forwardRef(({ conversationId, bottomMessagesBoxRef }, ref) =
               <IconButton
                 bg="transparent"
                 icon={<RepeatIcon color="red.500" />}
+                onClick={() => {
+                  // resend
+                  delete m.error;
+                  delete m.aggregateMsg;
+                  delete m.sending;
+                  sendMessage(m);
+                }}
               />
               )}
               {!m.aggregateMsg ? (
                 <MessageContent
-                  conversationId={conversationId}
                   message={m}
-                  members={conversation.membersObj || {}}
-                  showSeenUsers={i === msgsArr.length - 1}
+                  ref={i === 0 ? lastMessageRef : null}
+                  showSeenUsers
                   onImageClick={() => {
                     if (m.contentType !== Message.CONTENT_TYPE_IMAGE) return;
                     setImgSrc(m.content);
@@ -88,16 +113,15 @@ const MessageList = forwardRef(({ conversationId, bottomMessagesBoxRef }, ref) =
               ) : (
                 <Stack
                   spacing="2"
-                  align={m.senderId !== account.id ? 'flex-start' : 'flex-end'}
+                  align={m.sender !== account.id ? 'flex-start' : 'flex-end'}
                 >
                   {m.aggregateMsg.map((mm, ii, aa) => (
                     <MessageContent
-                      conversationId={conversationId}
+                      ref={i === 0 && ii === 0 ? lastMessageRef : null}
                       key={mm.id || mm.keyMsg}
                       message={mm}
-                      members={conversation.membersObj || {}}
                       showStatusMessage={ii === aa.length - 1}
-                      showSeenUsers={i === msgsArr.length - 1}
+                      showSeenUsers={ii === aa.length - 1}
                       onImageClick={() => {
                         if (mm.contentType !== Message.CONTENT_TYPE_IMAGE) { return; }
                         setImgSrc(mm.content);

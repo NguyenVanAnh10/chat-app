@@ -24,8 +24,8 @@ import { useModel } from 'model';
 const RegisterModal = ({ isOpen, onClose }) => {
   const { control, handleSubmit, reset } = useForm({ defaultValues: {} });
   const [isSuccess, setIsSuccess] = useState();
-  const [{ registerState: { loading, error } }, { register }] = useModel('account', state => ({
-    registerState: state.register,
+  const [{ registerState: { loading, error } }, { registerAccount }] = useModel('account', state => ({
+    registerState: state.registerAccount,
   }));
 
   useUpdateEffect(() => {
@@ -42,7 +42,7 @@ const RegisterModal = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   const onHandleSubmit = handleSubmit(data => {
-    register(data);
+    registerAccount(data);
   });
 
   return (

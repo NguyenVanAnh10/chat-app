@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Image, VStack } from '@chakra-ui/react';
 
 import MessageStatus from 'components/MessageStatus';
+import { AccountContext } from 'App';
 
-// TODO blink image (blob local image - url server image)
 const ImageMessage = ({
-  message, members, account, onClick,
+  message, onClick,
 }) => {
   const [visible, setVisible] = useState(false);
+  const { account } = useContext(AccountContext);
   return (
     <VStack
       mr="2"
@@ -21,7 +22,7 @@ const ImageMessage = ({
         borderRadius="lg"
         objectFit="contain"
         display={!visible ? 'block' : 'none'}
-        objectPosition={message.senderId === account.id ? 'right' : 'left'}
+        objectPosition={message.sender === account.id ? 'right' : 'left'}
         src={message.contentBlob}
         // onLoad={() => {
         //   containerRef.current.scrollIntoView(false);
@@ -43,7 +44,7 @@ const ImageMessage = ({
           // setTimeout(() => URL.revokeObjectURL(message.contentBlob), 100);
         }}
       />
-      <MessageStatus message={message} account={account} members={members} />
+      <MessageStatus message={message} />
     </VStack>
   );
 };

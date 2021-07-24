@@ -7,35 +7,17 @@ import {
   ModalOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
-import isEqual from 'lodash.isequal';
 import { SearchIcon } from '@chakra-ui/icons';
 
-import { useModel } from 'model';
 import SearchFriendInput from 'components/SearchFriendInput';
-import { AccountContext } from 'App';
+import usefriends from 'hooks/useFriends';
+import { MenuContext } from 'contexts/menuContext';
+import { menuKeys } from 'configs/configs';
 
-const SearchUserButton = ({ onSelectUser }) => {
-  const [{ conversations }] = useModel(
-    'message',
-    ({ conversations: conversationsModel }) => ({
-      conversations: Object.keys(conversationsModel).map(id => conversationsModel[id]),
-    }),
-  );
-  const [{ friends }] = useModel(
-    'account',
-    ({ me, users }) => ({
-      friends: (me.friendIds || []).map(id => users[id]),
-    }),
-  );
-  const { account } = useContext(AccountContext);
+const SearchUserButton = () => {
+  const { setMenuState } = useContext(MenuContext);
+  const [{ friends }] = usefriends({ forceFetchingFriends: true });
   const { isOpen, onClose, onOpen } = useDisclosure();
-
-  const onCreateConversationChat = toUserId => {
-    const conversation = conversations.find(r => isEqual(r.userIds.sort(),
-      [account.id, toUserId].sort()));
-    onSelectUser(conversation.id);
-    onClose();
-  };
 
   return (
     <>
@@ -57,8 +39,18 @@ const SearchUserButton = ({ onSelectUser }) => {
         <ModalContent>
           <ModalBody py="5">
             <SearchFriendInput
-              usersData={friends}
-              onUserClick={u => onCreateConversationChat(u.id)}
+              friendData={friends}
+              onFriendClick={friend => {
+                setMenuState(prev => ({
+                  ...prev,
+                  [menuKeys.CONTACT_BOOK]: {
+                    ...prev[menuKeys.CONTACT_BOOK],
+                    friendId: friend.id,
+                  },
+                  active: menuKeys.CONTACT_BOOK,
+                }));
+                onClose();
+              }}
             />
           </ModalBody>
         </ModalContent>

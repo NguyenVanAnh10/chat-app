@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState, useMemo, createRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState, useMemo, createRef } from 'react';
 import { SimpleGrid, Text, VStack, Box, HStack, Button, IconButton, Tooltip } from '@chakra-ui/react';
 import debounce from 'lodash.debounce';
 
@@ -7,7 +7,6 @@ import emojiBlocks from './emoji';
 import emojiData from './data';
 
 import useObserver from 'hooks/useObserver';
-import { AccountContext } from 'App';
 import { useModel } from 'model';
 
 import styles from './EmojiPicker.module.scss';
@@ -16,13 +15,14 @@ const { catagory, emojis } = emojiData;
 
 const EmojiPicker = memo(({ onSelect }) => {
   const containerRef = useRef();
-  const { account } = useContext(AccountContext);
 
-  const [, { addFrequentlyUsedIcon }] = useModel('account', () => ({}));
+  const [{ frequentlyUsedIcons }, { updateStatic }] = useModel('account', state => ({
+    frequentlyUsedIcons: state.statics.icons,
+  }));
 
   const data = useMemo(() => emojiBlocks.map(e => e.key === 'frequently_used' ? ({
     ...e,
-    emojiIds: account.frequentlyUsedIcons || [],
+    emojiIds: frequentlyUsedIcons,
     emojiBlockRef: createRef(),
     topSentinelRef: createRef(),
     bottomSentinelRef: createRef(),
@@ -32,7 +32,7 @@ const EmojiPicker = memo(({ onSelect }) => {
     emojiBlockRef: createRef(),
     topSentinelRef: createRef(),
     bottomSentinelRef: createRef(),
-  })), []);
+  })).filter(e => !!e.emojiIds.length), []);
 
   return (
     <Box
@@ -83,11 +83,8 @@ const EmojiPicker = memo(({ onSelect }) => {
                       key: id,
                       coordinates: emojis[id],
                     });
-                    e.key !== 'frequently_used' && !account.frequentlyUsedIcons?.includes(id)
-                    && addFrequentlyUsedIcon({
-                      id: account.id,
-                      frequentlyUsedIcon: id,
-                    });
+                    e.key !== 'frequently_used' && !frequentlyUsedIcons.includes(id)
+                    && updateStatic({ icon: id });
                   }}
                 />
               ))}

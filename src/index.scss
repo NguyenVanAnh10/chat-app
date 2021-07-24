@@ -1,10 +1,13 @@
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
+
 html {
   font-size: 16px;
-  @media (max-width: 767.98px) {
-    & {
-      font-size: 17px;
-    }
-  }
+  // @media (max-width: 767.98px) {
+  //   & {
+  //     font-size: 17px;
+  //   }
+  // }
 }
 body {
   margin: 0;
@@ -14,7 +17,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   height: 100%;
 }
-html, body {margin: 0; height: 100%; overflow: hidden}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
@@ -26,5 +34,3 @@ input:-webkit-autofill {
     transition: background-color 5000s ease-in-out 0s;
   }
 }
-
-

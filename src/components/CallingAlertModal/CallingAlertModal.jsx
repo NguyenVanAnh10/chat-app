@@ -11,10 +11,12 @@ import {
 
 import { useModel } from 'model';
 
+const selector = ({ users, getUser }) => ({
+  caller: users[getUser.id] || {},
+});
+
 const CallingAlertModal = ({ callerId, onDecline, isOpen, onAnswer }) => {
-  const [{ caller }, { getUser }] = useModel('account', ({ users, getUser: getUserState }) => ({
-    caller: users[getUserState.id] || {},
-  }));
+  const [{ caller }, { getUser }] = useModel('user', selector);
   useReactEffect(() => {
     callerId && getUser({ id: callerId });
   }, [callerId]);

@@ -6,11 +6,13 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { initRegisters } from 'model';
 import messageModel from 'model/message';
+import userModel from 'model/user';
+import conversationModel from 'model/conversation';
 import accountModel from 'model/account';
 
 import './index.scss';
 
-initRegisters({ messageModel, accountModel });
+initRegisters({ messageModel, userModel, conversationModel, accountModel });
 
 ReactDOM.render(
   <React.StrictMode>

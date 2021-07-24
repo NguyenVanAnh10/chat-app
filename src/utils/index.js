@@ -13,3 +13,5 @@ export const stopStreame = stream => {
   if (!stream) return;
   stream.getTracks().forEach(track => track.stop());
 };
+
+export const mergeObjects = ([obj1, obj2]) => ({ ...obj1, ...obj2 });

@@ -1,30 +1,25 @@
-import React, { useContext } from 'react';
+import React, { forwardRef } from 'react';
 
-import { AccountContext } from 'App';
 import ImageMessage from 'components/ImageMessage';
 import Message from 'entities/Message';
 import NotificationMessage from 'components/NotificationMessage';
 import TextMessage from 'components/TextMessage';
 
-const MessageContent = ({
-  conversationId,
+const MessageContent = forwardRef(({
   message,
-  members,
   containerRef,
   onImageClick,
   showSeenUsers = true,
   showStatusMessage = true,
-}) => {
-  const { account } = useContext(AccountContext);
+}, ref) => {
   switch (message.contentType) {
     case Message.CONTENT_TYPE_IMAGE:
       // TODO not show .svg
       return (
         <ImageMessage
+          ref={ref}
           showStatusMessage={showStatusMessage}
           message={message}
-          members={members}
-          account={account}
           containerRef={containerRef}
           onClick={onImageClick}
         />
@@ -32,24 +27,21 @@ const MessageContent = ({
     case Message.CONTENT_TYPE_NOTIFICATION:
       return (
         <NotificationMessage
-          conversationId={conversationId}
+          ref={ref}
           showStatusMessage={showStatusMessage}
           message={message}
-          members={members}
-          account={account}
         />
       );
     default:
       return (
         <TextMessage
+          ref={ref}
           message={message}
-          members={members}
-          account={account}
           showSeenUsers={showSeenUsers}
           showStatusMessage={showStatusMessage}
         />
       );
   }
-};
+});
 
 export default MessageContent;

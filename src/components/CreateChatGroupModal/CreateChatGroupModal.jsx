@@ -1,6 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useUpdateEffect } from 'react-use';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Button,
   FormControl,
   FormErrorMessage,
@@ -16,65 +19,43 @@ import {
   Tag,
   TagCloseButton,
   TagLabel,
-  useToast,
 } from '@chakra-ui/react';
 import { Controller, useForm } from 'react-hook-form';
 
-import { useModel } from 'model';
-import { AccountContext } from 'App';
+import useConversations from 'hooks/useConversations';
 import SearchFriendInput from 'components/SearchFriendInput';
-import useUsers from 'hooks/useUsers';
-
-const selector = ({ createConversation, conversations: conversationsModel }) => ({
-  createConversationState: createConversation,
-  conversations: Object.keys(conversationsModel).map(id => conversationsModel[id]),
-});
+import usefriends from 'hooks/useFriends';
 
 const CreateChatGroupModal = ({ isOpen, onClose, onSelectConversation }) => {
-  const [{ createConversationState, conversations }, { createConversation }] = useModel('message', selector);
-  const [{ friends }] = useUsers();
+  const [{ createState }, { createConversation }] = useConversations();
+  const [{ friends }] = usefriends({ forceFetchingFriends: true });
 
-  const toast = useToast();
-  const { control, handleSubmit } = useForm();
-  const { account } = useContext(AccountContext);
+  const { control, handleSubmit, reset } = useForm({ name: '', userIds: [] });
 
   useUpdateEffect(() => {
-    if (createConversationState.loading || createConversationState.error) return;
-    onSelectConversation(createConversationState.id);
+    if (createState.loading || createState.error) return;
+    onSelectConversation(createState.id);
     onClose();
-  }, [createConversationState]);
+  }, [createState]);
 
   const onHandleSumbit = handleSubmit(data => {
     if (data.userIds.length < 2) return;
-    const userIds = [account.id, ...data.userIds.map(u => u.id)].sort().join(',');
-    const conversation = conversations.find(r => r.userIds.sort().join(',') === userIds);
-
-    if (conversation) {
-      onSelectConversation(conversation.id);
-      toast({
-        description: 'Group existed',
-        status: 'error',
-        duration: 4000,
-        isClosable: true,
-      });
-      onClose();
-      return;
-    }
     createConversation({
       name: data.name,
-      userIds,
-      createrId: account.id,
+      userIds: data.userIds.map(u => u.id),
     });
   });
-  const onHandleAddUser = (user, { users, onAdd }) => {
-    if (users.find(u => u.id === user.id)) return;
-    onAdd([...users, user]);
+
+  const handleClose = () => {
+    reset({ name: '', userIds: [] });
+    onClose();
   };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
+    <Modal isOpen={isOpen} onClose={handleClose} closeOnOverlayClick={false}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Create group chat</ModalHeader>
+        <ModalHeader color="gray.600">Create group chat</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Controller
@@ -100,13 +81,13 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectConversation }) => {
               validate: value => value.length > 1 || 'Group chat is greater 2 friends',
             }}
             render={({
-              field: { onChange, value: users },
+              field: { onChange, value },
               fieldState: { error, invalid },
             }) => (
               <>
                 <FormControl isInvalid={invalid} mt="5">
                   <HStack spacing={2}>
-                    {users.map(u => (
+                    {value.map(u => (
                       <Tag
                         size="md"
                         key={u.id}
@@ -114,7 +95,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectConversation }) => {
                       >
                         <TagLabel>{u.userName}</TagLabel>
                         <TagCloseButton onClick={() => {
-                          onChange(users.filter(user => u.id !== user.id));
+                          onChange(value.filter(user => u.id !== user.id));
                         }}
                         />
                       </Tag>
@@ -126,24 +107,33 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectConversation }) => {
                 </FormControl>
                 <SearchFriendInput
                   mt="5"
-                  usersData={friends}
+                  friendData={friends}
                   hasSearchIcon={false}
                   placeholder="Find friend..."
-                  onUserClick={u => onHandleAddUser(u, { users, onAdd: onChange })}
+                  onFriendClick={friend => {
+                    if (value.some(f => friend.id === f.id)) return;
+                    onChange([...value, friend]);
+                  }}
                 />
               </>
             )}
           />
+          {createState.error && (
+          <Alert status="error" mt="5">
+            <AlertIcon />
+            <AlertDescription>{createState.error.message || createState.error.name || 'Something went wrong'}</AlertDescription>
+          </Alert>
+          )}
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={onClose}>
+          <Button mr={3} colorScheme="blue" onClick={onClose} variant="ghost">
             Cancel
           </Button>
           <Button
             colorScheme="blue"
             onClick={onHandleSumbit}
-            isLoading={createConversationState.loading}
+            isLoading={createState.loading}
           >
             Create
           </Button>

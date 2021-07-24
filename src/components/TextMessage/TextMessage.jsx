@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Box, Text } from '@chakra-ui/react';
 
 import BubbleMessage from 'components/BubbleMessage';
@@ -11,10 +11,10 @@ import data from 'components/EmojiPicker/data';
 
 const { emojis } = data;
 
-const TextMessage = ({ message, members, account, showStatusMessage, showSeenUsers }) => {
+const TextMessage = forwardRef(({ message, showStatusMessage, showSeenUsers }, ref) => {
   const messageBlocks = Message.getInputMessage(message.content);
   return (
-    <BubbleMessage message={message}>
+    <BubbleMessage message={message} ref={ref}>
       <Box>
         {messageBlocks.map(b => emojis[b] ? (
           <Emoji
@@ -29,13 +29,11 @@ const TextMessage = ({ message, members, account, showStatusMessage, showSeenUse
       {showStatusMessage && (
       <MessageStatus
         message={message}
-        account={account}
-        members={members}
         showSeenUsers={showSeenUsers}
       />
       )}
     </BubbleMessage>
   );
-};
+});
 
 export default TextMessage;

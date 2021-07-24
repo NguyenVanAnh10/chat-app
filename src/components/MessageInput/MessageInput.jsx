@@ -1,5 +1,5 @@
 import React, {
-  useContext, Suspense, useRef,
+  useContext, useRef,
   useState, useCallback, useEffect,
   memo,
 } from 'react';
@@ -24,17 +24,25 @@ import decorator, { getResetEditorState } from './emojiDecorator';
 
 import styles from './MessageInput.module.scss';
 import 'draft-js/dist/Draft.css';
+import { MenuContext } from 'contexts/menuContext';
+import { useConversation } from 'hooks/useConversations';
+import LazyMount from 'components/LazyMount';
+import EmojiPickerLoading from 'components/EmojiPicker/EmojiPickerLoading';
 
 const EmojiPicker = React.lazy(() => import('components/EmojiPicker'));
 
-const MessageInput = ({ conversationId, bottomMessagesBoxRef, ...rest }) => {
+const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
   const { account } = useContext(AccountContext);
+  const { menuState } = useContext(MenuContext);
+  const { conversationId, friendId } = menuState[menuState.active];
+  const [{ conversation }] = useConversation({ conversationId, friendId });
+
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty(decorator));
 
   const domEditorRef = useRef();
   const editorStateRef = useRef();
 
-  const [, { sendMessage }] = useModel('message', () => ({}));
+  const [, { sendMessage }] = useModel('message', state => state);
 
   useEffect(() => {
     editorStateRef.current = editorState;
@@ -47,35 +55,33 @@ const MessageInput = ({ conversationId, bottomMessagesBoxRef, ...rest }) => {
       return;
     }
     sendMessage({
-      conversationId,
+      conversationId: conversationId || conversation.id,
+      friendId,
       keyMsg: uuid(),
       contentType: Message.CONTENT_TYPE_TEXT,
       content: message,
-      createAt: Date.now(),
-      senderId: account.id,
-      usersSeenMessage: [account.id],
+      createdAt: new Date(),
+      sender: account.id,
     });
     setEditorState(getResetEditorState(editorStateRef.current));
     bottomMessagesBoxRef.current?.scrollIntoView(false);
-  }, [conversationId]);
+  }, [conversationId, friendId, conversation.id]);
 
   const handleSendImage = useCallback(imageSource => {
     if (!imageSource.base64Image || !imageSource.contentBlob) return;
-
     sendMessage({
-      conversationId,
+      conversationId: conversationId || conversation.id,
       keyMsg: uuid(),
       contentType: Message.CONTENT_TYPE_IMAGE,
       contentBlob: imageSource.contentBlob,
       base64Image: imageSource.base64Image,
-      createAt: Date.now(),
-      senderId: account.id,
-      usersSeenMessage: [account.id],
+      createdAt: new Date(),
+      sender: account.id,
     });
     setTimeout(() => {
       bottomMessagesBoxRef.current?.scrollIntoView(false);
     });
-  }, [conversationId]);
+  }, [conversationId, friendId, conversation.id]);
 
   const onSelectEmoji = useCallback(({ key }) => {
     const newContentState = Modifier.insertText(
@@ -138,32 +144,36 @@ const MessageInput = ({ conversationId, bottomMessagesBoxRef, ...rest }) => {
   );
 };
 
-const EmojiPickerButton = memo(({ onSelectEmoji }) => (
-  <Popover placement="bottom-end">
-    <PopoverTrigger>
-      <Button
-        colorScheme="blue"
-        variant="ghost"
+const EmojiPickerButton = memo(({ onSelectEmoji }) => {
+  const [trigger, setTrigger] = useState(false);
+  return (
+    <Popover placement="bottom-end">
+      <PopoverTrigger>
+        <Button
+          colorScheme="blue"
+          variant="ghost"
+          _focus="none"
+          fontSize="1.3rem"
+          size="md"
+          px="0"
+          onClick={() => setTrigger(true)}
+        >
+          &#x1F604;
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className={styles.Picker}
         _focus="none"
-        fontSize="1.3rem"
-        size="md"
-        px="0"
+        border="none"
       >
-        &#x1F604;
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent
-      className={styles.Picker}
-      _focus="none"
-      border="none"
-    >
-      <PopoverArrow />
-      <Suspense fallback={<div>Loading...</div>}>
-        <EmojiPicker
-          onSelect={onSelectEmoji}
-        />
-      </Suspense>
-    </PopoverContent>
-  </Popover>
-));
+        <PopoverArrow />
+        <LazyMount trigger={trigger} fallback={<EmojiPickerLoading />}>
+          <EmojiPicker
+            onSelect={onSelectEmoji}
+          />
+        </LazyMount>
+      </PopoverContent>
+    </Popover>
+  );
+});
 export default MessageInput;
