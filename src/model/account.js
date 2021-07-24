@@ -72,10 +72,10 @@ const accountModel = {
           state.updateMe = {};
           return;
         case 'error':
-          state.updateMe.error = payload;
+          state.updateMe = { error: payload };
           break;
         default:
-          state.updateMe.loading = true;
+          state.updateMe = { loading: true };
       }
     }),
     getFriends: produce((state, status, payload) => {
@@ -84,10 +84,10 @@ const accountModel = {
           state.getFriends.ids = payload.map(u => u.id);
           break;
         case 'error':
-          state.getFriends.error = payload;
+          state.getFriends = { error: payload };
           return;
         default:
-          state.getFriends.loading = true;
+          state.getFriends = { loading: true };
       }
     }),
     getFriend: produce((state, status, payload) => {
@@ -97,10 +97,10 @@ const accountModel = {
           state.getFriend = {};
           break;
         case 'error':
-          state.getFriend.error = payload;
+          state.getFriend = { error: payload };
           return;
         default:
-          state.getFriend.loading = true;
+          state.getFriend = { loading: true };
       }
     }),
     getFriendRequestAddressees: produce((state, status, payload) => {
@@ -111,10 +111,10 @@ const accountModel = {
           };
           break;
         case 'error':
-          state.addressees.error = payload;
+          state.addressees = { error: payload };
           break;
         default:
-          state.addressees.loading = true;
+          state.addressees = { loading: true };
           break;
       }
     }),
@@ -127,10 +127,10 @@ const accountModel = {
           break;
         case 'error':
           state.addressees.loading = false;
-          state.addressees.error = payload;
+          state.addressees = { error: payload };
           break;
         default:
-          state.addressees.loading = true;
+          state.addressees = { loading: true };
           break;
       }
     }),
@@ -142,10 +142,10 @@ const accountModel = {
           };
           break;
         case 'error':
-          state.requesters.error = payload;
+          state.requesters = { error: payload };
           break;
         default:
-          state.requesters.loading = true;
+          state.requesters = { loading: true };
           break;
       }
     }),
@@ -160,7 +160,7 @@ const accountModel = {
           state.confirmFriendRequest = { error: payload };
           break;
         default:
-          state.confirmFriendRequest.loading = true;
+          state.confirmFriendRequest = { loading: true };
           break;
       }
     }),
@@ -170,10 +170,10 @@ const accountModel = {
           state.registerAccount = {};
           break;
         case 'error':
-          state.registerAccount.error = payload;
+          state.registerAccount = { error: payload };
           break;
         default:
-          state.registerAccount.loading = true;
+          state.registerAccount = { loading: true };
           break;
       }
     }),
@@ -183,10 +183,10 @@ const accountModel = {
           state.validateEmail = {};
           break;
         case 'error':
-          state.validateEmail.error = payload;
+          state.validateEmail = { error: payload };
           break;
         default:
-          state.validateEmail.loading = true;
+          state.validateEmail = { loading: true };
           break;
       }
     }),
@@ -196,10 +196,10 @@ const accountModel = {
           state.setPassword = {};
           break;
         case 'error':
-          state.setPassword.error = payload;
+          state.setPassword = { error: payload };
           break;
         default:
-          state.setPassword.loading = true;
+          state.setPassword = { loading: true };
           break;
       }
     }),
@@ -210,10 +210,10 @@ const accountModel = {
           state.me.online = payload.online;
           break;
         case 'error':
-          state.updateOnline.error = payload;
+          state.updateOnline = { error: payload };
           break;
         default:
-          state.updateOnline.loading = true;
+          state.updateOnline = { loading: true };
           break;
       }
     }),
@@ -227,7 +227,7 @@ const accountModel = {
           state.login = { error: payload };
           break;
         default:
-          state.login.loading = true;
+          state.login = { loading: true };
       }
     }),
     logout: produce((state, status, payload) => {
@@ -235,10 +235,10 @@ const accountModel = {
         case 'success':
           return state;
         case 'error':
-          state.logout.error = payload;
+          state.logout = { error: payload };
           break;
         default:
-          state.logout.loading = true;
+          state.logout = { loading: true };
           break;
       }
     }),
@@ -250,11 +250,11 @@ const accountModel = {
           state.statics.loading = false;
           break;
         case 'error':
-          state.statics.error = payload;
+          state.statics = { error: payload };
           state.statics.loading = false;
           break;
         default:
-          state.statics.loading = true;
+          state.statics = { loading: true };
           break;
       }
     }),
