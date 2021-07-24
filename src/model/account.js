@@ -84,10 +84,11 @@ const accountModel = {
           state.getFriends.ids = payload.map(u => u.id);
           break;
         case 'error':
-          state.getFriends = { error: payload };
+          state.getFriends.error = payload;
+          state.getFriends.loading = false;
           return;
         default:
-          state.getFriends = { loading: true };
+          state.getFriends.loading = true;
       }
     }),
     getFriend: produce((state, status, payload) => {
@@ -111,10 +112,11 @@ const accountModel = {
           };
           break;
         case 'error':
-          state.addressees = { error: payload };
+          state.addressees.error = payload;
+          state.addressees.loading = false;
           break;
         default:
-          state.addressees = { loading: true };
+          state.addressees.loading = true;
           break;
       }
     }),
@@ -127,10 +129,10 @@ const accountModel = {
           break;
         case 'error':
           state.addressees.loading = false;
-          state.addressees = { error: payload };
+          state.addressees.error = payload;
           break;
         default:
-          state.addressees = { loading: true };
+          state.addressees.loading = true;
           break;
       }
     }),
@@ -140,12 +142,15 @@ const accountModel = {
           state.requesters = {
             ids: payload.map(a => a.id),
           };
+          state.requesters.error = null;
+          state.requesters.loading = false;
           break;
         case 'error':
-          state.requesters = { error: payload };
+          state.requesters.error = payload;
+          state.requesters.loading = false;
           break;
         default:
-          state.requesters = { loading: true };
+          state.requesters.loading = true;
           break;
       }
     }),
@@ -250,11 +255,11 @@ const accountModel = {
           state.statics.loading = false;
           break;
         case 'error':
-          state.statics = { error: payload };
+          state.statics.error = payload;
           state.statics.loading = false;
           break;
         default:
-          state.statics = { loading: true };
+          state.statics.loading = true;
           break;
       }
     }),
