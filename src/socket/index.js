@@ -2,7 +2,7 @@ import { io } from 'socket.io-client';
 
 const socketContainer = {
   initSocket() {
-    this.socket = io(process.env.REACT_APP_HEROKU_API);
+    this.socket = io(process.env.REACT_APP_BACKEND_API);
   },
 };
 

@@ -4,7 +4,7 @@ module.exports = function (app) {
   app.use(
     '/api/v1',
     createProxyMiddleware({
-      target: process.env.REACT_APP_HEROKU_API,
+      target: process.env.REACT_APP_BACKEND_API,
       changeOrigin: true,
     }),
   );
