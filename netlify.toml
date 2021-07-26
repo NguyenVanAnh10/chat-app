@@ -1,7 +1,7 @@
 ## api redirect.
 [[redirects]]
   from = "/api/*"
-  to = "https://35.198.233.17/api/:splat"
+  to = "https://alorice.xyz/api/:splat"
   status = 200
 ## This rule redirects to an external API, signing requests with a secret
 [[redirects]]
