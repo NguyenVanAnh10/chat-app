@@ -50,7 +50,7 @@ const LoginForm = ({ onOpenRegister, loginState: { error, loading } }) => {
         padding="8"
         color="gray.600"
       >
-        <Heading size="lg" textAlign="center">AloRice</Heading>
+        <Heading size="lg" textAlign="center">Alo Rice</Heading>
         <form className="form">
           <VStack spacing={isMobileScreen ? '4' : '6'}>
             <Controller
