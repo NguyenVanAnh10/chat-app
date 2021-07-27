@@ -52,9 +52,10 @@ const ConfirmPasswordRegisterForm = ({ registryToken }) => {
       history.push('/login');
       toast({
         title: 'Set password successfully.',
-        description: 'You have done account registration, let login app to experience chatting friends',
+        description: "You have done account registration, let's login application to experience chatting to friends and family",
         status: 'success',
         duration: 9000,
+        position: 'top',
         isClosable: true,
       });
     }
