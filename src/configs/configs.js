@@ -14,7 +14,7 @@ export const menuKeys = {
 };
 
 const configs = {
-  baseAPI: process.env.REACT_APP_BASE_API,
+  baseAPI: process.env.REACT_APP_BASE_API || '/api/v1',
   menus: [
     {
       id: menuKeys.MESSAGES,
