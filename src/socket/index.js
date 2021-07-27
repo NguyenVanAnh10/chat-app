@@ -2,7 +2,9 @@ import { io } from 'socket.io-client';
 
 const socketContainer = {
   initSocket() {
-    this.socket = io(process.env.REACT_APP_BACKEND_API || '/api/v1');
+    this.socket = io(process.env.REACT_APP_BACKEND_API || '/', {
+      path: '/api/v1/socket/',
+    });
   },
 };
 
