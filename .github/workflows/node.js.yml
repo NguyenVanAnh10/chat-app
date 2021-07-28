@@ -22,6 +22,13 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
+    - name: create env file
+      run: |
+        touch .env
+        echo REACT_APP_PASSWORD_TURN =${{ secrets.REACT_APP_PASSWORD_TURN }} >> .env
+        echo REACT_APP_TUN_SERVER =${{ secrets.REACT_APP_TUN_SERVER }} >> .env
+        echo REACT_APP_TURN_SERVER =${{ secrets.REACT_APP_TURN_SERVER }} >> .env
+        echo REACT_APP_USER_TURN =${{ secrets.REACT_APP_USER_TURN }} >> .env
     - run: npm i
     - run: CI=false GENERATE_SOURCEMAP=false npm run build --if-present
     - run: npm test
