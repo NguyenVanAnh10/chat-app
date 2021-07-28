@@ -160,13 +160,13 @@ const useChat = () => {
             },
             {
               urls: `${process.env.REACT_APP_TURN_SERVER}?transport=tcp`,
-              username: 'anhnv',
-              credential: 'rice',
+              username: process.env.REACT_APP_USER_TURN,
+              credential: process.env.REACT_APP_PASSWORD_TURN,
             },
             {
               urls: `${process.env.REACT_APP_TURN_SERVER}?transport=udp`,
-              username: 'anhnv',
-              credential: 'rice',
+              username: process.env.REACT_APP_USER_TURN,
+              credential: process.env.REACT_APP_PASSWORD_TURN,
             },
           ],
         },
