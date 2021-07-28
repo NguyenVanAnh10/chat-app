@@ -32,7 +32,7 @@ const LoginForm = ({ onOpenRegister, loginState: { error, loading } }) => {
       onHandleLogin();
     }
   };
-
+  console.log('process.env.REACT_APP_TURN_SERVER', process.env.REACT_APP_TURN_SERVER);
   return (
     <Flex
       flexDir="column"
