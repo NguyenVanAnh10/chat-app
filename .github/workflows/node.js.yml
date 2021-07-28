@@ -23,13 +23,16 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: create env file
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REACT_APP_USER_TURN: ${{ secrets.REACT_APP_USER_TURN }}
       run: |
         touch .env
         echo REACT_APP_PASSWORD_TURN=${{ secrets.REACT_APP_PASSWORD_TURN }} >> .env
         echo REACT_APP_TUN_SERVER=${{ secrets.REACT_APP_TUN_SERVER }} >> .env
         echo REACT_APP_TURN_SERVER=${{ secrets.REACT_APP_TURN_SERVER }} >> .env
-        echo REACT_APP_USER_TURN=${{ secrets.REACT_APP_USER_TURN }} >> .env
-        echo GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} >> .env
+        echo REACT_APP_USER_TURN=${#REACT_APP_USER_TURN} >> .env
+        echo GITHUB_TOKEN=${#GITHUB_TOKEN} >> .env
         cat .env
     - run: npm i
     - run: CI=false GENERATE_SOURCEMAP=false npm run build --if-present
