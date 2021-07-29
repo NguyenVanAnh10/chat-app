@@ -64,7 +64,9 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
       sender: account.id,
     });
     setEditorState(getResetEditorState(editorStateRef.current));
-    bottomMessagesBoxRef.current?.scrollIntoView(false);
+    setTimeout(() => {
+      bottomMessagesBoxRef.current?.scrollIntoView(false);
+    });
   }, [conversationId, friendId, conversation.id]);
 
   const handleSendImage = useCallback(imageSource => {
