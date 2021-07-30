@@ -41,9 +41,11 @@ const conversationModel = {
       switch (status) {
         case 'success':
           state.conversations[payload.id] = new Conversation(payload);
-          state.getConversations.ids.push(payload.id);
           state.getConversation.loading = false;
           state.getConversation.error = null;
+
+          if (state.getConversations.ids.includes(payload.id)) break;
+          state.getConversations.ids.push(payload.id);
           break;
         case 'error':
           state.getConversation.error = payload;
@@ -57,6 +59,8 @@ const conversationModel = {
       switch (status) {
         case 'success':
           state.conversations[payload.id] = new Conversation(payload);
+
+          if (state.getConversations.ids.includes(payload.id)) break;
           state.getConversations.ids.push(payload.id);
           state.createConversation = { id: payload.id };
           break;
