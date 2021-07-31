@@ -396,6 +396,12 @@ const accountModel = {
       delete data.statics;
       state.user.users[payload.id] = mergeObjects([state.user.users[payload.id], data]);
     }),
+    updateOnline: produce((state, payload) => {
+      const data = { ...payload };
+      delete data.createdAt;
+      delete data.statics;
+      state.user.users[payload.id] = mergeObjects([state.user.users[payload.id], data]);
+    }),
     getFriend: produce((state, payload) => {
       state.user.users[payload.id] = mergeObjects([state.user.users[payload.id], payload]);
     }),

@@ -1,6 +1,7 @@
 import {
   useContext,
   useEffect as useReactEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -17,7 +18,6 @@ import { turnOnCameraAndAudio, stopStreame } from 'utils';
 
 const useChat = () => {
   const { account } = useContext(AccountContext);
-  const socketRef = useRef();
   const [,
     {
       getUnseenMessages, getMessagesWithoutLoading, sendMessage, getMessage,
@@ -27,24 +27,11 @@ const useChat = () => {
   const [, { getFriendRequester, updateOnline, getFriend }] = useModel('account', () => ({}));
   const [, { getUser }] = useModel('user', () => ({}));
 
-  const initChat = {
-    conversationId: '',
-    caller: {},
-    streamVideos: {}, // {current, remote}
-    callState: {}, // {hasReceived, accepted, declined}
-  };
-  const [chat, setChat] = useState(initChat);
-  const chatRef = useRef();
-  const connectionRef = useRef();
-
-  useReactEffect(() => {
-    chatRef.current = chat;
-  }, [chat]);
-
-  useReactEffect(() => {
-    if (!account.id) return;
-    const [socket] = registerSocket({
+  const [socket] = useMemo(() => {
+    if (!account.id) return [];
+    return registerSocket({
       connect: () => {
+        socket.emit('join_all_conversations', { userId: account.id });
         updateOnline({ online: true });
       },
       update_user: ({ userId }) => {
@@ -90,18 +77,26 @@ const useChat = () => {
       },
       disconnect: () => {
         updateOnline({ online: false });
-        console.log('disconnected');
       },
       error: ({ error }) => {
         console.error('error', error);
       },
     });
-    socket.emit('join_all_conversations', { userId: account.id });
-    socketRef.current = socket;
-    return () => {
-      socket.disconnect();
-    };
   }, [account.id]);
+
+  const initChat = {
+    conversationId: '',
+    caller: {},
+    streamVideos: {}, // {current, remote}
+    callState: {}, // {hasReceived, accepted, declined}
+  };
+  const [chat, setChat] = useState(initChat);
+  const chatRef = useRef();
+  const connectionRef = useRef();
+
+  useReactEffect(() => {
+    chatRef.current = chat;
+  }, [chat]);
 
   useBeforeUnload(() => {
     console.log('before upload');
@@ -123,7 +118,7 @@ const useChat = () => {
         stream: currentStream,
       });
       peer.on('signal', signal => {
-        socketRef.current?.emit('answer_the_call', {
+        socket?.emit('answer_the_call', {
           conversationId: chat.conversationId,
           ...chat.caller,
           signal,
@@ -173,7 +168,7 @@ const useChat = () => {
         stream: currentStream,
       });
       peer.on('signal', signal => {
-        socketRef.current?.emit('call_to', {
+        socket?.emit('call_to', {
           signal,
           callerId: account.id,
           conversationId,
@@ -187,8 +182,8 @@ const useChat = () => {
           streamVideos: { ...prev.streamVideos, remote: remoteStream },
         }));
       });
-      socketRef.current?.removeAllListeners('accept_the_call');
-      socketRef.current?.on('accept_the_call', ({ signal }) => {
+      socket?.removeAllListeners('accept_the_call');
+      socket?.on('accept_the_call', ({ signal }) => {
         setChat(prev => ({
           ...prev,
           callState: { accepted: true },
@@ -205,7 +200,7 @@ const useChat = () => {
 
   const onDeclineCall = callerId => {
     setChat({ ...chat, callState: { ...chat.callState, hasReceived: false } });
-    socketRef.current?.emit('decline_the_incoming_call', {
+    socket?.emit('decline_the_incoming_call', {
       callerId,
       conversationId: chat.conversationId,
     });
@@ -223,7 +218,7 @@ const useChat = () => {
   const onLeaveCall = conversationId => {
     destroyCall();
     setChat(initChat);
-    socketRef.current?.emit('end_call', { userId: account.id, conversationId });
+    socket?.emit('end_call', { userId: account.id, conversationId });
     chat.callState.accepted
       && sendMessage({
         conversationId,
@@ -243,7 +238,7 @@ const useChat = () => {
 
   return {
     state: {
-      socket: socketRef.current,
+      socket,
       ...chat,
     },
     actions: {

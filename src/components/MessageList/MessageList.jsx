@@ -53,7 +53,7 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
       bottomMessagesBoxRef.current?.scrollIntoView(false);
       return;
     }
-    if (prevMessageNumber && !loading && !error) {
+    if (prevMessageNumber && !loading && !error && lastMessageRef.current) {
       ref.current.scrollTop = lastMessageRef.current.offsetTop - 8;
     }
   }, [loading]);

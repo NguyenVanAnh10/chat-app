@@ -19,12 +19,14 @@ import { ChatContext } from 'pages/ChatApp';
 import Avatar from 'components/Avatar';
 
 import styles from './VideoCallModal.module.scss';
+import { AccountContext } from 'App';
 
 const VideoCallModal = ({ receiver = null, isOpen, onClose, conversation = {} }) => {
   const {
     state: { streamVideos, callState, conversationId },
     actions: { onLeaveCall },
   } = useContext(ChatContext);
+  const { account } = useContext(AccountContext);
 
   useUpdateEffect(() => {
     // finish call
@@ -39,6 +41,36 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, conversation = {} })
       onClose();
     }
   }, [callState.declined]);
+
+  const renderCallingNameAndAvatar = () => {
+    if (conversation.members.length === 2) {
+      const participant = conversation.members.find(m => m.id !== account.id);
+      return (
+        <>
+          <Avatar
+            name={participant.userName}
+            src={participant.avatar}
+            size="xl"
+          />
+          <Text isTruncated>
+            {participant.userName}
+          </Text>
+          <Text>{callState.declined ? 'Busy' : 'Call...'}</Text>
+        </>
+      );
+    }
+    return (
+      <>
+        <AvatarGroup size="xl" max={3}>
+          {conversation.members.map(o => (
+            <Avatar key={o.id} name={o.userName} src={o.avatar} />
+          ))}
+        </AvatarGroup>
+        <Heading size="md">{receiver.userName}</Heading>
+        <Text>{callState.declined ? 'Busy' : 'Call...'}</Text>
+      </>
+    );
+  };
 
   return (
     <Modal
@@ -95,22 +127,7 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, conversation = {} })
             </AspectRatio>
           )}
           {!!receiver && !callState.accepted && (
-            <VStack mx="auto" zIndex="1" spacing="4">
-              <AvatarGroup size="xl" max={3}>
-                {conversation.members.length > 2
-                  ? conversation.members.map(o => (
-                    <Avatar key={o.id} name={o.userName} src={o.avatar} />
-                  ))
-                  : conversation.members.map(o => (
-                    <Avatar key={o.id} name={o.userName} src={o.avatar} />
-                  ))}
-              </AvatarGroup>
-              <Heading size="md">
-                {receiver.userName}
-                {' '}
-              </Heading>
-              <Text>{callState.declined ? 'Busy' : 'Call...'}</Text>
-            </VStack>
+            <VStack mx="auto" zIndex="1" spacing="4">{renderCallingNameAndAvatar()}</VStack>
           )}
           <IconButton
             position="absolute"
