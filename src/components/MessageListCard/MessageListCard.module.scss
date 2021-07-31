@@ -1,5 +1,5 @@
 .MessageListCard {
-  height: calc(100vh - 135px);
+  flex: 1;
   :global {
     .bottom-anchor-scroller {
       margin: 0;
@@ -24,7 +24,7 @@
   }
   :global {
     .loading-more {
-      animation: anim 1.3 ease ;
+      animation: anim 1.3 ease;
     }
     .not-loading-more {
       display: none;

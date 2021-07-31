@@ -56,7 +56,7 @@ const MessageListCard = forwardRef(({
       {...rest}
     >
       {firstLoading ? (
-        <Center w="100%" className={className} {...rest}>
+        <Center h="100%" w="100%" className={className} {...rest}>
           <Spinner
             thickness="3px"
             speed="0.65s"

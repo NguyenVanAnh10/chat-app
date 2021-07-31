@@ -28,6 +28,7 @@ const ChatBox = memo(() => {
     <MainLayout>
       <VStack
         w="100%"
+        h="100%"
         spacing="0"
         onClick={onHandleSeeNewMessages}
         onMouseEnter={onHandleSeeNewMessages}

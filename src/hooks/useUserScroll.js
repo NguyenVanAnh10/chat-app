@@ -14,12 +14,22 @@ const useUserScroll = (
   const mousedownDebouceRef = useRef();
   const mouseupDebouceRef = useRef();
   const prevScrollTopRef = useRef(0);
+  const touchmoveDebouceRef = useRef();
 
   const keydownRef = useRef();
   const wheelRef = useRef(false);
   const mousedownScrollbarRef = useRef(false);
+  const touchmoveRef = useRef(false);
 
   useEffect(() => {
+    ref.current.addEventListener('touchmove', () => {
+      touchmoveDebouceRef.current?.cancel();
+      touchmoveDebouceRef.current = debounce(() => {
+        touchmoveRef.current = true;
+      }, 50);
+      touchmoveDebouceRef.current();
+    });
+
     ref.current.addEventListener('mouseup', () => {
       mouseupDebouceRef.current?.cancel();
       mouseupDebouceRef.current = debounce(() => {
@@ -69,6 +79,11 @@ const useUserScroll = (
       scrollDebouceRef.current = debounce(() => {
         if (wheelRef.current) {
           wheelRef.current = false;
+          callback();
+          return;
+        }
+        if (touchmoveRef.current) {
+          touchmoveRef.current = false;
           callback();
           return;
         }
