@@ -62,7 +62,7 @@ const useChat = () => {
       get_message: ({ senderId, messageId, conversationId }) => {
         if (account.id === senderId) return;
         getUnseenMessages({ cachedKey: conversationId, conversationId });
-        getUnseenMessages({ cachedKey: 'all', conversationId });
+        getUnseenMessages({ cachedKey: 'all' });
         getMessage({ cachedKey: conversationId, conversationId, messageId });
       },
       seen_messages: ({ conversationId, seenUserId, messageIds }) => {

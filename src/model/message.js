@@ -1,4 +1,4 @@
-import produce from 'immer';
+import { original, produce } from 'immer';
 import remove from 'lodash.remove';
 import reverse from 'lodash.reverse';
 
@@ -155,7 +155,7 @@ const messageModel = {
           );
           state.seeMessages[payload.conversationId] = {};
           state.getUnseenMessages.all.total -= payload.total || 0;
-          remove(state.getUnseenMessages.all, id => payload.messages.some(m => m.id === id));
+          remove(state.getUnseenMessages.all.ids, id => payload.messages.some(m => m.id === id));
           delete state.getUnseenMessages[payload.conversationId];
           break;
         case 'error':
