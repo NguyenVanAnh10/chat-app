@@ -41,7 +41,7 @@ const IncomingCall = () => {
       pos="relative"
       h="100%"
       bg="blackAlpha.900"
-      minH="100vh"
+      minH={`${window.innerHeight}px`}
       className={styles.IncomingCall}
     >
       {!!streamVideos.current && (
