@@ -22,10 +22,10 @@ import styles from './VideoCallModal.module.scss';
 import { AccountContext } from 'App';
 
 const VideoCallModal = ({ receiver = null, isOpen, onClose, conversation = {} }) => {
-  const {
-    state: { streamVideos, callState, conversationId },
-    actions: { onLeaveCall },
-  } = useContext(ChatContext);
+  const [
+    { streamVideos, callState, conversationId },
+    { onLeaveCall },
+  ] = useContext(ChatContext);
   const { account } = useContext(AccountContext);
 
   useUpdateEffect(() => {

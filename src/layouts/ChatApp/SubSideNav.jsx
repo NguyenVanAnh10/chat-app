@@ -10,7 +10,7 @@ const SubSideNav = () => {
   if (isMobileScreen) {
     menus = [...menus, {
       id: menuKeys.ACCOUNT,
-      render: () => <UserMenu />,
+      render: ({ id }) => <UserMenu key={id} />,
     }];
     return (
       <Box
@@ -23,19 +23,19 @@ const SubSideNav = () => {
         right="0"
       >
         <HStack spacing="0" fontSize="xl">
-          {menus.map(m => m.render())}
+          {menus.map(m => m.render(m))}
         </HStack>
       </Box>
     );
   }
   menus = [{
     id: menuKeys.ACCOUNT,
-    render: () => <UserMenu />,
+    render: ({ id }) => <UserMenu key={id} />,
   }, ...menus];
   return (
     <Box bg="blue.600" w="65px" py="4" zIndex="4">
       <VStack spacing="0" mt="7">
-        {menus.map(m => m.render())}
+        {menus.map(m => m.render(m))}
       </VStack>
     </Box>
   );

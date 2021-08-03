@@ -7,8 +7,9 @@ import { MenuContext } from 'contexts/menuContext';
 import useMessages from 'hooks/useMessages';
 
 const Message = ({ icon }) => {
-  const [{ unseenMessagesState: { total } }] = useMessages({},
-    { forceFetchingUnseenMessages: true });
+  const [{ unseenMessagesState: { total } }] = useMessages({}, {
+    forceFetchingUnseenMessages: true,
+  });
   const { menuState, setMenuState } = useContext(MenuContext);
 
   return (

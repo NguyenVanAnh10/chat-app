@@ -58,8 +58,12 @@ export const useConversation = ({ conversationId, friendId }) => {
   }
 
   useReactEffect(() => {
-    if (!conversationId || getConversationState.loading || conversation.id) return;
-    getConversation(conversationId);
+    if (getConversationState.loading || conversation.id) return;
+    if (!conversationId && friendId) {
+      getConversation({ members: [friendId, account.id] });
+      return;
+    }
+    getConversation({ id: conversationId });
   }, [conversationId]);
 
   return [{

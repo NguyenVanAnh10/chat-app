@@ -18,7 +18,7 @@ const api = async ({ method, path, params }) => {
   let url = `${configs.baseAPI}${path}`;
   switch (method) {
     case 'GET':
-      url = qs.stringifyUrl({ url, query: params });
+      url = qs.stringifyUrl({ url, query: params }, { arrayFormat: 'comma' });
       break;
     case 'POST':
       opts.body = JSON.stringify(params);

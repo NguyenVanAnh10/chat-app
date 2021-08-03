@@ -11,11 +11,11 @@ import { useCookie } from 'react-use';
 
 import { useModel } from 'model';
 import LoadingPage from 'pages/LoadingPage';
+import Login from 'pages/Login';
 
 const ChatList = lazy(() => import('pages/ChatApp'));
-const Login = lazy(() => import('pages/Login'));
+// const Login = lazy(() => import('pages/Login'));
 const ExceptionPage = lazy(() => import('pages/ExceptionPage'));
-const Register = lazy(() => import('pages/Register'));
 
 export const AccountContext = createContext({});
 
@@ -33,9 +33,8 @@ function App() {
       <AccountContext.Provider value={{ account }}>
         <Suspense fallback={<LoadingPage />}>
           <Switch>
-            <R authorize exact path="/" component={ChatList} />
             <R path="/login" component={Login} />
-            <R path="/register" component={Register} />
+            <R authorize path="/" component={ChatList} />
             <R path="*" component={ExceptionPage} />
           </Switch>
         </Suspense>
@@ -62,7 +61,8 @@ const R = ({ authorize, location, ...rest }) => {
     return <Route {...rest} />;
   }
   if (!account.id) {
-    return <Redirect to="/login" />;
+    console.log('location', location);
+    return <Redirect to={{ pathname: '/login', state: location }} />;
   }
   return <Route {...rest} />;
 };

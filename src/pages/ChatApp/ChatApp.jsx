@@ -1,43 +1,67 @@
-import React, { useContext, createContext } from 'react';
-import { Flex, useBreakpointValue, useDisclosure } from '@chakra-ui/react';
+import React, { useContext, createContext, useRef } from 'react';
+import { Flex, useBreakpointValue } from '@chakra-ui/react';
+import { Switch, Route } from 'react-router-dom';
 
 import MainSideNav from 'layouts/ChatApp/MainSideNav';
 import SubSideNav from 'layouts/ChatApp/SubSideNav';
-
 import useChat from 'hooks/useChat';
 import CallingAlertModal from 'components/CallingAlertModal';
-import VideoCallModal from 'components/VideoCallModal';
 import useMenuContext, { MenuContext } from 'contexts/menuContext';
 import ChatBox from 'components/ChatBox';
 import Welcome from 'components/Welcome/Welcome';
+import OutgoingCall from 'pages/OutgoingCall';
+import IncomingCall from 'pages/IncomingCall';
+import HelmetWrapper from 'components/HelmetWrapper';
 
 export const ChatContext = createContext({});
 
 const ChatApp = () => {
-  const { isOpen, onClose, onOpen: onOpenConversationModal } = useDisclosure();
-  const { state: chatState, actions: chatActions } = useChat();
+  const [chatState, action] = useChat();
   const [menuState, setMenuState] = useMenuContext();
+  const incomingCallWindow = useRef();
 
-  const { caller, callState } = chatState;
-  const { onDeclineCall, onAnswerCall } = chatActions;
+  return (
+    <ChatContext.Provider value={[{ ...chatState, incomingCallWindow }, action]}>
+      <MenuContext.Provider value={{ menuState, setMenuState }}>
+        <Switch>
+          <Route
+            exact
+            path="/"
+            render={() => <ChatContainer incomingCallWindowRef={incomingCallWindow} />}
+          />
+          <Route exact path="/call/outgoing" component={OutgoingCall} />
+          <Route exact path="/call/incoming" component={IncomingCall} />
+        </Switch>
+      </MenuContext.Provider>
+
+    </ChatContext.Provider>
+  );
+};
+
+const ChatContainer = ({ incomingCallWindowRef }) => {
+  const [
+    { caller, callState, conversationId },
+    { onDeclineCall, onAcceptCall },
+  ] = useContext(ChatContext);
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
 
   return (
-    <ChatContext.Provider value={{ state: chatState, actions: chatActions }}>
-      <MenuContext.Provider value={{ menuState, setMenuState }}>
-        {!isMobileScreen ? <MainLayout /> : <MobileLayout />}
-      </MenuContext.Provider>
+    <>
+      {!isMobileScreen ? <MainLayout /> : <MobileLayout />}
       <CallingAlertModal
         callerId={caller.id}
+        conversationId={conversationId}
         isOpen={callState.hasReceived}
         onDecline={() => onDeclineCall(caller.id)}
-        onAnswer={() => {
-          onOpenConversationModal();
-          onAnswerCall();
-        }}
+        onAcceptCall={onAcceptCall}
+        remoteSignal={caller.signal}
+        incomingCallWindowRef={incomingCallWindowRef}
       />
-      <VideoCallModal isOpen={isOpen} onClose={onClose} />
-    </ChatContext.Provider>
+      <HelmetWrapper
+        callerId={caller.id}
+        isIncomingCall={callState.hasReceived}
+      />
+    </>
   );
 };
 

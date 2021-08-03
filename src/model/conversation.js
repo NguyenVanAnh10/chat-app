@@ -98,7 +98,7 @@ const conversationModel = {
   },
   actions: {
     getConversations: () => ({}),
-    getConversation: id => id,
+    getConversation: params => params,
     createConversation: params => params,
   },
   crossReducers: {
@@ -107,6 +107,11 @@ const conversationModel = {
         p.members.forEach(pp => {
           state.user.users[pp.id] = mergeObjects([state.user.users[pp.id], pp]);
         });
+      });
+    }),
+    getConversation: produce((state, payload) => {
+      payload.members.forEach(m => {
+        state.user.users[m.id] = mergeObjects([state.user.users[m.id], m]);
       });
     }),
   },

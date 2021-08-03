@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useModel } from 'model';
 
@@ -23,6 +23,19 @@ const useUsers = () => {
     arrayUsers: (getUsersState[kw]?.ids || []).map(id => users[id] || {}),
 
   }, { getUsers: getUsersByKeyword, getUser }];
+};
+
+const userSelector = id => ({ users }) => ({
+  user: users[id] || {},
+});
+
+export const useUser = id => {
+  const [{ user }, { getUser }] = useModel('user', userSelector(id));
+  useEffect(() => {
+    if (!id || user.id) return;
+    getUser({ id });
+  }, [id]);
+  return [{ user }];
 };
 
 export default useUsers;

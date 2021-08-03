@@ -9,7 +9,7 @@ import LoginForm from './LoginForm';
 import ConfirmPasswordRegisterForm from './ConfirmPasswordRegisterForm';
 import { useModel } from 'model';
 
-const Login = () => {
+const Login = ({ location }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { registry_token: registryToken } = useQuery();
   const { account } = useContext(AccountContext);
@@ -18,7 +18,9 @@ const Login = () => {
   }));
 
   if (account.id && !loginState.loading) {
-    return <Redirect to="/" />;
+    console.log('location', location);
+
+    return <Redirect to={location.state} />;
   }
 
   return (

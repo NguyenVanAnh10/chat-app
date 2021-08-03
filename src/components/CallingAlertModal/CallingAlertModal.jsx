@@ -1,4 +1,4 @@
-import React, { useEffect as useReactEffect } from 'react';
+import React from 'react';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -8,58 +8,60 @@ import {
   Button,
   Text,
 } from '@chakra-ui/react';
-import { Helmet } from 'react-helmet';
-
-import { useModel } from 'model';
+import qs from 'query-string';
 
 import imcomingCallSound from 'statics/sounds/incoming_call.wav';
 import AlertSound from 'components/AlertSound';
+import { useUser } from 'hooks/useUsers';
 
-const selector = ({ users, getUser }) => ({
-  caller: users[getUser.id] || {},
-});
-
-const CallingAlertModal = ({ callerId, onDecline, isOpen, onAnswer }) => {
-  const [{ caller }, { getUser }] = useModel('user', selector);
-  useReactEffect(() => {
-    callerId && getUser({ id: callerId });
-  }, [callerId]);
+const CallingAlertModal = ({
+  callerId,
+  onDecline,
+  isOpen,
+  onAcceptCall,
+  remoteSignal,
+  conversationId,
+  incomingCallWindowRef = {},
+}) => {
+  const [{ user: caller }] = useUser(callerId);
+  localStorage.setItem('remoteSignal', JSON.stringify(remoteSignal));
 
   return (
-    <>
-      <AlertDialog
-        motionPreset="slideInBottom"
-        onClose={onDecline}
-        isOpen={isOpen}
-        isCentered
-        closeOnOverlayClick={false}
-      >
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogBody pt="10">
-            <Text fontSize="lg" fontWeight="bold">
-              {caller.name || caller.userName}
-              {' '}
-              is calling...
-            </Text>
-            <AlertSound src={imcomingCallSound} isPlay={isOpen} />
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button onClick={onDecline} colorScheme="red">
-              Decline
-            </Button>
-            <Button colorScheme="green" ml={3} onClick={onAnswer}>
-              Answer
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      <Helmet>
-        <title>
-          {isOpen ? `${caller.name || caller.userName} is calling...` : 'AloRice'}
-        </title>
-      </Helmet>
-    </>
+    <AlertDialog
+      motionPreset="slideInBottom"
+      onClose={onDecline}
+      isOpen={isOpen}
+      isCentered
+      closeOnOverlayClick={false}
+    >
+      <AlertDialogOverlay />
+      <AlertDialogContent>
+        <AlertDialogBody pt="10">
+          <Text fontSize="lg" fontWeight="bold">
+            {caller.name || caller.userName}
+            {' '}
+            is calling...
+          </Text>
+          <AlertSound src={imcomingCallSound} isPlay={isOpen} />
+        </AlertDialogBody>
+        <AlertDialogFooter>
+          <Button onClick={onDecline} colorScheme="red">
+            Decline
+          </Button>
+          <Button
+            colorScheme="green"
+            ml={3}
+            onClick={() => {
+              onAcceptCall();
+              incomingCallWindowRef.current = window.open(`/call/incoming?=${qs.stringify({ conversationId, callerId })}`,
+                'incoming-call', `height=${window.innerHeight},width=${window.innerWidth}`);
+            }}
+          >
+            Answer
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 export default CallingAlertModal;

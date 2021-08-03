@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, forwardRef } from 'react';
 import { Icon, Text } from '@chakra-ui/react';
 
 import BubbleMessage from 'components/BubbleMessage';
@@ -8,10 +8,10 @@ import MessageStatus from 'components/MessageStatus';
 import { MissedCallIcon, VideoCallIcon } from 'components/CustomIcons';
 import { useConversation } from 'hooks/useConversations';
 
-const NotificationMessage = ({
+const NotificationMessage = forwardRef(({
   message,
   showStatusMessage,
-}) => {
+}, ref) => {
   const { account } = useContext(AccountContext);
   const [{ conversation }] = useConversation({
     conversationId: message.conversation || message.conversationId,
@@ -26,6 +26,7 @@ const NotificationMessage = ({
           message={message}
           showStatus={false}
           showSeenUsers={false}
+          ref={ref}
         >
           {account.id === message.sender ? (
             <Text>
@@ -43,7 +44,7 @@ const NotificationMessage = ({
       );
     case Notification.NOTIFICATION_ENDED_CALL:
       return (
-        <BubbleMessage message={message}>
+        <BubbleMessage ref={ref} message={message}>
           <Text fontSize="sm" color="gray.700" fontStyle="italic">
             <Icon as={VideoCallIcon} mr="2" fontSize="1.2rem" />
             The video chat ended
@@ -60,7 +61,7 @@ const NotificationMessage = ({
       );
     case Notification.NOTIFICATION_DECLINE_CALL:
       return (
-        <BubbleMessage message={message}>
+        <BubbleMessage ref={ref} message={message}>
           {account.id !== message.sender ? (
             <Text fontSize="sm" color="blue.500" fontStyle="italic">
               <Icon as={MissedCallIcon} mr="2" />
@@ -85,11 +86,11 @@ const NotificationMessage = ({
       );
     default:
       return (
-        <BubbleMessage message={message}>
+        <BubbleMessage ref={ref} message={message}>
           <Text>{Notification.NOTIFICATION_INCOMING_CALL}</Text>
         </BubbleMessage>
       );
   }
-};
+});
 
 export default NotificationMessage;

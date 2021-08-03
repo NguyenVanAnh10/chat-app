@@ -26,6 +26,15 @@ const useChat = () => {
   const [, { getConversation }] = useModel('conversation', () => ({}));
   const [, { getFriendRequester, updateOnline, getFriend }] = useModel('account', () => ({}));
   const [, { getUser }] = useModel('user', () => ({}));
+  const initChat = {
+    conversationId: '',
+    caller: {},
+    streamVideos: {}, // {current, remote}
+    callState: {}, // {hasReceived, accepted, declined, isOutgoing}
+  };
+  const [chat, setChat] = useState(initChat);
+  const chatRef = useRef();
+  const connectionRef = useRef();
 
   const [socket] = useMemo(() => {
     if (!account.id) return [];
@@ -39,6 +48,14 @@ const useChat = () => {
       },
       have_a_coming_call: ({ signal, callerId, conversationId }) => {
         if (callerId === account.id) return;
+
+        if (chatRef.current.streamVideos.remote) {
+          declineCall({ callerId, conversationId });
+          return;
+        }
+        if (chatRef.current.callState.accepted || chatRef.current.callState.isOutgoing) {
+          return;
+        }
         setChat({
           ...initChat,
           conversationId,
@@ -46,7 +63,8 @@ const useChat = () => {
           callState: { hasReceived: true },
         });
       },
-      end_call: () => {
+      end_call: ({ userId }) => {
+        if (userId === account.id) return;
         setChat(initChat);
         destroyCall();
       },
@@ -57,13 +75,15 @@ const useChat = () => {
         }
       },
       add_new_conversation: ({ conversationId }) => {
-        getConversation(conversationId);
+        getConversation({ id: conversationId });
       },
-      get_message: ({ senderId, messageId, conversationId }) => {
-        if (account.id === senderId) return;
+      get_message: ({ senderId, messageId, conversationId, messageContentType }) => {
+        if (account.id === senderId && messageContentType !== Message.CONTENT_TYPE_NOTIFICATION) {
+          return;
+        }
+        getMessage({ cachedKey: conversationId, conversationId, messageId });
         getUnseenMessages({ cachedKey: conversationId, conversationId });
         getUnseenMessages({ cachedKey: 'all' });
-        getMessage({ cachedKey: conversationId, conversationId, messageId });
       },
       seen_messages: ({ conversationId, seenUserId, messageIds }) => {
         if (account.id === seenUserId) return;
@@ -84,16 +104,6 @@ const useChat = () => {
     });
   }, [account.id]);
 
-  const initChat = {
-    conversationId: '',
-    caller: {},
-    streamVideos: {}, // {current, remote}
-    callState: {}, // {hasReceived, accepted, declined}
-  };
-  const [chat, setChat] = useState(initChat);
-  const chatRef = useRef();
-  const connectionRef = useRef();
-
   useReactEffect(() => {
     chatRef.current = chat;
   }, [chat]);
@@ -103,13 +113,20 @@ const useChat = () => {
     updateOnline({ online: false });
   });
 
-  const onAnswerCall = async () => {
+  const onAcceptCall = () => {
+    setChat({
+      ...chat,
+      callState: { hasReceived: false, accepted: true },
+    });
+  };
+
+  const onAnswerCall = async ({ remoteSignal, conversationId }) => {
     try {
       const currentStream = await turnOnCameraAndAudio();
       setChat({
         ...chat,
         streamVideos: { current: currentStream },
-        callState: { hasReceived: false, accepted: true },
+        callState: { accepted: true },
       });
 
       const peer = new Peer({
@@ -119,8 +136,7 @@ const useChat = () => {
       });
       peer.on('signal', signal => {
         socket?.emit('answer_the_call', {
-          conversationId: chat.conversationId,
-          ...chat.caller,
+          conversationId,
           signal,
         });
       });
@@ -132,7 +148,7 @@ const useChat = () => {
         }));
       });
 
-      peer.signal(chat.caller.signal);
+      peer.signal(remoteSignal);
       // eslint-disable-next-line no-underscore-dangle
       peer._debug = console.log;
       connectionRef.current = peer;
@@ -141,6 +157,16 @@ const useChat = () => {
     }
   };
 
+  const onOutgoingCall = conversationId => {
+    if (chat.callState.accepted || chat.callState.isOutgoing) {
+      leaveCall(chat.conversationId);
+    }
+    setChat({
+      ...chat,
+      conversationId,
+      callState: { isOutgoing: true },
+    });
+  };
   const onCallFriend = async ({ conversationId, addresseeIds }) => {
     try {
       const currentStream = await turnOnCameraAndAudio();
@@ -200,24 +226,16 @@ const useChat = () => {
 
   const onDeclineCall = callerId => {
     setChat({ ...chat, callState: { ...chat.callState, hasReceived: false } });
-    socket?.emit('decline_the_incoming_call', {
-      callerId,
-      conversationId: chat.conversationId,
-    });
-    sendMessage({
-      conversationId: chat.conversationId,
-      contentType: Message.CONTENT_TYPE_NOTIFICATION,
-      content: Notification.NOTIFICATION_DECLINE_CALL,
-      keyMsg: uuid(),
-      createAt: Date.now(),
-      senderId: account.id,
-      usersSeenMessage: [account.id],
-    });
+    declineCall({ callerId, conversationId: chat.conversationId });
   };
 
   const onLeaveCall = conversationId => {
-    destroyCall();
     setChat(initChat);
+    leaveCall(conversationId);
+  };
+
+  const leaveCall = conversationId => {
+    destroyCall();
     socket?.emit('end_call', { userId: account.id, conversationId });
     chat.callState.accepted
       && sendMessage({
@@ -226,9 +244,23 @@ const useChat = () => {
         content: Notification.NOTIFICATION_ENDED_CALL,
         keyMsg: uuid(),
         createAt: Date.now(),
-        senderId: account.id,
-        usersSeenMessage: [account.id],
+        sender: account.id,
       });
+  };
+
+  const declineCall = ({ callerId, conversationId }) => {
+    socket?.emit('decline_the_incoming_call', {
+      callerId,
+      conversationId,
+    });
+    sendMessage({
+      conversationId,
+      contentType: Message.CONTENT_TYPE_NOTIFICATION,
+      content: Notification.NOTIFICATION_DECLINE_CALL,
+      keyMsg: uuid(),
+      createAt: Date.now(),
+      sender: account.id,
+    });
   };
 
   const destroyCall = () => {
@@ -236,19 +268,21 @@ const useChat = () => {
     stopStreame(chatRef.current?.streamVideos?.current);
   };
 
-  return {
-    state: {
+  return [
+    {
       socket,
       ...chat,
     },
-    actions: {
+    {
+      onOutgoingCall,
       onCallFriend,
       onLeaveCall,
       onAnswerCall,
+      onAcceptCall,
       onDeclineCall,
       turnOnCameraAndAudio,
     },
-  };
+  ];
 };
 
 export default useChat;

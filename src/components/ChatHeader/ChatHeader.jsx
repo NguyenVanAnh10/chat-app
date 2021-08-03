@@ -6,39 +6,27 @@ import {
   IconButton,
   Text,
   useBreakpointValue,
-  useDisclosure,
 } from '@chakra-ui/react';
 import { PhoneIcon, ArrowBackIcon } from '@chakra-ui/icons';
+import qs from 'query-string';
 
 import { AccountContext } from 'App';
-import VideoCallModal from 'components/VideoCallModal';
-import { ChatContext } from 'pages/ChatApp';
 import { useConversation } from 'hooks/useConversations';
 import { MenuContext } from 'contexts/menuContext';
 import Avatar from 'components/Avatar';
 import useUsers from 'hooks/useUsers';
+import { ChatContext } from 'pages/ChatApp';
 
 const ChatHeader = () => {
   const { menuState } = useContext(MenuContext);
   const { conversationId, friendId } = menuState[menuState.active];
+  const [{ incomingCallWindow }, { onOutgoingCall }] = useContext(ChatContext);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const { account } = useContext(AccountContext);
   const [{ conversation }] = useConversation({ conversationId, friendId });
   const [{ users }] = useUsers();
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
   const { setMenuState } = useContext(MenuContext);
-
-  const { actions: { onCallFriend } } = useContext(ChatContext);
-
-  const handleCall = () => {
-    const data = { conversationId: conversationId || conversation.id };
-    if (!conversationId && !conversation.id && friendId) {
-      data.addresseeIds = [friendId];
-    }
-    onOpen();
-    onCallFriend(data);
-  };
 
   const renderHeaderAvatar = () => {
     const participant = conversation.id ? conversation.members?.find(m => m.id !== account.id)
@@ -100,21 +88,22 @@ const ChatHeader = () => {
 
         </HStack>
         {(friendId || conversation.members?.length === 2) && (
-          <IconButton
-            onClick={handleCall}
-            size="lg"
-            fontSize="1.5rem"
-            colorScheme="green"
-            icon={<PhoneIcon />}
-          />
+        <IconButton
+          size="lg"
+          fontSize="1.5rem"
+          colorScheme="green"
+          icon={<PhoneIcon />}
+          onClick={() => {
+            if (incomingCallWindow.current) {
+              incomingCallWindow.current.close();
+            }
+            onOutgoingCall(conversationId);
+            window.open(`/call/outgoing?${qs.stringify({ conversationId, friendId })}`,
+              'outgoing-call', `height=${window.innerHeight},width=${window.innerWidth}`);
+          }}
+        />
         )}
       </HStack>
-      <VideoCallModal
-        isOpen={isOpen}
-        onClose={onClose}
-        conversation={conversation}
-        receiver={conversation.members?.find(u => u.id !== account.id)}
-      />
     </>
   );
 };

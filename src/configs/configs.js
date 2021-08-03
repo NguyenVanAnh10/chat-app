@@ -19,17 +19,17 @@ const configs = {
     {
       id: menuKeys.MESSAGES,
       title: 'Messages',
-      render: () => <Message icon={ChatIcon} />,
+      render: ({ id }) => <Message key={id} icon={ChatIcon} />,
     },
     {
       id: menuKeys.CONTACT_BOOK,
       title: 'Contact Book',
-      render: () => <ContactBook icon={ContactBookIcon} />,
+      render: ({ id }) => <ContactBook key={id} icon={ContactBookIcon} />,
     },
     {
       id: menuKeys.NOTIFICATION,
       title: 'Notification',
-      render: () => <Notification icon={NotificationBellIcon} />,
+      render: ({ id }) => <Notification key={id} icon={NotificationBellIcon} />,
     },
   ],
 };
