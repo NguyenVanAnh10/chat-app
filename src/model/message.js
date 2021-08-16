@@ -1,4 +1,4 @@
-import { original, produce } from 'immer';
+import { produce } from 'immer';
 import remove from 'lodash.remove';
 import reverse from 'lodash.reverse';
 
@@ -32,11 +32,14 @@ const messageModel = {
           state.getMessages[payload.cachedKey] = {
             total: payload.total,
             ids: [
-              ...reverse(payload.messages
-                .map(m => m.id)
-                .filter(id => !state.getMessages[payload.cachedKey]?.ids?.includes(id))),
+              ...reverse(
+                payload.messages
+                  .map(m => m.id)
+                  .filter(id => !state.getMessages[payload.cachedKey]?.ids?.includes(id)),
+              ),
               ...(state.getMessages[payload.cachedKey]?.ids || []),
-            ] };
+            ],
+          };
           break;
         case 'error':
           state.getMessages[payload.cachedKey] = {
@@ -62,11 +65,14 @@ const messageModel = {
           state.getMessages[payload.cachedKey] = {
             total: payload.total,
             ids: [
-              ...reverse(payload.messages
-                .map(m => m.id)
-                .filter(id => !state.getMessages[payload.cachedKey]?.ids?.includes(id))),
+              ...reverse(
+                payload.messages
+                  .map(m => m.id)
+                  .filter(id => !state.getMessages[payload.cachedKey]?.ids?.includes(id)),
+              ),
               ...(state.getMessages[payload.cachedKey]?.ids || []),
-            ] };
+            ],
+          };
           break;
         case 'error':
           return state;
@@ -79,11 +85,8 @@ const messageModel = {
         case 'success':
           state.messages[payload.message.id] = payload.message;
           state.getMessages[payload.cachedKey] = {
-            total: payload.total,
-            ids: [
-              ...(state.getMessages[payload.cachedKey]?.ids || []),
-              payload.message.id,
-            ],
+            total: (state.getMessages[payload.cachedKey]?.total || 0) + 1,
+            ids: [...(state.getMessages[payload.cachedKey]?.ids || []), payload.message.id],
           };
           break;
         case 'error':
@@ -137,11 +140,14 @@ const messageModel = {
           state.messages[payload.keyMsg] = { sending: true, ...payload };
           state.getMessages[payload.conversationId || payload.friendId] = {
             ...state.getMessages[payload.conversationId || payload.friendId],
-            ids: !state.getMessages[payload.conversationId || payload.friendId]?.ids
-              ?.includes(payload.keyMsg) ? [
-                ...(state.getMessages[payload.conversationId || payload.friendId]?.ids || []),
-                payload.keyMsg,
-              ] : [...(state.getMessages[payload.conversationId || payload.friendId]?.ids || [])],
+            ids: !state.getMessages[payload.conversationId || payload.friendId]?.ids?.includes(
+              payload.keyMsg,
+            )
+              ? [
+                  ...(state.getMessages[payload.conversationId || payload.friendId]?.ids || []),
+                  payload.keyMsg,
+                ]
+              : [...(state.getMessages[payload.conversationId || payload.friendId]?.ids || [])],
           };
           break;
       }
@@ -149,10 +155,7 @@ const messageModel = {
     seeMessages: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          state.messages = payload.messages.reduce(
-            (s, m) => ({ ...s, [m.id]: m }),
-            state.messages,
-          );
+          state.messages = payload.messages.reduce((s, m) => ({ ...s, [m.id]: m }), state.messages);
           state.seeMessages[payload.conversationId] = {};
           state.getUnseenMessages.all.total -= payload.total || 0;
           remove(state.getUnseenMessages.all.ids, id => payload.messages.some(m => m.id === id));
@@ -171,10 +174,7 @@ const messageModel = {
     getMessagesOtherUserHasSeen: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          state.messages = payload.reduce(
-            (s, m) => ({ ...s, [m.id]: m }),
-            state.messages,
-          );
+          state.messages = payload.reduce((s, m) => ({ ...s, [m.id]: m }), state.messages);
           break;
         case 'error':
           return state;
@@ -196,7 +196,8 @@ const messageModel = {
               ...payload.messages
                 .map(m => m.id)
                 .filter(id => !state.getUnseenMessages[payload.cachedKey]?.ids?.includes(id)),
-            ] };
+            ],
+          };
           break;
         case 'error':
           state.getUnseenMessages[payload.cachedKey] = {
@@ -243,8 +244,8 @@ const messageModel = {
     },
     getMessage: async ({ cachedKey, ...payload }, onSuccess, onError) => {
       try {
-        const { message, total } = await getMessage(payload);
-        onSuccess({ cachedKey, message, total });
+        const message = await getMessage(payload);
+        onSuccess({ cachedKey, message });
       } catch (error) {
         onError({ cachedKey, error });
       }

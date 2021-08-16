@@ -56,34 +56,35 @@
     "no-nested-ternary": 1,
     "no-unused-expressions": [1, { "allowShortCircuit": true }],
     "object-curly-newline": 0,
-    // "object-curly-newline": [
-    //   "warn",
-    //   {
-    //     "ObjectExpression": {
-    //       "minProperties": 5,
-    //       "multiline": true,
-    //       "consistent": true
-    //     },
-    //     "ObjectPattern": {
-    //       "minProperties": 5,
-    //       "multiline": true,
-    //       "consistent": true
-    //     },
-    //     "ImportDeclaration": {
-    //       "minProperties": 5,
-    //       "multiline": true,
-    //       "consistent": true
-    //     },
-    //     "ExportDeclaration": {
-    //       "minProperties": 5,
-    //       "multiline": true,
-    //       "consistent": true
-    //     }
-    //   }
-    // ],
+    "object-curly-newline": [
+      "warn",
+      {
+        "ObjectExpression": {
+          "minProperties": 5,
+          "multiline": true,
+          "consistent": true
+        },
+        "ObjectPattern": {
+          "minProperties": 5,
+          "multiline": true,
+          "consistent": true
+        },
+        "ImportDeclaration": {
+          "minProperties": 5,
+          "multiline": true,
+          "consistent": true
+        },
+        "ExportDeclaration": {
+          "minProperties": 5,
+          "multiline": true,
+          "consistent": true
+        }
+      }
+    ],
     "import/no-cycle": 1,
     "no-underscore-dangle": 1,
-    "react/no-children-prop": 1
+    "react/no-children-prop": 1,
+    "indent": "off"
   },
   "parser": "babel-eslint",
   "settings": {

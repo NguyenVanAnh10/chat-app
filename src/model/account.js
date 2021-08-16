@@ -29,8 +29,7 @@ const accountModel = {
     getFriends: {
       ids: [],
     }, // { loading, error}
-    getFriend: {
-    }, // { loading, error}
+    getFriend: {}, // { loading, error}
     addressees: {
       ids: [],
     },
@@ -225,7 +224,9 @@ const accountModel = {
     login: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          state.me = payload;
+          const { statics, ...rest } = payload;
+          state.me = rest;
+          state.statics = { ...state.statics, ...statics };
           state.login = {};
           break;
         case 'error':
@@ -398,8 +399,6 @@ const accountModel = {
     }),
     updateOnline: produce((state, payload) => {
       const data = { ...payload };
-      delete data.createdAt;
-      delete data.statics;
       state.user.users[payload.id] = mergeObjects([state.user.users[payload.id], data]);
     }),
     getFriend: produce((state, payload) => {
