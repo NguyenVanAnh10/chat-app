@@ -45,8 +45,12 @@ const usefriends = options => {
   }, []);
 
   useReactEffect(() => {
-    if (getFriendRequesterState.loading
-       || !options?.forceFetchingFriendRequesters || requesters.length) return;
+    if (
+      getFriendRequesterState.loading ||
+      !options?.forceFetchingFriendRequesters ||
+      requesters.length
+    )
+      return;
     getFriendRequester();
   }, []);
 

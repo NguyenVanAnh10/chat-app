@@ -1,5 +1,14 @@
 import React, { memo, useCallback, useEffect, useRef, useState, useMemo, createRef } from 'react';
-import { SimpleGrid, Text, VStack, Box, HStack, Button, IconButton, Tooltip } from '@chakra-ui/react';
+import {
+  SimpleGrid,
+  Text,
+  VStack,
+  Box,
+  HStack,
+  Button,
+  IconButton,
+  Tooltip,
+} from '@chakra-ui/react';
 import debounce from 'lodash.debounce';
 
 import Emoji from 'components/Emoji';
@@ -20,27 +29,32 @@ const EmojiPicker = memo(({ onSelect }) => {
     frequentlyUsedIcons: state.statics.icons,
   }));
 
-  const data = useMemo(() => emojiBlocks.map(e => e.key === 'frequently_used' ? ({
-    ...e,
-    emojiIds: frequentlyUsedIcons,
-    emojiBlockRef: createRef(),
-    topSentinelRef: createRef(),
-    bottomSentinelRef: createRef(),
-  }) : ({
-    ...e,
-    emojiIds: catagory[e.key],
-    emojiBlockRef: createRef(),
-    topSentinelRef: createRef(),
-    bottomSentinelRef: createRef(),
-  })).filter(e => !!e.emojiIds.length), []);
+  const data = useMemo(
+    () =>
+      emojiBlocks
+        .map(e =>
+          e.key === 'frequently_used'
+            ? {
+                ...e,
+                emojiIds: frequentlyUsedIcons,
+                emojiBlockRef: createRef(),
+                topSentinelRef: createRef(),
+                bottomSentinelRef: createRef(),
+              }
+            : {
+                ...e,
+                emojiIds: catagory[e.key],
+                emojiBlockRef: createRef(),
+                topSentinelRef: createRef(),
+                bottomSentinelRef: createRef(),
+              },
+        )
+        .filter(e => !!e.emojiIds.length),
+    [],
+  );
 
   return (
-    <Box
-      w="100%"
-      p="3"
-      boxShadow="lg"
-      className={styles.EmojiPicker}
-    >
+    <Box w="100%" p="3" boxShadow="lg" className={styles.EmojiPicker}>
       <PickerHeader containerRef={containerRef} data={data} />
       <VStack
         ref={containerRef}
@@ -51,13 +65,7 @@ const EmojiPicker = memo(({ onSelect }) => {
         className="emojis"
       >
         {data.map(e => (
-          <VStack
-            w="100%"
-            key={e.key}
-            ref={e.emojiBlockRef}
-            spacing="0"
-            justify="start"
-          >
+          <VStack w="100%" key={e.key} ref={e.emojiBlockRef} spacing="0" justify="start">
             <div ref={e.topSentinelRef} />
             <Text
               size="sm"
@@ -83,8 +91,9 @@ const EmojiPicker = memo(({ onSelect }) => {
                       key: id,
                       coordinates: emojis[id],
                     });
-                    e.key !== 'frequently_used' && !frequentlyUsedIcons.includes(id)
-                    && updateStatic({ icon: id });
+                    e.key !== 'frequently_used' &&
+                      !frequentlyUsedIcons.includes(id) &&
+                      updateStatic({ icon: id });
                   }}
                 />
               ))}
@@ -99,7 +108,7 @@ const EmojiPicker = memo(({ onSelect }) => {
 
 // TODO refactor
 const PickerHeader = memo(({ containerRef, data: d }) => {
-  const data = d.map(dd => ({ ...dd, tabRef: useRef() }));
+  const data = d.map(dd => ({ ...dd, tabRef: createRef() }));
   const containerScrollDebounceRef = useRef();
 
   // container observer
@@ -122,15 +131,16 @@ const PickerHeader = memo(({ containerRef, data: d }) => {
   const prevScrollTopContainerRef = useRef();
 
   useEffect(() => {
-    const activedTabRef = data.find(dd => dd.emojiBlockRef.current
-       === observeTarget);
+    const activedTabRef = data.find(dd => dd.emojiBlockRef.current === observeTarget);
     if (!activedTabRef) return;
     selectedTabRef.current = activedTabRef.tabRef.current;
   }, [observeTarget]);
 
   const onScrollEmojiTabListener = () => {
-    if (scrollEmojiTabRef.current.scrollWidth - scrollEmojiTabRef.current.scrollLeft
-      === scrollEmojiTabRef.current.clientWidth) {
+    if (
+      scrollEmojiTabRef.current.scrollWidth - scrollEmojiTabRef.current.scrollLeft ===
+      scrollEmojiTabRef.current.clientWidth
+    ) {
       !right && setDisableNavigationBar({ left: false, right: true });
       return;
     }
@@ -155,12 +165,13 @@ const PickerHeader = memo(({ containerRef, data: d }) => {
       const tabContainerRect = selectedTabRef.current.parentElement.getBoundingClientRect();
       const selectedTabLeftPosition = selectedTabRect.left - tabContainerRect.left;
       const selectedTabRightPosition = selectedTabLeftPosition + selectedTabRect.width;
-      if (e.target.scrollTop < prevScrollTopContainerRef.current
-       && selectedTabLeftPosition < 0) {
+      if (e.target.scrollTop < prevScrollTopContainerRef.current && selectedTabLeftPosition < 0) {
         scrollEmojiTabRef.current.scrollLeft += selectedTabLeftPosition;
       }
-      if (e.target.scrollTop > prevScrollTopContainerRef.current
-      && selectedTabRightPosition > tabContainerRect.width) {
+      if (
+        e.target.scrollTop > prevScrollTopContainerRef.current &&
+        selectedTabRightPosition > tabContainerRect.width
+      ) {
         scrollEmojiTabRef.current.scrollLeft += selectedTabRightPosition - tabContainerRect.width;
       }
       prevScrollTopContainerRef.current = e.target.scrollTop;
@@ -176,8 +187,10 @@ const PickerHeader = memo(({ containerRef, data: d }) => {
   }, [left, right]);
 
   const onHandleNext = useCallback(() => {
-    if (scrollEmojiTabRef.current.scrollWidth - scrollEmojiTabRef.current.scrollLeft
-      === scrollEmojiTabRef.current.clientWidth) {
+    if (
+      scrollEmojiTabRef.current.scrollWidth - scrollEmojiTabRef.current.scrollLeft ===
+      scrollEmojiTabRef.current.clientWidth
+    ) {
       return;
     }
     scrollEmojiTabRef.current.scrollLeft += 300;
@@ -190,13 +203,7 @@ const PickerHeader = memo(({ containerRef, data: d }) => {
   }, []);
 
   return (
-    <HStack
-      spacing="0"
-      mx="-2.5"
-      align="center"
-      py="1"
-      className={styles.PickerHeader}
-    >
+    <HStack spacing="0" mx="-2.5" align="center" py="1" className={styles.PickerHeader}>
       <Button
         size="xs"
         colorScheme="blue"
@@ -209,19 +216,9 @@ const PickerHeader = memo(({ containerRef, data: d }) => {
       >
         ❮
       </Button>
-      <HStack
-        overflowX="auto"
-        ref={scrollEmojiTabRef}
-        className="icons-bar"
-        spacing="2"
-        py="2"
-      >
+      <HStack overflowX="auto" ref={scrollEmojiTabRef} className="icons-bar" spacing="2" py="2">
         {data.map(e => (
-          <Tooltip
-            key={e.key}
-            label={e.title}
-            fontSize="sm"
-          >
+          <Tooltip key={e.key} label={e.title} fontSize="sm">
             <IconButton
               size="sm"
               p="2"
