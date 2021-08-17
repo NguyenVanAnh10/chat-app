@@ -10,7 +10,7 @@ on:
     branches: [develop]
 jobs:
   build:
-    environment: staging
+    environment: development
     runs-on: self-hosted
     strategy:
       matrix:
