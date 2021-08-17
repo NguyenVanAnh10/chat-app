@@ -32,4 +32,4 @@ jobs:
           echo REACT_APP_USER_TURN=${{ secrets.REACT_APP_USER_TURN }} >> .env
           cat .env
       - run: npm i
-      - run: CI=false GENERATE_SOURCEMAP=false npm run build --if-present && sudo mv build /usr/share/nginx/alorice/production
+      - run: CI=false GENERATE_SOURCEMAP=false npm run build --if-present && sudo cp -r build /usr/share/nginx/alorice/production

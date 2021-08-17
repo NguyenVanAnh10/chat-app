@@ -33,4 +33,4 @@ jobs:
           cat .env
       - run: npm i
       - run: npm test
-      - run: CI=false GENERATE_SOURCEMAP=true npm run build --if-present && sudo mv build /usr/share/nginx/alorice/staging
+      - run: CI=false GENERATE_SOURCEMAP=true npm run build --if-present && sudo cp -r build /usr/share/nginx/alorice/staging
