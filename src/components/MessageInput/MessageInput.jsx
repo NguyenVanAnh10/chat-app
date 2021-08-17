@@ -1,8 +1,4 @@
-import React, {
-  useContext, useRef,
-  useState, useCallback, useEffect,
-  memo,
-} from 'react';
+import React, { useContext, useRef, useState, useCallback, useEffect, memo } from 'react';
 import {
   Button,
   HStack,
@@ -11,6 +7,7 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { v4 as uuid } from 'uuid';
 import { Editor, EditorState, Modifier } from 'draft-js';
@@ -28,6 +25,7 @@ import { MenuContext } from 'contexts/menuContext';
 import { useConversation } from 'hooks/useConversations';
 import LazyMount from 'components/LazyMount';
 import EmojiPickerLoading from 'components/EmojiPicker/EmojiPickerLoading';
+import bindKeyDraft from 'utils/keyBindingDraft';
 
 const EmojiPicker = React.lazy(() => import('components/EmojiPicker'));
 
@@ -36,6 +34,7 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
   const { menuState } = useContext(MenuContext);
   const { conversationId, friendId } = menuState[menuState.active];
   const [{ conversation }] = useConversation({ conversationId, friendId });
+  const isMobileScreen = useBreakpointValue({ base: true, md: false });
 
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty(decorator));
 
@@ -48,7 +47,12 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
     editorStateRef.current = editorState;
   }, [editorState]);
 
-  const handleSubmitMessage = useCallback(() => {
+  const handleKeyCommand = command => {
+    if (command === 'send-message') {
+      handleSendMessage();
+    }
+  };
+  const handleSendMessage = useCallback(() => {
     const message = editorStateRef.current.getCurrentContent().getPlainText(' ');
     if (!message) {
       domEditorRef.current.focus();
@@ -69,21 +73,24 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
     });
   }, [conversationId, friendId, conversation.id]);
 
-  const handleSendImage = useCallback(imageSource => {
-    if (!imageSource.base64Image || !imageSource.contentBlob) return;
-    sendMessage({
-      conversationId: conversationId || conversation.id,
-      keyMsg: uuid(),
-      contentType: Message.CONTENT_TYPE_IMAGE,
-      contentBlob: imageSource.contentBlob,
-      base64Image: imageSource.base64Image,
-      createdAt: new Date(),
-      sender: account.id,
-    });
-    setTimeout(() => {
-      bottomMessagesBoxRef.current?.scrollIntoView(false);
-    });
-  }, [conversationId, friendId, conversation.id]);
+  const handleSendImage = useCallback(
+    imageSource => {
+      if (!imageSource.base64Image || !imageSource.contentBlob) return;
+      sendMessage({
+        conversationId: conversationId || conversation.id,
+        keyMsg: uuid(),
+        contentType: Message.CONTENT_TYPE_IMAGE,
+        contentBlob: imageSource.contentBlob,
+        base64Image: imageSource.base64Image,
+        createdAt: new Date(),
+        sender: account.id,
+      });
+      setTimeout(() => {
+        bottomMessagesBoxRef.current?.scrollIntoView(false);
+      });
+    },
+    [conversationId, friendId, conversation.id],
+  );
 
   const onSelectEmoji = useCallback(({ key }) => {
     const newContentState = Modifier.insertText(
@@ -92,11 +99,7 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
       `${key} `,
     );
 
-    const newState = EditorState.push(
-      editorStateRef.current,
-      newContentState,
-      'insert-characters',
-    );
+    const newState = EditorState.push(editorStateRef.current, newContentState, 'insert-characters');
     setEditorState(newState);
   }, []);
 
@@ -116,6 +119,14 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
         placeholder="Type message..."
         editorState={editorState}
         onChange={setEditorState}
+        handleKeyCommand={handleKeyCommand}
+        keyBindingFn={
+          isMobileScreen
+            ? bindKeyDraft.bindOneKey('split-block', 'Enter')
+            : bindKeyDraft.bindOneKey(['send-message', 'split-block'], 'Enter', {
+                shiftKey: true,
+              })
+        }
       />
       <HStack spacing="0">
         <EmojiPickerButton onSelectEmoji={onSelectEmoji} />
@@ -139,7 +150,7 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
           size="md"
           _focus="none"
           icon={<PaperPlaneIcon />}
-          onClick={handleSubmitMessage}
+          onClick={handleSendMessage}
         />
       </HStack>
     </HStack>
@@ -163,16 +174,10 @@ const EmojiPickerButton = memo(({ onSelectEmoji }) => {
           &#x1F604;
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className={styles.Picker}
-        _focus="none"
-        border="none"
-      >
+      <PopoverContent className={styles.Picker} _focus="none" border="none">
         <PopoverArrow />
         <LazyMount trigger={trigger} fallback={<EmojiPickerLoading />}>
-          <EmojiPicker
-            onSelect={onSelectEmoji}
-          />
+          <EmojiPicker onSelect={onSelectEmoji} />
         </LazyMount>
       </PopoverContent>
     </Popover>
