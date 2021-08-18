@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Flex } from '@chakra-ui/react';
+import { Box, Flex, useBreakpointValue } from '@chakra-ui/react';
 
 import ConversationList from 'components/ConversationList';
 import FriendList from 'components/FriendList';
@@ -9,6 +9,8 @@ import { menuKeys } from 'configs/configs';
 
 const MainSideNav = () => {
   const { menuState, setMenuState } = useContext(MenuContext);
+  const isMobileScreen = useBreakpointValue({ base: true, md: false });
+
   return (
     <Flex
       p="2"
@@ -19,19 +21,19 @@ const MainSideNav = () => {
       flexDir="column"
       transition="width 0.3s ease"
     >
-      <Flex
-        h="4rem"
-        alignItems="center"
-        borderBottom="1px solid rgba(0, 0, 0, 0.08)"
-      >
+      <Flex h="4rem" alignItems="center" borderBottom="1px solid rgba(0, 0, 0, 0.08)">
         <SearchUserButton
-          onSelectUser={id => setMenuState(prev => ({
-            ...prev,
-            [menuState.active]: { conversationId: id },
-          }))}
+          onSelectUser={id =>
+            setMenuState(prev => ({
+              ...prev,
+              [menuState.active]: { conversationId: id },
+            }))
+          }
         />
       </Flex>
-      <SideNavContent />
+      <Box h={isMobileScreen ? 'calc(100% - 4rem - 64px)' : 'auto'} overflow="hidden">
+        <SideNavContent />
+      </Box>
     </Flex>
   );
 };

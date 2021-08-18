@@ -1,8 +1,5 @@
 import React, { useContext } from 'react';
-import {
-  AvatarBadge,
-  Box, HStack, IconButton, Text, useDisclosure,
-} from '@chakra-ui/react';
+import { AvatarBadge, HStack, IconButton, Text, useDisclosure } from '@chakra-ui/react';
 
 import { AddUserIcon } from 'components/CustomIcons';
 import useFriends from 'hooks/useFriends';
@@ -24,21 +21,16 @@ const FriendList = () => {
       ...prev,
       [menuState.active]: { ...prev[menuState.active], friendId: friend.id },
     }));
-    // onHandleSeeNewMessages(conversation);
   };
 
-  // const onHandleSeeNewMessages = () => {
-  // if (!conversation.newMessageNumber || seeMessagesState.loading) return;
-  // seeMessages({ conversationId: conversation.id, userId: account.id });
-  // };
-
   return (
-    <Box pt="5">
+    <>
       <ListItem
         data={friends}
         emptyText="No friend"
         loading={loading}
-        header={(
+        pt="5"
+        header={
           <HStack justifyContent="space-between">
             <Text fontSize="sm">All friends</Text>
             <IconButton
@@ -50,7 +42,7 @@ const FriendList = () => {
               onClick={onOpen}
             />
           </HStack>
-            )}
+        }
         renderItem={friend => (
           <FriendItem
             key={friend.id}
@@ -61,7 +53,7 @@ const FriendList = () => {
         )}
       />
       <AddFriendModal isOpen={isOpen} onClose={onClose} />
-    </Box>
+    </>
   );
 };
 

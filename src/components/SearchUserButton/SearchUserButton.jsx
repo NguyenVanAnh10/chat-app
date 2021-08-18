@@ -40,6 +40,7 @@ const SearchUserButton = () => {
           <ModalBody py="5">
             <SearchFriendInput
               friendData={friends}
+              listHeight={`calc(${window.innerHeight}px - 11.25rem - 41px)`}
               onFriendClick={friend => {
                 setMenuState(prev => ({
                   ...prev,

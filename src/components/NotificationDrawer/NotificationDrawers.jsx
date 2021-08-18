@@ -20,29 +20,27 @@ const NotificationDrawers = ({ isOpen, onClose }) => {
   });
 
   return (
-    <Drawer
-      isOpen={isOpen}
-      placement="left"
-      onClose={onClose}
-    >
+    <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="sm">
       <DrawerOverlay />
       <DrawerContent>
         <DrawerCloseButton />
         <DrawerHeader>Notifications</DrawerHeader>
-        <DrawerBody>
+        <DrawerBody py="5">
           <ListItem
-            mt="3"
-            spacing="7"
+            spacing="5"
+            bodyCss={{ mt: '0' }}
             data={friendRequestRequesters}
             emptyText="No notification"
             renderItem={friend => (
               <NotificationItem
                 friend={friend}
                 typeNotification={Notification.NOTIFICATION_FRIEND_REQUEST}
-                onConfirm={() => confirmFriendRequest({
-                  friendshipId: friend.friendship.id,
-                  status: FriendShip.ACCEPTED,
-                })}
+                onConfirm={() =>
+                  confirmFriendRequest({
+                    friendshipId: friend.friendship.id,
+                    status: FriendShip.ACCEPTED,
+                  })
+                }
               />
             )}
           />
