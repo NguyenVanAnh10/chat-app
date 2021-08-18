@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  AvatarBadge,
-  Button,
-  ButtonGroup,
-  HStack,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { AvatarBadge, Button, ButtonGroup, HStack, Text, VStack } from '@chakra-ui/react';
 
 import Avatar from 'components/Avatar';
 import Notification from 'entities/Notification';
@@ -21,11 +14,13 @@ const NotificationItem = ({ typeNotification, friend, onConfirm, onDelete }) => 
           </Avatar>
           <VStack align="flex-start">
             <Text>
-              <strong>{friend.userName}</strong>
-                &nbsp; sent you a friend request
+              <strong>{friend.userName || 'Unknown'}</strong>
+              &nbsp; sent you a friend request
             </Text>
             <ButtonGroup size="sm" spacing="2">
-              <Button colorScheme="blue" onClick={onConfirm}>Confirm</Button>
+              <Button colorScheme="blue" onClick={onConfirm}>
+                Confirm
+              </Button>
               <Button onClick={onDelete}>Delete</Button>
             </ButtonGroup>
           </VStack>
