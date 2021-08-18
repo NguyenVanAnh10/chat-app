@@ -1,7 +1,5 @@
 import React, { useContext } from 'react';
-import {
-  Box, HStack, IconButton, Text, useDisclosure,
-} from '@chakra-ui/react';
+import { HStack, IconButton, Text, useDisclosure } from '@chakra-ui/react';
 
 import { AddUsersIcon } from 'components/CustomIcons';
 import useConversations from 'hooks/useConversations';
@@ -11,7 +9,6 @@ import { MenuContext } from 'contexts/menuContext';
 import ConversationItem from 'components/ConversationItem';
 
 const ConversationList = () => {
-  // const { account } = useContext(AccountContext);
   const { menuState, setMenuState } = useContext(MenuContext);
   const selectedconversationId = menuState[menuState.active]?.conversationId;
 
@@ -24,7 +21,6 @@ const ConversationList = () => {
       ...prev,
       [menuState.active]: { ...prev[menuState.active], conversationId: conversation.id },
     }));
-    onHandleSeeNewMessages(conversation);
   };
   const onHandleSelectConversation = id => {
     setMenuState(prev => ({
@@ -33,17 +29,13 @@ const ConversationList = () => {
     }));
   };
 
-  const onHandleSeeNewMessages = () => {
-    // if (!conversation.newMessageNumber || seeMessagesState.loading) return;
-    // seeMessages({ conversationId: conversation.id, userId: account.id });
-  };
-
   return (
-    <Box pt="5">
+    <>
       <ListItem
         data={conversations}
         emptyText="No message"
-        header={(
+        pt="5"
+        header={
           <HStack justifyContent="space-between">
             <Text fontSize="sm">All messages</Text>
             <IconButton
@@ -54,7 +46,7 @@ const ConversationList = () => {
               onClick={onOpen}
             />
           </HStack>
-            )}
+        }
         renderItem={conversation => (
           <ConversationItem
             key={conversation.id}
@@ -69,7 +61,7 @@ const ConversationList = () => {
         onClose={onClose}
         onSelectConversation={onHandleSelectConversation}
       />
-    </Box>
+    </>
   );
 };
 

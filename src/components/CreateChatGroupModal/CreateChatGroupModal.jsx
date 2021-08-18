@@ -64,11 +64,9 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectConversation }) => {
             defaultValue=""
             rules={{ required: 'Set group name' }}
             render={({ field, fieldState: { error, invalid } }) => (
-              <FormControl isInvalid={invalid}>
+              <FormControl isInvalid={invalid} mb="5">
                 <Input placeholder="Conversation name" {...field} />
-                {error && (
-                <FormErrorMessage>{error.message}</FormErrorMessage>
-                )}
+                {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
               </FormControl>
             )}
           />
@@ -80,36 +78,30 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectConversation }) => {
               required: 'Add friend to chat group',
               validate: value => value.length > 1 || 'Group chat is greater 2 friends',
             }}
-            render={({
-              field: { onChange, value },
-              fieldState: { error, invalid },
-            }) => (
+            render={({ field: { onChange, value }, fieldState: { error, invalid } }) => (
               <>
-                <FormControl isInvalid={invalid} mt="5">
-                  <HStack spacing={2}>
-                    {value.map(u => (
-                      <Tag
-                        size="md"
-                        key={u.id}
-                        colorScheme="blue"
-                      >
-                        <TagLabel>{u.userName}</TagLabel>
-                        <TagCloseButton onClick={() => {
-                          onChange(value.filter(user => u.id !== user.id));
-                        }}
-                        />
-                      </Tag>
-                    ))}
-                  </HStack>
-                  {error && (
-                    <FormErrorMessage>{error.message}</FormErrorMessage>
+                <FormControl isInvalid={invalid}>
+                  {!!value.length && (
+                    <HStack spacing={2} mb="3">
+                      {value.map(u => (
+                        <Tag size="md" key={u.id} colorScheme="blue">
+                          <TagLabel>{u.userName}</TagLabel>
+                          <TagCloseButton
+                            onClick={() => {
+                              onChange(value.filter(user => u.id !== user.id));
+                            }}
+                          />
+                        </Tag>
+                      ))}
+                    </HStack>
                   )}
+                  {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
                 </FormControl>
                 <SearchFriendInput
-                  mt="5"
                   friendData={friends}
                   hasSearchIcon={false}
                   placeholder="Find friend..."
+                  listHeight="200px"
                   onFriendClick={friend => {
                     if (value.some(f => friend.id === f.id)) return;
                     onChange([...value, friend]);
@@ -119,10 +111,12 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectConversation }) => {
             )}
           />
           {createState.error && (
-          <Alert status="error" mt="5">
-            <AlertIcon />
-            <AlertDescription>{createState.error.message || createState.error.name || 'Something went wrong'}</AlertDescription>
-          </Alert>
+            <Alert status="error" mt="5">
+              <AlertIcon />
+              <AlertDescription>
+                {createState.error.message || createState.error.name || 'Something went wrong'}
+              </AlertDescription>
+            </Alert>
           )}
         </ModalBody>
 
@@ -130,11 +124,7 @@ const CreateChatGroupModal = ({ isOpen, onClose, onSelectConversation }) => {
           <Button mr={3} colorScheme="blue" onClick={onClose} variant="ghost">
             Cancel
           </Button>
-          <Button
-            colorScheme="blue"
-            onClick={onHandleSumbit}
-            isLoading={createState.loading}
-          >
+          <Button colorScheme="blue" onClick={onHandleSumbit} isLoading={createState.loading}>
             Create
           </Button>
         </ModalFooter>

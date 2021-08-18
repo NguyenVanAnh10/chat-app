@@ -1,20 +1,11 @@
 import React, { useRef, useState } from 'react';
-import {
-  Divider,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  List,
-  ListItem,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { Divider, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import debounce from 'lodash.debounce';
 
-import Avatar from 'components/Avatar';
-import EmptyList from 'components/EmptyList';
 import { useUpdateEffect } from 'react-use';
+import ListItem from 'components/ListItem';
+import UserItem from 'UserItem';
 
 const SearchFriendInput = ({
   placeholder,
@@ -22,6 +13,7 @@ const SearchFriendInput = ({
   hasSearchIcon = true,
   onFriendClick,
   renderResultList,
+  listHeight = 'auto',
   ...rest
 }) => {
   const [friends, setFriends] = useState(friendData);
@@ -33,20 +25,19 @@ const SearchFriendInput = ({
 
   const onHandleSearch = kw => {
     debounceRef.current && debounceRef.current.cancel();
-    debounceRef.current = debounce(() => setFriends(friendData
-      .filter(u => u.userName.includes(kw))),
-    300);
+    debounceRef.current = debounce(
+      () => setFriends(friendData.filter(u => u.userName.includes(kw))),
+      300,
+    );
     debounceRef.current();
   };
   return (
     <>
       <InputGroup {...rest}>
         {hasSearchIcon && (
-          <InputLeftElement
-            pointerEvents="none"
-            // eslint-disable-next-line react/no-children-prop
-            children={<SearchIcon color="gray.300" />}
-          />
+          <InputLeftElement pointerEvents="none">
+            <SearchIcon color="gray.300" />
+          </InputLeftElement>
         )}
         <Input
           w="100%"
@@ -56,35 +47,21 @@ const SearchFriendInput = ({
           onChange={e => onHandleSearch(e.target.value)}
         />
       </InputGroup>
-      {!!friends.length && (
-        <>
-          <Divider mb="5" mt="1" />
-          <List spacing="2">
-            {friends.filter(u => !!u.id).map(u => (
-              <ListItem
-                key={u.id}
-                d="flex"
-                cursor="pointer"
-                bg="pink.50"
-                p="2"
-                borderRadius="md"
-                transition="all 0.3s ease"
-                _hover={{ bg: 'blue.100' }}
-                onClick={() => onFriendClick(u)}
-              >
-                <Avatar name={u.userName} src={u.avatar} />
-                <VStack ml="4" alignItems="flex-start" spacing={0} color="gray.600">
-                  <Text fontSize="md" fontWeight="bold">
-                    {u.userName}
-                  </Text>
-                  <Text fontSize="sm">{u.email}</Text>
-                </VStack>
-              </ListItem>
-            ))}
-          </List>
-        </>
-      )}
-      {!friends.length && <EmptyList pt="5" content="Friend not found" />}
+      <Divider />
+      <ListItem
+        spacing="5"
+        bodyCss={{ maxH: listHeight }}
+        data={friends}
+        emptyText="Friend not found"
+        renderItem={friend => (
+          <UserItem
+            key={friend.id}
+            hideAction
+            user={friend}
+            onClick={() => onFriendClick(friend)}
+          />
+        )}
+      />
     </>
   );
 };
