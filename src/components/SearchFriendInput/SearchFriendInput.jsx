@@ -5,7 +5,7 @@ import debounce from 'lodash.debounce';
 
 import { useUpdateEffect } from 'react-use';
 import ListItem from 'components/ListItem';
-import UserItem from 'UserItem';
+import UserItem from 'components/UserItem';
 
 const SearchFriendInput = ({
   placeholder,

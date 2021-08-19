@@ -5,7 +5,7 @@ import debounce from 'lodash.debounce';
 
 import ListItem from 'components/ListItem';
 import useUsers from 'hooks/useUsers';
-import UserItem from 'UserItem';
+import UserItem from 'components/UserItem';
 
 const SearchUserInput = ({ placeholder, hasSearchIcon = true, renderResultList, ...rest }) => {
   const [keyword, setKeyword] = useState();
