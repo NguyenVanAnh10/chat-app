@@ -11,15 +11,13 @@ import { useModel } from 'model';
 
 const Login = ({ location }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { registry_token: registryToken } = useQuery();
+  const { registry_token: registryToken } = useQuery(location.search);
   const { account } = useContext(AccountContext);
   const [{ loginState }] = useModel('account', state => ({
     loginState: state.login,
   }));
 
   if (account.id && !loginState.loading) {
-    console.log('location', location);
-
     return <Redirect to={location.state} />;
   }
 
