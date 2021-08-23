@@ -5,21 +5,13 @@ export default function AlertSound({ src, isPlay }) {
   useEffect(() => {
     if (!isPlay) {
       ref.current?.pause();
-      ref.current?.load();
       return;
     }
     ref.current?.play();
-  },
-  [isPlay]);
+  }, [isPlay]);
   return (
     <div style={{ display: 'none' }}>
-      <audio
-        ref={ref}
-        autoPlay
-        loop
-        controls
-        src={src}
-      />
+      <audio ref={ref} autoPlay loop controls src={src} />
     </div>
   );
 }

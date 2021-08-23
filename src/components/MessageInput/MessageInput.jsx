@@ -41,7 +41,7 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
   const domEditorRef = useRef();
   const editorStateRef = useRef();
 
-  const [, { sendMessage }] = useModel('message', state => state);
+  const [, { sendMessage }] = useModel('message', () => ({}));
 
   useEffect(() => {
     editorStateRef.current = editorState;
@@ -64,7 +64,6 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
       keyMsg: uuid(),
       contentType: Message.CONTENT_TYPE_TEXT,
       content: message,
-      createdAt: new Date(),
       sender: account.id,
     });
     setEditorState(getResetEditorState(editorStateRef.current));
@@ -78,11 +77,11 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
       if (!imageSource.base64Image || !imageSource.contentBlob) return;
       sendMessage({
         conversationId: conversationId || conversation.id,
+        friendId,
         keyMsg: uuid(),
         contentType: Message.CONTENT_TYPE_IMAGE,
         contentBlob: imageSource.contentBlob,
         base64Image: imageSource.base64Image,
-        createdAt: new Date(),
         sender: account.id,
       });
       setTimeout(() => {

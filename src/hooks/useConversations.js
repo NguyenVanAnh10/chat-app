@@ -16,25 +16,25 @@ const conversationsSelector = ({ conversations, getConversations, createConversa
 });
 
 const useConversations = options => {
-  const [
-    { conversations, createState, getState },
-    { getConversations, createConversation },
-  ] = useModel('conversation', conversationsSelector);
+  const [{ conversations, createState, getState }, { getConversations, createConversation }] =
+    useModel('conversation', conversationsSelector);
   const [{ users }] = useModel('user', state => ({ users: state.users }));
 
   useReactEffect(() => {
-    if (!options?.forceFetchingConversations
-      || getState.loading || conversations.length) return;
+    if (!options?.forceFetchingConversations || getState.loading || conversations.length) return;
     getConversations();
   }, []);
 
-  return [{
-    conversations: conversations.map(con => ({
-      ...con,
-      members: con.members.map(id => users[id] || {}),
-    })),
-    createState,
-  }, { createConversation }];
+  return [
+    {
+      conversations: conversations.map(con => ({
+        ...con,
+        members: con.members.map(id => users[id] || {}),
+      })),
+      createState,
+    },
+    { createConversation },
+  ];
 };
 
 export const useConversation = ({ conversationId, friendId }) => {
@@ -51,10 +51,10 @@ export const useConversation = ({ conversationId, friendId }) => {
 
   let conversation = { ...conversations[conversationId] };
   if (friendId && !conversation.id) {
-    conversation = (getConversations.ids
-      .map(id => conversations[id])
-      .find(conv => isEqual([...conv.members].sort(), [friendId, account.id].sort()))
-    ) || {};
+    conversation =
+      getConversations.ids
+        .map(id => conversations[id])
+        .find(conv => isEqual([...conv.members].sort(), [friendId, account.id].sort())) || {};
   }
 
   useReactEffect(() => {
@@ -66,12 +66,15 @@ export const useConversation = ({ conversationId, friendId }) => {
     getConversation({ id: conversationId });
   }, [conversationId]);
 
-  return [{
-    conversation: {
-      ...conversation,
-      members: conversation.members?.map(id => users[id] || {}) || [],
+  return [
+    {
+      conversation: {
+        ...conversation,
+        members: conversation.members?.map(id => users[id] || {}) || [],
+      },
     },
-  }, { createConversation }];
+    { createConversation },
+  ];
 };
 
 export default useConversations;

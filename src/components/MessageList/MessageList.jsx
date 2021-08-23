@@ -1,10 +1,5 @@
 import React, { useContext, useState, forwardRef, useRef, useLayoutEffect } from 'react';
-import {
-  HStack,
-  IconButton,
-  Stack,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { HStack, IconButton, Stack, useDisclosure } from '@chakra-ui/react';
 import { RepeatIcon } from '@chakra-ui/icons';
 import { usePrevious } from 'react-use';
 
@@ -25,10 +20,16 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
   const { conversationId, friendId } = menuState[menuState.active];
 
   const [
-    { messages, messagesState: { total, loading, error, ids } },
+    {
+      messages,
+      messagesState: { total, loading, error, ids },
+    },
     { getMessages, sendMessage },
   ] = useMessages({ conversationId, friendId }, { forceFetchingMessages: true });
-  const [{ conversation }] = useConversation({ friendId, conversationId });
+  const [{ conversation }] = useConversation(
+    { friendId, conversationId },
+    { forceFetchingConversation: true },
+  );
   const [{ users }] = useUsers();
 
   const { account } = useContext(AccountContext);
@@ -87,17 +88,17 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
             />
             <HStack spacing="1" maxW="70%">
               {!!m.error && (
-              <IconButton
-                bg="transparent"
-                icon={<RepeatIcon color="red.500" />}
-                onClick={() => {
-                  // resend
-                  delete m.error;
-                  delete m.aggregateMsg;
-                  delete m.sending;
-                  sendMessage(m);
-                }}
-              />
+                <IconButton
+                  bg="transparent"
+                  icon={<RepeatIcon color="red.500" />}
+                  onClick={() => {
+                    // resend
+                    delete m.error;
+                    delete m.aggregateMsg;
+                    delete m.sending;
+                    sendMessage(m);
+                  }}
+                />
               )}
               {!m.aggregateMsg ? (
                 <MessageContent
@@ -111,10 +112,7 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
                   }}
                 />
               ) : (
-                <Stack
-                  spacing="2"
-                  align={m.sender !== account.id ? 'flex-start' : 'flex-end'}
-                >
+                <Stack spacing="2" align={m.sender !== account.id ? 'flex-start' : 'flex-end'}>
                   {m.aggregateMsg.map((mm, ii, aa) => (
                     <MessageContent
                       ref={i === 0 && ii === 0 ? lastMessageRef : null}
@@ -123,7 +121,9 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
                       showStatusMessage={ii === aa.length - 1}
                       showSeenUsers={ii === aa.length - 1}
                       onImageClick={() => {
-                        if (mm.contentType !== Message.CONTENT_TYPE_IMAGE) { return; }
+                        if (mm.contentType !== Message.CONTENT_TYPE_IMAGE) {
+                          return;
+                        }
                         setImgSrc(mm.content);
                         onOpen();
                       }}
@@ -134,7 +134,9 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
             </HStack>
           </Stack>
         ))}
-        <div className="bottom-anchor-scroller" ref={bottomMessagesBoxRef}>&nbsp;</div>
+        <div className="bottom-anchor-scroller" ref={bottomMessagesBoxRef}>
+          &nbsp;
+        </div>
       </MessageListCard>
       <ReviewImageModal isOpen={isOpen} onClose={onClose} imgSrc={imgSrc} />
     </>

@@ -1,16 +1,15 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, forwardRef } from 'react';
 import { Image, VStack } from '@chakra-ui/react';
 
 import MessageStatus from 'components/MessageStatus';
 import { AccountContext } from 'App';
 
-const ImageMessage = ({
-  message, onClick,
-}) => {
+const ImageMessage = forwardRef(({ message, onClick }, ref) => {
   const [visible, setVisible] = useState(false);
   const { account } = useContext(AccountContext);
   return (
     <VStack
+      ref={ref}
       mr="2"
       alignItems="flex-end"
       cursor="pointer"
@@ -47,6 +46,6 @@ const ImageMessage = ({
       <MessageStatus message={message} />
     </VStack>
   );
-};
+});
 
 export default ImageMessage;

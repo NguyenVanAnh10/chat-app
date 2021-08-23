@@ -22,17 +22,31 @@ const useMessages = ({ conversationId, friendId, skip = 0, limit = 20 }, options
   ] = useModel('message', selector);
 
   useReactEffect(() => {
-    if (!options?.forceFetchingUnseenMessages || unseenMessagesState[cachedKey]
-      || unseenMessagesState[cachedKey]?.loading) return;
+    if (
+      !options?.forceFetchingUnseenMessages ||
+      unseenMessagesState[cachedKey] ||
+      unseenMessagesState[cachedKey]?.loading
+    )
+      return;
     getUnseenMessages({ cachedKey, conversationId });
   }, []);
 
   useReactEffect(() => {
-    if ((!conversationId && !conversation.id) || !options?.forceFetchingMessages
-    || messagesState[cachedKey]?.loading || sendMessageState.loading) return;
-    if ((messagesState[cachedKey]
-        && !(messagesState[cachedKey].ids?.length < messagesState[cachedKey].total
-        && messagesState[cachedKey].ids?.length < limit))) return;
+    if (
+      (!conversationId && !conversation.id) ||
+      !options?.forceFetchingMessages ||
+      messagesState[cachedKey]?.loading ||
+      sendMessageState.loading
+    )
+      return;
+    if (
+      messagesState[cachedKey] &&
+      !(
+        messagesState[cachedKey].ids?.length < messagesState[cachedKey].total &&
+        messagesState[cachedKey].ids?.length < limit
+      )
+    )
+      return;
 
     getMessages({
       limit,
@@ -42,24 +56,26 @@ const useMessages = ({ conversationId, friendId, skip = 0, limit = 20 }, options
     });
   }, [cachedKey]);
 
-  const aggregateMessages = useMemo(() => (messagesState[cachedKey]?.ids || [])
-    .map(id => messages[id])
-    .reduce((s, c, index, arr) => {
-      if (index === 0 || arr[index - 1].sender !== c.sender) {
-        return [...s, c];
-      }
-      return [
-        ...(s.length > 1 ? s.slice(0, s.length - 1) : []),
-        {
-          ...c,
-          aggregateMsg: s[s.length - 1]?.aggregateMsg
-            ? [...s[s.length - 1]?.aggregateMsg, c]
-            : [s[s.length - 1], c],
-        },
-      ];
-    },
-    []),
-  [messages, cachedKey]);
+  const aggregateMessages = useMemo(
+    () =>
+      (messagesState[cachedKey]?.ids || [])
+        .map(id => messages[id])
+        .reduce((s, c, index, arr) => {
+          if (index === 0 || arr[index - 1].sender !== c.sender) {
+            return [...s, c];
+          }
+          return [
+            ...(s.length > 1 ? s.slice(0, s.length - 1) : []),
+            {
+              ...c,
+              aggregateMsg: s[s.length - 1]?.aggregateMsg
+                ? [...s[s.length - 1]?.aggregateMsg, c]
+                : [s[s.length - 1], c],
+            },
+          ];
+        }, []),
+    [messages, cachedKey],
+  );
 
   return [
     {

@@ -32,8 +32,13 @@ const models = {
       const [prefix, actionName, status] = type.split('/');
       const model = this[prefix];
 
-      if (!payload || status !== 'success' || !model.crossReducers
-      || typeof model.crossReducers[actionName] !== 'function') return state;
+      if (
+        !payload ||
+        status !== 'success' ||
+        !model.crossReducers ||
+        typeof model.crossReducers[actionName] !== 'function'
+      )
+        return state;
 
       return {
         ...state,
@@ -46,10 +51,11 @@ const models = {
       const actionsModel = Object.keys(model.actions).reduce(
         (ss, actionName) => ({
           ...ss,
-          [actionName]: (...args) => this.store.dispatch({
-            type: `${modelName}/${actionName}`,
-            payload: model.actions[actionName](...args),
-          }),
+          [actionName]: (...args) =>
+            this.store.dispatch({
+              type: `${modelName}/${actionName}`,
+              payload: model.actions[actionName](...args),
+            }),
         }),
         {},
       );
@@ -70,17 +76,15 @@ const models = {
           payload,
         });
       };
-      models[prefix].effects[actionName](
-        action.payload,
-        onFinish('success'),
-        onFinish('error'),
-      );
+      models[prefix].effects[actionName](action.payload, onFinish('success'), onFinish('error'));
       return state;
     };
 
-    const composeEnhancers = (process.env.NODE_ENV === 'development' && typeof window !== 'undefined'
-        && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__)
-      || compose;
+    const composeEnhancers =
+      (process.env.NODE_ENV === 'development' &&
+        typeof window !== 'undefined' &&
+        window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
+      compose;
 
     const enhancer = composeEnhancers(applyMiddleware(middleware));
 
@@ -94,10 +98,11 @@ const models = {
   },
 };
 
-export const initRegisters = registerModels => Object.keys(registerModels).forEach(m => {
-  models[registerModels[m].name] = registerModels[m];
-  models.modelNames.push(registerModels[m].name);
-});
+export const initRegisters = registerModels =>
+  Object.keys(registerModels).forEach(m => {
+    models[registerModels[m].name] = registerModels[m];
+    models.modelNames.push(registerModels[m].name);
+  });
 
 export const useModel = (name, selector) => {
   if (!models.store) {

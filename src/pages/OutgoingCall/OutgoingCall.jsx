@@ -1,12 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { useUpdateEffect } from 'react-use';
-import {
-  Text,
-  VStack,
-  AspectRatio,
-  IconButton,
-  Center,
-} from '@chakra-ui/react';
+import { Text, VStack, AspectRatio, IconButton, Center } from '@chakra-ui/react';
 import { useLocation } from 'react-router-dom';
 import qs from 'query-string';
 
@@ -14,11 +8,13 @@ import VideoPlayer from 'components/VideoCallModal/VideoPlayer';
 import { HangoutPhoneIcon } from 'components/CustomIcons';
 import { ChatContext } from 'pages/ChatApp';
 import Avatar from 'components/Avatar';
-
 import { AccountContext } from 'App';
 import { useConversation } from 'hooks/useConversations';
+import AlertSound from 'components/AlertSound';
 
 import styles from './OutgoingCall.module.scss';
+import Action from 'entities/Action';
+import outgoingCallSound from 'statics/sounds/outgoing_call.mp3';
 
 const OutgoingCall = () => {
   const { conversationId, friendId } = qs.parse(useLocation().search);
@@ -39,29 +35,22 @@ const OutgoingCall = () => {
   useUpdateEffect(() => {
     // finish call
     if ((!callState.accepted && !callState.declined) || callState.declined) {
-      window.close();
+      onCloseWindow();
     }
   }, [callState.accepted, callState.declined]);
+
+  const onCloseWindow = () => {
+    window.opener.postMessage({ type: Action.CLOSE_OUTGOING_CALL_WINDOW }, '*');
+    window.close();
+  };
 
   const renderCallingNameAndAvatar = () => {
     if (conversation.members.length === 2) {
       const participant = conversation.members.find(m => m.id !== account.id);
       return (
-        <VStack
-          mx="auto"
-          zIndex="1"
-          spacing="4"
-          color="whiteAlpha.900"
-          userSelect="none"
-        >
-          <Avatar
-            name={participant.userName}
-            src={participant.avatar}
-            size="xl"
-          />
-          <Text fontSize="xl">
-            {participant.userName}
-          </Text>
+        <VStack mx="auto" zIndex="1" spacing="4" color="whiteAlpha.900" userSelect="none">
+          <Avatar name={participant.userName} src={participant.avatar} size="xl" />
+          <Text fontSize="xl">{participant.userName}</Text>
           <Text>{callState.declined ? 'Busy' : 'Call...'}</Text>
         </VStack>
       );
@@ -77,41 +66,37 @@ const OutgoingCall = () => {
       className={styles.OutgoingCall}
     >
       {!!streamVideos.current && (
-      <AspectRatio
-        ratio={4 / 3}
-        w="100%"
-        position="absolute"
-        maxW="250px"
-        right="3"
-        top="3"
-        borderRadius="lg"
-        overflow="hidden"
-        zIndex="1"
-      >
-        <VideoPlayer videoSrc={streamVideos.current} />
-      </AspectRatio>
+        <AspectRatio
+          ratio={4 / 3}
+          w="100%"
+          position="absolute"
+          maxW="250px"
+          right="3"
+          top="3"
+          borderRadius="lg"
+          overflow="hidden"
+          zIndex="1"
+        >
+          <VideoPlayer videoSrc={streamVideos.current} />
+        </AspectRatio>
       )}
       {callState.accepted && !!streamVideos.remote && (
-      <AspectRatio
-        ratio={1}
-        w="100%"
-        h="100%"
-        maxH="100%"
-        maxW="100%"
-        left="0"
-        top="0"
-        position="absolute"
-        overflow="hidden"
-        className="is-full-screen"
-      >
-        <VideoPlayer
-          videoSrc={streamVideos.remote}
-          isFullScreen
-          options={{ muted: false }}
-        />
-      </AspectRatio>
+        <AspectRatio
+          ratio={1}
+          w="100%"
+          h="100%"
+          maxH="100%"
+          maxW="100%"
+          left="0"
+          top="0"
+          position="absolute"
+          overflow="hidden"
+          className="is-full-screen"
+        >
+          <VideoPlayer videoSrc={streamVideos.remote} isFullScreen options={{ muted: false }} />
+        </AspectRatio>
       )}
-      { !callState.accepted && renderCallingNameAndAvatar()}
+      {!callState.accepted && renderCallingNameAndAvatar()}
       <IconButton
         position="absolute"
         bottom="10"
@@ -130,9 +115,10 @@ const OutgoingCall = () => {
         m="0 auto"
         onClick={() => {
           onLeaveCall(conversationId || conversation.id);
-          window.close();
+          onCloseWindow();
         }}
       />
+      <AlertSound src={outgoingCallSound} isPlay={!callState.accepted} />
     </Center>
   );
 };
