@@ -1,8 +1,6 @@
-import { useContext, useEffect as useReactEffect } from 'react';
-import isEqual from 'lodash.isequal';
+import { useEffect as useReactEffect } from 'react';
 
 import { useModel } from 'model';
-import { AccountContext } from 'App';
 
 const conversationsSelector = ({ conversations, getConversations, createConversation }) => ({
   conversations: (getConversations.ids || []).map(id => ({
@@ -37,32 +35,17 @@ const useConversations = options => {
   ];
 };
 
-export const useConversation = ({ conversationId, friendId }) => {
-  const { account } = useContext(AccountContext);
-  const [
-    { conversations, getConversationState, getConversations },
-    { getConversation, createConversation },
-  ] = useModel('conversation', state => ({
-    conversations: state.conversations,
-    getConversationState: state.getConversation,
-    getConversations: state.getConversations,
-  }));
+export const useConversation = ({ conversationId }) => {
+  const [{ conversation, getConversationState }, { getConversation, createConversation }] =
+    useModel('conversation', state => ({
+      conversation: state.conversations[conversationId] || {},
+      getConversationState: state.getConversation,
+      getConversations: state.getConversations,
+    }));
   const [{ users }] = useModel('user', state => ({ users: state.users }));
-
-  let conversation = { ...conversations[conversationId] };
-  if (friendId && !conversation.id) {
-    conversation =
-      getConversations.ids
-        .map(id => conversations[id])
-        .find(conv => isEqual([...conv.members].sort(), [friendId, account.id].sort())) || {};
-  }
 
   useReactEffect(() => {
     if (getConversationState.loading || conversation.id) return;
-    if (!conversationId && friendId) {
-      getConversation({ members: [friendId, account.id] });
-      return;
-    }
     getConversation({ id: conversationId });
   }, [conversationId]);
 

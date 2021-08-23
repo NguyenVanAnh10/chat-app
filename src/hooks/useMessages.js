@@ -1,7 +1,6 @@
 import { useEffect as useReactEffect, useMemo } from 'react';
 
 import { useModel } from 'model';
-import { useConversation } from './useConversations';
 
 const selector = ({ getUnseenMessages, getMessages, messages, seeMessages, sendMessage }) => ({
   unseenMessagesState: getUnseenMessages,
@@ -10,12 +9,9 @@ const selector = ({ getUnseenMessages, getMessages, messages, seeMessages, sendM
   seeMessagesState: seeMessages,
   sendMessageState: sendMessage,
 });
-const useMessages = ({ conversationId, friendId, skip = 0, limit = 20 }, options) => {
-  const [{ conversation }] = useConversation({ friendId, conversationId });
-  let cachedKey = conversationId || conversation.id || 'all';
-  if (!options?.forceFetchingUnseenMessages && !conversationId && !conversation.id) {
-    cachedKey = friendId;
-  }
+const useMessages = ({ conversationId, skip = 0, limit = 20 }, options) => {
+  const cachedKey = conversationId || 'all';
+
   const [
     { messages, unseenMessagesState, messagesState, seeMessagesState, sendMessageState },
     { getUnseenMessages, getMessages, seeMessages, sendMessage },
@@ -33,7 +29,7 @@ const useMessages = ({ conversationId, friendId, skip = 0, limit = 20 }, options
 
   useReactEffect(() => {
     if (
-      (!conversationId && !conversation.id) ||
+      !conversationId ||
       !options?.forceFetchingMessages ||
       messagesState[cachedKey]?.loading ||
       sendMessageState.loading
@@ -52,7 +48,7 @@ const useMessages = ({ conversationId, friendId, skip = 0, limit = 20 }, options
       limit,
       skip,
       cachedKey,
-      conversationId: conversationId || conversation.id,
+      conversationId,
     });
   }, [cachedKey]);
 
@@ -83,7 +79,6 @@ const useMessages = ({ conversationId, friendId, skip = 0, limit = 20 }, options
       messagesState: messagesState[cachedKey] || {},
       unseenMessagesState: unseenMessagesState[cachedKey] || {},
       seeMessagesState: seeMessagesState[cachedKey] || {},
-      conversation,
     },
     { getMessages, seeMessages, sendMessage },
   ];

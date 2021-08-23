@@ -1,0 +1,15 @@
+.ImageMessage {
+  :global {
+    .image {
+      max-width: 200px;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .object-position-right {
+      object-position: right;
+    }
+    .object-position-left {
+      object-position: left;
+    }
+  }
+}

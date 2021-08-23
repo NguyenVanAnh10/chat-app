@@ -10,7 +10,7 @@ import Avatar from 'components/Avatar';
 
 const FriendList = () => {
   const { menuState, setMenuState } = useContext(MenuContext);
-  const selectedfriendId = menuState[menuState.active]?.friendId;
+  const selectedConversationId = menuState[menuState.active]?.conversationId;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -19,7 +19,7 @@ const FriendList = () => {
   const onHandleClick = friend => {
     setMenuState(prev => ({
       ...prev,
-      [menuState.active]: { ...prev[menuState.active], friendId: friend.id },
+      [menuState.active]: { ...prev[menuState.active], conversationId: friend.conversation },
     }));
   };
 
@@ -47,7 +47,7 @@ const FriendList = () => {
           <FriendItem
             key={friend.id}
             friend={friend}
-            active={selectedfriendId === friend.id}
+            active={selectedConversationId === friend.conversation}
             onClick={() => onHandleClick(friend)}
           />
         )}

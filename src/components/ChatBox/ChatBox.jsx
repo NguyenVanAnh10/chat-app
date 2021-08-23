@@ -10,18 +10,17 @@ import useMessages from 'hooks/useMessages';
 
 const ChatBox = memo(() => {
   const { menuState } = useContext(MenuContext);
-  const { conversationId, friendId } = menuState[menuState.active];
+  const { conversationId } = menuState[menuState.active];
 
-  const [
-    { unseenMessagesState, seeMessagesState, conversation },
-    { seeMessages },
-  ] = useMessages({ conversationId, friendId });
+  const [{ unseenMessagesState, seeMessagesState }, { seeMessages }] = useMessages({
+    conversationId,
+  });
   const messagesContainerRef = useRef();
   const bottomMessagesBoxRef = useRef();
 
   const onHandleSeeNewMessages = () => {
     if (!unseenMessagesState.total || seeMessagesState.loading) return;
-    seeMessages({ conversationId: conversationId || conversation.id });
+    seeMessages({ conversationId });
   };
 
   return (
@@ -35,13 +34,8 @@ const ChatBox = memo(() => {
         onMouseLeave={onHandleSeeNewMessages}
       >
         <ChatHeader />
-        <MessageList
-          ref={messagesContainerRef}
-          bottomMessagesBoxRef={bottomMessagesBoxRef}
-        />
-        <MessageInput
-          bottomMessagesBoxRef={bottomMessagesBoxRef}
-        />
+        <MessageList ref={messagesContainerRef} bottomMessagesBoxRef={bottomMessagesBoxRef} />
+        <MessageInput bottomMessagesBoxRef={bottomMessagesBoxRef} />
       </VStack>
     </MainLayout>
   );

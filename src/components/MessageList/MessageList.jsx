@@ -1,4 +1,4 @@
-import React, { useContext, useState, forwardRef, useRef, useLayoutEffect } from 'react';
+import React, { Fragment, useContext, useState, forwardRef, useRef, useLayoutEffect } from 'react';
 import { HStack, IconButton, Stack, useDisclosure } from '@chakra-ui/react';
 import { RepeatIcon } from '@chakra-ui/icons';
 import { usePrevious } from 'react-use';
@@ -13,11 +13,9 @@ import useMessages from 'hooks/useMessages';
 import useUsers from 'hooks/useUsers';
 import { MenuContext } from 'contexts/menuContext';
 
-import { useConversation } from 'hooks/useConversations';
-
 const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
   const { menuState } = useContext(MenuContext);
-  const { conversationId, friendId } = menuState[menuState.active];
+  const { conversationId } = menuState[menuState.active];
 
   const [
     {
@@ -25,11 +23,7 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
       messagesState: { total, loading, error, ids },
     },
     { getMessages, sendMessage },
-  ] = useMessages({ conversationId, friendId }, { forceFetchingMessages: true });
-  const [{ conversation }] = useConversation(
-    { friendId, conversationId },
-    { forceFetchingConversation: true },
-  );
+  ] = useMessages({ conversationId }, { forceFetchingMessages: true });
   const [{ users }] = useUsers();
 
   const { account } = useContext(AccountContext);
@@ -40,8 +34,8 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
     if (ids?.length >= total) return;
     getMessages({
       limit: 20,
-      conversationId: conversation.id,
-      cachedKey: conversation.id,
+      conversationId,
+      cachedKey: conversationId,
       skip: ids?.length,
     });
   };
@@ -61,7 +55,7 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
 
   useLayoutEffect(() => {
     bottomMessagesBoxRef.current?.scrollIntoView(false);
-  }, [conversationId, friendId]);
+  }, [conversationId, menuState.active]);
 
   return (
     <>
@@ -87,47 +81,58 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
               zIndex="2"
             />
             <HStack spacing="1" maxW="70%">
-              {!!m.error && (
-                <IconButton
-                  bg="transparent"
-                  icon={<RepeatIcon color="red.500" />}
-                  onClick={() => {
-                    // resend
-                    delete m.error;
-                    delete m.aggregateMsg;
-                    delete m.sending;
-                    sendMessage(m);
-                  }}
-                />
-              )}
               {!m.aggregateMsg ? (
-                <MessageContent
-                  message={m}
-                  ref={i === 0 ? lastMessageRef : null}
-                  showSeenUsers
-                  onImageClick={() => {
-                    if (m.contentType !== Message.CONTENT_TYPE_IMAGE) return;
-                    setImgSrc(m.content);
-                    onOpen();
-                  }}
-                />
+                <HStack ref={i === 0 ? lastMessageRef : null}>
+                  {!!m.error && (
+                    <IconButton
+                      bg="transparent"
+                      icon={<RepeatIcon color="red.500" />}
+                      onClick={() => {
+                        // resend
+                        sendMessage(m);
+                      }}
+                    />
+                  )}
+                  <MessageContent
+                    message={m}
+                    showSeenUsers
+                    onImageClick={() => {
+                      if (m.contentType !== Message.CONTENT_TYPE_IMAGE) return;
+                      setImgSrc(m.content);
+                      onOpen();
+                    }}
+                  />
+                </HStack>
               ) : (
                 <Stack spacing="2" align={m.sender !== account.id ? 'flex-start' : 'flex-end'}>
                   {m.aggregateMsg.map((mm, ii, aa) => (
-                    <MessageContent
-                      ref={i === 0 && ii === 0 ? lastMessageRef : null}
+                    <HStack
                       key={mm.id || mm.keyMsg}
-                      message={mm}
-                      showStatusMessage={ii === aa.length - 1}
-                      showSeenUsers={ii === aa.length - 1}
-                      onImageClick={() => {
-                        if (mm.contentType !== Message.CONTENT_TYPE_IMAGE) {
-                          return;
-                        }
-                        setImgSrc(mm.content);
-                        onOpen();
-                      }}
-                    />
+                      ref={i === 0 && ii === 0 ? lastMessageRef : null}
+                    >
+                      {!!mm.error && (
+                        <IconButton
+                          bg="transparent"
+                          icon={<RepeatIcon color="red.500" />}
+                          onClick={() => {
+                            // resend
+                            sendMessage(mm);
+                          }}
+                        />
+                      )}
+                      <MessageContent
+                        message={mm}
+                        showStatusMessage={ii === aa.length - 1}
+                        showSeenUsers={ii === aa.length - 1}
+                        onImageClick={() => {
+                          if (mm.contentType !== Message.CONTENT_TYPE_IMAGE) {
+                            return;
+                          }
+                          setImgSrc(mm.content);
+                          onOpen();
+                        }}
+                      />
+                    </HStack>
                   ))}
                 </Stack>
               )}

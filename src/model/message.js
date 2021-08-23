@@ -10,6 +10,8 @@ import {
   getUnseenMessages,
 } from 'services/message';
 import Conversation from 'entities/Conversation';
+import Message from 'entities/Message';
+import { getBase64 } from 'utils';
 
 const messageModel = {
   name: 'message',
@@ -130,10 +132,8 @@ const messageModel = {
           break;
         case 'error':
           state.sendMessage = { error: payload };
-          state.messages[payload.keyMsg] = {
-            ...state.messages[payload.keyMsg],
-            error: payload.error,
-          };
+          delete state.messages[payload.keyMsg].sending;
+          state.messages[payload.keyMsg].error = payload.error;
           break;
         default:
           state.sendMessage = { loading: true };
@@ -252,9 +252,17 @@ const messageModel = {
     },
     sendMessage: async ({ keyMsg, ...payload }, onSuccess, onError) => {
       try {
+        if (payload.contentType === Message.CONTENT_TYPE_IMAGE) {
+          payload.base64Image = (await getBase64(payload.imageUrl)).replace(
+            /^data:image\/[a-z]+;base64,/,
+            '',
+          );
+          delete payload.imageUrl;
+          delete payload.contentBlob;
+        }
         const message = await sendMessage(payload);
         onSuccess({
-          cachedKey: payload.conversationId || payload.friendId,
+          cachedKey: payload.conversationId,
           keyMsg,
           message,
         });
