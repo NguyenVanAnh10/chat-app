@@ -86,10 +86,12 @@ const messageModel = {
       switch (status) {
         case 'success':
           state.messages[payload.message.id] = payload.message;
-          state.getMessages[payload.cachedKey] = {
-            total: (state.getMessages[payload.cachedKey]?.total || 0) + 1,
-            ids: [...(state.getMessages[payload.cachedKey]?.ids || []), payload.message.id],
-          };
+          if (!state.getMessages[payload.cachedKey]?.ids?.includes(payload.message.id)) {
+            state.getMessages[payload.cachedKey] = {
+              total: (state.getMessages[payload.cachedKey]?.total || 0) + 1,
+              ids: [...(state.getMessages[payload.cachedKey]?.ids || []), payload.message.id],
+            };
+          }
           break;
         case 'error':
           state.getMessage[payload.cachedKey] = {

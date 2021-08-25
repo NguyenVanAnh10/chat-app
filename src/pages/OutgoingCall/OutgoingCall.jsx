@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from 'react';
 import { useUpdateEffect } from 'react-use';
 import { Text, VStack, AspectRatio, IconButton, Center } from '@chakra-ui/react';
 import { useLocation } from 'react-router-dom';
-import qs from 'query-string';
 
 import VideoPlayer from 'components/VideoCallModal/VideoPlayer';
 import { HangoutPhoneIcon } from 'components/CustomIcons';
@@ -15,19 +14,22 @@ import AlertSound from 'components/AlertSound';
 import styles from './OutgoingCall.module.scss';
 import Action from 'entities/Action';
 import outgoingCallSound from 'statics/sounds/outgoing_call.mp3';
+import useQuery from 'hooks/useQuery';
+import { useFriend } from 'hooks/useFriends';
 
 const OutgoingCall = () => {
-  const { conversationId, friendId } = qs.parse(useLocation().search);
+  const { conversationId, friendId } = useQuery(useLocation().search);
 
   const [{ streamVideos, callState }, { onLeaveCall, onCallFriend }] = useContext(ChatContext);
 
   const { account } = useContext(AccountContext);
-  const [{ conversation }] = useConversation({ conversationId, friendId });
+  const [{ conversation }] = useConversation({ conversationId });
+  const [{ friend }] = useFriend({ friendId }, { forceFetching: true });
 
   useEffect(() => {
     const data = { conversationId: conversationId || conversation.id };
-    if (!conversationId && !conversation.id && friendId) {
-      data.addresseeIds = [friendId];
+    if (!conversationId && !conversation.id && friend.id) {
+      data.addresseeIds = [friend.id];
     }
     onCallFriend(data);
   }, []);
@@ -45,8 +47,8 @@ const OutgoingCall = () => {
   };
 
   const renderCallingNameAndAvatar = () => {
-    if (conversation.members.length === 2) {
-      const participant = conversation.members.find(m => m.id !== account.id);
+    if (conversation.members?.length === 2 || !!friend.id) {
+      const participant = conversation.members?.find(m => m.id !== account.id) || friend;
       return (
         <VStack mx="auto" zIndex="1" spacing="4" color="whiteAlpha.900" userSelect="none">
           <Avatar name={participant.userName} src={participant.avatar} size="xl" />

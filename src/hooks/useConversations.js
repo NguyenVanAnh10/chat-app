@@ -35,7 +35,13 @@ const useConversations = options => {
   ];
 };
 
-export const useConversation = ({ conversationId }) => {
+/**
+ *
+ * @param {string} conversationId
+ * @param {{forceFetching: boolean}} options
+ * @returns {[{conversation: IConversation},{createConversation: () => ({})}]}
+ */
+export const useConversation = ({ conversationId }, options = {}) => {
   const [{ conversation, getConversationState }, { getConversation, createConversation }] =
     useModel('conversation', state => ({
       conversation: state.conversations[conversationId] || {},
@@ -45,16 +51,18 @@ export const useConversation = ({ conversationId }) => {
   const [{ users }] = useModel('user', state => ({ users: state.users }));
 
   useReactEffect(() => {
-    if (getConversationState.loading || conversation.id) return;
+    if (getConversationState.loading || conversation.id || !options.forceFetching) return;
     getConversation({ id: conversationId });
   }, [conversationId]);
 
   return [
     {
-      conversation: {
-        ...conversation,
-        members: conversation.members?.map(id => users[id] || {}) || [],
-      },
+      conversation: conversation.id
+        ? {
+            ...conversation,
+            members: conversation.members?.map(id => users[id] || {}) || [],
+          }
+        : {},
     },
     { createConversation },
   ];

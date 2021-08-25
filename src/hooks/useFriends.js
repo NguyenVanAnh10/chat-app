@@ -1,4 +1,4 @@
-import { useEffect as useReactEffect } from 'react';
+import { useEffect, useEffect as useReactEffect } from 'react';
 
 import { useModel } from 'model';
 
@@ -21,6 +21,21 @@ const selector = ({ getFriends, addressees, requesters, confirmFriendRequest }) 
   confirmFriendRequestState: confirmFriendRequest,
 });
 
+/**
+ *
+ * @param {{forceFetchingFriends: boolean}} options
+ * @returns {[
+ *   {
+ *    getFriendState: {loading: boolean, error: object},
+ *    addFriendRequestState: {loading: boolean, error: object},
+ *    friendRequestAddressees: [IUser],
+ *    friendRequestRequesters: [IUser],
+ *    friends: [IUser],
+ *    confirmFriendRequest: {loading: boolean, error: object},
+ *  },
+ *  { confirmFriendRequest: () => ({}), addFriendRequest: () => ({}) },
+ *  ]}
+ */
 const usefriends = options => {
   const [
     {
@@ -68,3 +83,27 @@ const usefriends = options => {
 };
 
 export default usefriends;
+
+/**
+ *
+ * @param {{conversationId?: string, friendId?: string}}
+ * @param {{forceFetching: boolean}} options
+ * @returns {[{friend: IUser}]}
+ */
+export const useFriend = ({ conversationId, friendId }, options = { forceFetching: false }) => {
+  const [{ friendIds }, { getFriend }] = useModel('account', state => ({
+    friendIds: state.getFriends.ids,
+  }));
+  const [{ users }] = useModel('user', state => ({
+    users: state.users,
+  }));
+  const friend =
+    users[friendIds.find(id => id === friendId || users[id].conversation === conversationId)] || {};
+
+  useEffect(() => {
+    if (!options.forceFetching || friend.id || !friendId) return;
+    getFriend(friendId);
+  }, [friendId]);
+
+  return [{ friend }];
+};

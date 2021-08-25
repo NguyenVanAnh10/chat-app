@@ -7,38 +7,30 @@ import { AccountContext } from 'App';
 import MessageStatus from 'components/MessageStatus';
 import { MissedCallIcon, VideoCallIcon } from 'components/CustomIcons';
 import { useConversation } from 'hooks/useConversations';
+import { useFriend } from 'hooks/useFriends';
 
-const NotificationMessage = forwardRef(({
-  message,
-  showStatusMessage,
-}, ref) => {
+const NotificationMessage = forwardRef(({ message, showStatusMessage }, ref) => {
   const { account } = useContext(AccountContext);
   const [{ conversation }] = useConversation({
     conversationId: message.conversation || message.conversationId,
   });
 
-  const participant = conversation.members.find(m => m.id !== account.id);
+  const [{ friend }] = useFriend({
+    conversationId: message.conversation || message.conversationId,
+  });
+  const participant = conversation.members?.find(m => m.id !== account.id) || friend;
 
   switch (message.content) {
     case Notification.NOTIFICATION_MISS_CALL:
       return (
-        <BubbleMessage
-          message={message}
-          showStatus={false}
-          showSeenUsers={false}
-          ref={ref}
-        >
+        <BubbleMessage message={message} showStatus={false} showSeenUsers={false} ref={ref}>
           {account.id === message.sender ? (
             <Text>
               {participant.userName}
               missed your video chat
             </Text>
           ) : (
-            <Text>
-              you missed a video chat with
-              {' '}
-              {participant.userName}
-            </Text>
+            <Text>{`you missed a video chat with ${participant.userName}`}</Text>
           )}
         </BubbleMessage>
       );
@@ -51,11 +43,7 @@ const NotificationMessage = forwardRef(({
           </Text>
           )
           {showStatusMessage && (
-            <MessageStatus
-              message={message}
-              showStatus={false}
-              showSeenUsers={false}
-            />
+            <MessageStatus message={message} showStatus={false} showSeenUsers={false} />
           )}
         </BubbleMessage>
       );
@@ -76,11 +64,7 @@ const NotificationMessage = forwardRef(({
             </Text>
           )}
           {showStatusMessage && (
-            <MessageStatus
-              message={message}
-              showStatus={false}
-              showSeenUsers={false}
-            />
+            <MessageStatus message={message} showStatus={false} showSeenUsers={false} />
           )}
         </BubbleMessage>
       );

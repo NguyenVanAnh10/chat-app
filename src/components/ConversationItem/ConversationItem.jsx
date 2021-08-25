@@ -14,8 +14,8 @@ const ConversationItem = ({ conversation, active, onClick }) => {
   ] = useMessages({ conversationId: conversation.id }, { forceFetchingUnseenMessages: true });
 
   const renderConversationNameAndAvatar = () => {
-    if (conversation.members.length === 2) {
-      const participant = conversation.members.find(m => m.id !== account.id);
+    if (conversation.members?.length === 2) {
+      const participant = conversation.members?.find(m => m.id !== account.id);
       return (
         <>
           <Avatar key={participant.id} name={participant.userName} src={participant.avatar}>
