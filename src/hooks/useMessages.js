@@ -1,6 +1,7 @@
 import { useEffect as useReactEffect, useMemo } from 'react';
 
 import { useModel } from 'model';
+import Message from 'entities/Message';
 
 const selector = ({ getUnseenMessages, getMessages, messages, seeMessages, sendMessage }) => ({
   unseenMessagesState: getUnseenMessages,
@@ -44,32 +45,11 @@ const useMessages = ({ conversationId, skip = 0, limit = 20 }, options) => {
     )
       return;
 
-    getMessages({
-      limit,
-      skip,
-      cachedKey,
-      conversationId,
-    });
+    getMessages({ limit, skip, cachedKey, conversationId });
   }, [cachedKey]);
 
   const aggregateMessages = useMemo(
-    () =>
-      (messagesState[cachedKey]?.ids || [])
-        .map(id => messages[id])
-        .reduce((s, c, index, arr) => {
-          if (index === 0 || arr[index - 1].sender !== c.sender) {
-            return [...s, c];
-          }
-          return [
-            ...(s.length > 1 ? s.slice(0, s.length - 1) : []),
-            {
-              ...c,
-              aggregateMsg: s[s.length - 1]?.aggregateMsg
-                ? [...s[s.length - 1]?.aggregateMsg, c]
-                : [s[s.length - 1], c],
-            },
-          ];
-        }, []),
+    () => Message.aggregateMessages(messagesState[cachedKey]?.ids || [], messages),
     [messages, cachedKey],
   );
 
@@ -83,4 +63,5 @@ const useMessages = ({ conversationId, skip = 0, limit = 20 }, options) => {
     { getMessages, seeMessages, sendMessage },
   ];
 };
+
 export default useMessages;

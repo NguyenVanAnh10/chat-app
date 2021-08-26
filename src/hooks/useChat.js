@@ -58,7 +58,7 @@ const useChat = () => {
           callState: { hasReceived: true },
         });
       },
-      end_call: ({ userId }) => {
+      end_call: () => {
         setChat(initChat);
         destroyCall();
       },
@@ -70,6 +70,8 @@ const useChat = () => {
       },
       add_new_conversation: ({ conversationId }) => {
         getConversation({ id: conversationId });
+        // TODO
+        getUnseenMessages({ cachedKey: 'all' });
       },
       get_message: ({ senderId, messageId, conversationId, messageContentType }) => {
         if (account.id === senderId && messageContentType !== Message.CONTENT_TYPE_NOTIFICATION) {

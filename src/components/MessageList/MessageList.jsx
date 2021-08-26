@@ -12,6 +12,7 @@ import Avatar from 'components/Avatar';
 import useMessages from 'hooks/useMessages';
 import useUsers from 'hooks/useUsers';
 import { MenuContext } from 'contexts/menuContext';
+import Notification from 'entities/Notification';
 
 const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
   const { menuState } = useContext(MenuContext);
@@ -67,78 +68,86 @@ const MessageList = forwardRef(({ bottomMessagesBoxRef }, ref) => {
         loadingMore={loading && typeof prevMessageNumber !== 'undefined'}
         onLoadmore={handleLoadmore}
       >
-        {messages.map((m, i) => (
-          <Stack
-            key={m.id || m.keyMsg}
-            spacing="1"
-            w="100%"
-            direction={m.sender !== account.id ? 'row' : 'row-reverse'}
-          >
-            <Avatar
-              name={users[m.sender]?.userName}
-              src={users[m.sender]?.avatar}
-              size="sm"
-              zIndex="2"
-            />
-            <HStack spacing="1" maxW="70%">
-              {!m.aggregateMsg ? (
-                <HStack ref={i === 0 ? lastMessageRef : null}>
-                  {!!m.error && (
-                    <IconButton
-                      bg="transparent"
-                      icon={<RepeatIcon color="red.500" />}
-                      onClick={() => {
-                        // resend
-                        sendMessage(m);
-                      }}
-                    />
-                  )}
-                  <MessageContent
-                    message={m}
-                    showSeenUsers
-                    onImageClick={() => {
-                      if (m.contentType !== Message.CONTENT_TYPE_IMAGE) return;
-                      setImgSrc(m.content);
-                      onOpen();
-                    }}
-                  />
-                </HStack>
-              ) : (
-                <Stack spacing="2" align={m.sender !== account.id ? 'flex-start' : 'flex-end'}>
-                  {m.aggregateMsg.map((mm, ii, aa) => (
-                    <HStack
-                      key={mm.id || mm.keyMsg}
-                      ref={i === 0 && ii === 0 ? lastMessageRef : null}
-                    >
-                      {!!mm.error && (
-                        <IconButton
-                          bg="transparent"
-                          icon={<RepeatIcon color="red.500" />}
-                          onClick={() => {
-                            // resend
-                            sendMessage(mm);
-                          }}
-                        />
-                      )}
-                      <MessageContent
-                        message={mm}
-                        showStatusMessage={ii === aa.length - 1}
-                        showSeenUsers={ii === aa.length - 1}
-                        onImageClick={() => {
-                          if (mm.contentType !== Message.CONTENT_TYPE_IMAGE) {
-                            return;
-                          }
-                          setImgSrc(mm.content);
-                          onOpen();
+        {messages.map((m, i) => {
+          const isNotiMemberAddition = m.content?.includes(
+            Notification.NOTIFICATION_MEMBER_ADDITION,
+          );
+          return (
+            <Stack
+              key={m.id || m.keyMsg}
+              spacing="1"
+              w="100%"
+              justify={isNotiMemberAddition && 'center'}
+              direction={m.sender !== account.id ? 'row' : 'row-reverse'}
+            >
+              {!isNotiMemberAddition && (
+                <Avatar
+                  name={users[m.sender]?.userName}
+                  src={users[m.sender]?.avatar}
+                  size="sm"
+                  zIndex="2"
+                />
+              )}
+              <HStack spacing="1" maxW="70%">
+                {!m.aggregateMsg ? (
+                  <HStack ref={i === 0 ? lastMessageRef : null}>
+                    {!!m.error && (
+                      <IconButton
+                        bg="transparent"
+                        icon={<RepeatIcon color="red.500" />}
+                        onClick={() => {
+                          // resend
+                          sendMessage(m);
                         }}
                       />
-                    </HStack>
-                  ))}
-                </Stack>
-              )}
-            </HStack>
-          </Stack>
-        ))}
+                    )}
+                    <MessageContent
+                      message={m}
+                      showSeenUsers
+                      onImageClick={() => {
+                        if (m.contentType !== Message.CONTENT_TYPE_IMAGE) return;
+                        setImgSrc(m.content);
+                        onOpen();
+                      }}
+                    />
+                  </HStack>
+                ) : (
+                  <Stack spacing="2" align={m.sender !== account.id ? 'flex-start' : 'flex-end'}>
+                    {m.aggregateMsg.map((mm, ii, aa) => (
+                      <HStack
+                        key={mm.id || mm.keyMsg}
+                        ref={i === 0 && ii === 0 ? lastMessageRef : null}
+                      >
+                        {!!mm.error && (
+                          <IconButton
+                            bg="transparent"
+                            icon={<RepeatIcon color="red.500" />}
+                            onClick={() => {
+                              // resend
+                              sendMessage(mm);
+                            }}
+                          />
+                        )}
+                        <MessageContent
+                          message={mm}
+                          showStatusMessage={ii === aa.length - 1}
+                          showSeenUsers={ii === aa.length - 1}
+                          onImageClick={() => {
+                            if (mm.contentType !== Message.CONTENT_TYPE_IMAGE) {
+                              return;
+                            }
+                            setImgSrc(mm.content);
+                            onOpen();
+                          }}
+                        />
+                      </HStack>
+                    ))}
+                  </Stack>
+                )}
+              </HStack>
+            </Stack>
+          );
+        })}
         <div className="bottom-anchor-scroller" ref={bottomMessagesBoxRef}>
           &nbsp;
         </div>
