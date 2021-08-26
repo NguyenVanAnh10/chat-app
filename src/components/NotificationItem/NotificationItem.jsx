@@ -8,7 +8,7 @@ const NotificationItem = ({ typeNotification, friend, onConfirm, onDelete }) => 
   switch (typeNotification) {
     case Notification.NOTIFICATION_FRIEND_REQUEST:
       return (
-        <HStack spacing="4" align="flex-start">
+        <HStack spacing="4" align="flex-start" w="100%" p="1">
           <Avatar name={friend.userName} src={friend.avatar}>
             <AvatarBadge boxSize="0.8em" bg={friend.online ? 'green.500' : 'gray.300'} />
           </Avatar>
