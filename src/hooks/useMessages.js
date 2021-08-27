@@ -10,7 +10,26 @@ const selector = ({ getUnseenMessages, getMessages, messages, seeMessages, sendM
   seeMessagesState: seeMessages,
   sendMessageState: sendMessage,
 });
-const useMessages = ({ conversationId, skip = 0, limit = 20 }, options) => {
+
+/**
+ *
+ * @param {{conversationId: string, skip?: string|number, limit?: string|number}}
+ * @param {{forceFetchingMessages: boolean,forceFetchingUnseenMessages: boolean }} options
+ * @returns {[
+ *  {
+ *    messages: [IMessage],
+ *    messagesState: {total:number, loading: boolean, error: object},
+ *    unseenMessagesState: {total:number, loading: boolean, error: object},
+ *    seeMessagesState: {total:number, loading: boolean, error: object},
+ *  },
+ *  {
+ *    getMessages: () => ({}),
+ *    seeMessages:() => ({}),
+ *    sendMessage:() => ({})
+ *  },
+ * ]}
+ */
+const useMessages = ({ conversationId, skip = 0, limit = 20 }, options = {}) => {
   const cachedKey = conversationId || 'all';
 
   const [
@@ -20,7 +39,7 @@ const useMessages = ({ conversationId, skip = 0, limit = 20 }, options) => {
 
   useReactEffect(() => {
     if (
-      !options?.forceFetchingUnseenMessages ||
+      !options.forceFetchingUnseenMessages ||
       unseenMessagesState[cachedKey] ||
       unseenMessagesState[cachedKey]?.loading
     )
@@ -31,7 +50,7 @@ const useMessages = ({ conversationId, skip = 0, limit = 20 }, options) => {
   useReactEffect(() => {
     if (
       !conversationId ||
-      !options?.forceFetchingMessages ||
+      !options.forceFetchingMessages ||
       messagesState[cachedKey]?.loading ||
       sendMessageState.loading
     )

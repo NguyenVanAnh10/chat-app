@@ -7,6 +7,7 @@ import ListItem from 'components/ListItem';
 import { MenuContext } from 'contexts/menuContext';
 import AddFriendModal from 'components/AddFriendModal';
 import Avatar from 'components/Avatar';
+import useMessages from 'hooks/useMessages';
 
 const FriendList = () => {
   const { menuState, setMenuState } = useContext(MenuContext);
@@ -57,38 +58,46 @@ const FriendList = () => {
   );
 };
 
-const FriendItem = ({ friend, active, onClick }) => (
-  <HStack
-    p="1"
-    spacing="3"
-    w="100%"
-    borderRadius="5"
-    cursor="pointer"
-    onClick={onClick}
-    transition="all 0.3s ease"
-    _hover={{ bg: 'purple.50' }}
-    _active={{ bg: '#feebc8' }}
-    bg={active ? '#feebc8' : 'transparent'}
-  >
-    <Avatar name={friend.userName} src={friend.avatar}>
-      <AvatarBadge boxSize="0.8em" bg={friend.online ? 'green.500' : 'gray.300'} />
-    </Avatar>
-    <Text>{friend.name || friend.userName}</Text>
-    {!!friend.newMessageNumber && (
-      <Text
-        ml="auto !important"
-        borderRadius="100%"
-        bg="red.500"
-        color="white"
-        fontSize="sm"
-        fontWeight="bold"
-        width="5"
-        height="5"
-        textAlign="center"
-      >
-        {friend.newMessageNumber}
-      </Text>
-    )}
-  </HStack>
-);
+const FriendItem = ({ friend, active, onClick }) => {
+  const [
+    {
+      unseenMessagesState: { total },
+    },
+  ] = useMessages({ conversationId: friend.conversation }, { forceFetchingUnseenMessages: true });
+
+  return (
+    <HStack
+      p="1"
+      spacing="3"
+      w="100%"
+      borderRadius="5"
+      cursor="pointer"
+      onClick={onClick}
+      transition="all 0.3s ease"
+      _hover={{ bg: 'purple.50' }}
+      _active={{ bg: '#feebc8' }}
+      bg={active ? '#feebc8' : 'transparent'}
+    >
+      <Avatar name={friend.userName} src={friend.avatar}>
+        <AvatarBadge boxSize="0.8em" bg={friend.online ? 'green.500' : 'gray.300'} />
+      </Avatar>
+      <Text>{friend.name || friend.userName}</Text>
+      {!!total && (
+        <Text
+          ml="auto !important"
+          borderRadius="100%"
+          bg="red.500"
+          color="white"
+          fontSize="sm"
+          fontWeight="bold"
+          width="5"
+          height="5"
+          textAlign="center"
+        >
+          {total}
+        </Text>
+      )}
+    </HStack>
+  );
+};
 export default FriendList;
