@@ -3,12 +3,7 @@ import { Box, Input, useToast } from '@chakra-ui/react';
 
 import { getBase64 } from 'utils';
 
-const UploadImage = memo(({
-  maxSize = 5,
-  onSelectImage,
-  renderButton = () => {},
-  ...rest
-}) => {
+const UploadImage = memo(({ maxSize = 5, onSelectImage, renderButton = () => {}, ...rest }) => {
   const toast = useToast();
 
   const inputImageRef = useRef();
@@ -42,13 +37,8 @@ const UploadImage = memo(({
       return;
     }
     try {
-    // TODO return images array
-      const base64Image = (await getBase64(imageUrls[0])).replace(
-        /^data:image\/[a-z]+;base64,/,
-        '',
-      );
-      const contentBlob = URL.createObjectURL(imageUrls[0]);
-      onSelectImage({ base64Image, contentBlob });
+      // TODO return images array
+      onSelectImage({ imageUrl: imageUrls[0], contentBlob: URL.createObjectURL(imageUrls[0]) });
     } catch (error) {
       console.error(error);
       return {};

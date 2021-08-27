@@ -24,25 +24,18 @@ const ChatApp = () => {
     <ChatContext.Provider value={[{ ...chatState, incomingCallWindow }, action]}>
       <MenuContext.Provider value={{ menuState, setMenuState }}>
         <Switch>
-          <Route
-            exact
-            path="/"
-            render={() => <ChatContainer incomingCallWindowRef={incomingCallWindow} />}
-          />
+          <Route exact path="/" render={() => <ChatContainer />} />
           <Route exact path="/call/outgoing" component={OutgoingCall} />
           <Route exact path="/call/incoming" component={IncomingCall} />
         </Switch>
       </MenuContext.Provider>
-
     </ChatContext.Provider>
   );
 };
 
-const ChatContainer = ({ incomingCallWindowRef }) => {
-  const [
-    { caller, callState, conversationId },
-    { onDeclineCall, onAcceptCall },
-  ] = useContext(ChatContext);
+const ChatContainer = () => {
+  const [{ caller, callState, conversationId }, { onDeclineCall, onAcceptCall }] =
+    useContext(ChatContext);
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
 
   return (
@@ -55,12 +48,8 @@ const ChatContainer = ({ incomingCallWindowRef }) => {
         onDecline={() => onDeclineCall(caller.id)}
         onAcceptCall={onAcceptCall}
         remoteSignal={caller.signal}
-        incomingCallWindowRef={incomingCallWindowRef}
       />
-      <HelmetWrapper
-        callerId={caller.id}
-        isIncomingCall={callState.hasReceived}
-      />
+      <HelmetWrapper callerId={caller.id} isIncomingCall={callState.hasReceived} />
     </>
   );
 };
@@ -73,9 +62,11 @@ const MainLayout = () => {
         <SubSideNav />
         <MainSideNav />
       </Flex>
-      {(menuState[menuState.active]?.conversationId
-      || menuState[menuState.active]?.friendId)
-        ? <ChatBox /> : <Welcome />}
+      {menuState[menuState.active]?.conversationId || menuState[menuState.active]?.friendId ? (
+        <ChatBox />
+      ) : (
+        <Welcome />
+      )}
     </Flex>
   );
 };
@@ -85,15 +76,14 @@ const MobileLayout = () => {
 
   return (
     <Flex h="100%" w="100%" overflow="hidden">
-      {(menuState[menuState.active]?.conversationId
-      || menuState[menuState.active]?.friendId) ? (
+      {menuState[menuState.active]?.conversationId || menuState[menuState.active]?.friendId ? (
         <ChatBox />
-        ) : (
-          <>
-            <MainSideNav />
-            <SubSideNav />
-          </>
-        )}
+      ) : (
+        <>
+          <MainSideNav />
+          <SubSideNav />
+        </>
+      )}
     </Flex>
   );
 };

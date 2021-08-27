@@ -14,51 +14,41 @@ import { AccountContext } from 'App';
 import { useConversation } from 'hooks/useConversations';
 import { MenuContext } from 'contexts/menuContext';
 import Avatar from 'components/Avatar';
-import useUsers from 'hooks/useUsers';
 import { ChatContext } from 'pages/ChatApp';
+import { useFriend } from 'hooks/useFriends';
 
 const ChatHeader = () => {
-  const { menuState } = useContext(MenuContext);
-  const { conversationId, friendId } = menuState[menuState.active];
+  const { menuState, setMenuState } = useContext(MenuContext);
+  const { conversationId } = menuState[menuState.active];
   const [{ incomingCallWindow }, { onOutgoingCall }] = useContext(ChatContext);
 
   const { account } = useContext(AccountContext);
-  const [{ conversation }] = useConversation({ conversationId, friendId });
-  const [{ users }] = useUsers();
+  const [{ conversation }] = useConversation({ conversationId });
+  const [{ friend }] = useFriend({ conversationId });
+
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
-  const { setMenuState } = useContext(MenuContext);
 
   const renderHeaderAvatar = () => {
-    const participant = conversation.id ? conversation.members?.find(m => m.id !== account.id)
-      : users[friendId] || {};
-    return (friendId || conversation.members?.length === 2)
-      ? (
-        <>
-          <Avatar
-            key={participant.id}
-            name={participant.userName}
-            src={participant.avatar}
-          >
-            <AvatarBadge
-              boxSize="0.8em"
-              bg={participant.online ? 'green.500' : 'gray.300'}
-            />
-          </Avatar>
-          <Text ml="2">{participant.userName}</Text>
-        </>
-      )
-      : (
-        <>
-          <AvatarGroup size="md" max={3}>
-            {conversation.members?.map(o => (
-              <Avatar key={o.id} name={o.userName} src={o.avatar}>
-                <AvatarBadge boxSize="0.8em" bg={o.online ? 'green.500' : 'gray.300'} />
-              </Avatar>
-            ))}
-          </AvatarGroup>
-          <Text ml="2">{conversation.name || 'No name'}</Text>
-        </>
-      );
+    const participant = conversation.members?.find(m => m.id !== account.id) || friend;
+    return conversation.members?.length > 2 ? (
+      <>
+        <AvatarGroup size="md" max={3}>
+          {conversation.members?.map(o => (
+            <Avatar key={o.id} name={o.userName} src={o.avatar}>
+              <AvatarBadge boxSize="0.8em" bg={o.online ? 'green.500' : 'gray.300'} />
+            </Avatar>
+          ))}
+        </AvatarGroup>
+        <Text ml="2">{conversation.name || 'No name'}</Text>
+      </>
+    ) : (
+      <>
+        <Avatar key={participant.id} name={participant.userName} src={participant.avatar}>
+          <AvatarBadge boxSize="0.8em" bg={participant.online ? 'green.500' : 'gray.300'} />
+        </Avatar>
+        <Text ml="2">{participant.userName}</Text>
+      </>
+    );
   };
 
   return (
@@ -85,23 +75,25 @@ const ChatHeader = () => {
             />
           )}
           {renderHeaderAvatar()}
-
         </HStack>
-        {(friendId || conversation.members?.length === 2) && (
-        <IconButton
-          size="lg"
-          fontSize="1.5rem"
-          colorScheme="green"
-          icon={<PhoneIcon />}
-          onClick={() => {
-            if (incomingCallWindow.current) {
-              incomingCallWindow.current.close();
-            }
-            onOutgoingCall(conversationId);
-            window.open(`/call/outgoing?${qs.stringify({ conversationId, friendId })}`,
-              'outgoing-call', `height=${window.innerHeight},width=${window.innerWidth}`);
-          }}
-        />
+        {(conversation.members?.length === 2 || !!friend.id) && (
+          <IconButton
+            size="lg"
+            fontSize="1.5rem"
+            colorScheme="green"
+            icon={<PhoneIcon />}
+            onClick={() => {
+              if (incomingCallWindow.current) {
+                incomingCallWindow.current.close();
+              }
+              onOutgoingCall(conversationId);
+              window.open(
+                `/call/outgoing?${qs.stringify({ conversationId, friendId: friend.id })}`,
+                'outgoing-call',
+                `height=${window.innerHeight},width=${window.innerWidth}`,
+              );
+            }}
+          />
         )}
       </HStack>
     </>

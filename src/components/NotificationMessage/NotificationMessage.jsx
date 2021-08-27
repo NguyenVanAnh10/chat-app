@@ -7,38 +7,33 @@ import { AccountContext } from 'App';
 import MessageStatus from 'components/MessageStatus';
 import { MissedCallIcon, VideoCallIcon } from 'components/CustomIcons';
 import { useConversation } from 'hooks/useConversations';
+import { useFriend } from 'hooks/useFriends';
+import { useUser } from 'hooks/useUsers';
 
-const NotificationMessage = forwardRef(({
-  message,
-  showStatusMessage,
-}, ref) => {
+const NotificationMessage = forwardRef(({ message, showStatusMessage }, ref) => {
+  const [notificationType, receiverId] = message.content.split('-');
+
   const { account } = useContext(AccountContext);
   const [{ conversation }] = useConversation({
     conversationId: message.conversation || message.conversationId,
   });
 
-  const participant = conversation.members.find(m => m.id !== account.id);
+  const [{ friend }] = useFriend({
+    conversationId: message.conversation || message.conversationId,
+  });
+  const participant = conversation.members?.find(m => m.id !== account.id) || friend;
 
-  switch (message.content) {
+  switch (notificationType) {
     case Notification.NOTIFICATION_MISS_CALL:
       return (
-        <BubbleMessage
-          message={message}
-          showStatus={false}
-          showSeenUsers={false}
-          ref={ref}
-        >
+        <BubbleMessage message={message} showStatus={false} showSeenUsers={false} ref={ref}>
           {account.id === message.sender ? (
             <Text>
               {participant.userName}
               missed your video chat
             </Text>
           ) : (
-            <Text>
-              you missed a video chat with
-              {' '}
-              {participant.userName}
-            </Text>
+            <Text>{`you missed a video chat with ${participant.userName}`}</Text>
           )}
         </BubbleMessage>
       );
@@ -51,11 +46,7 @@ const NotificationMessage = forwardRef(({
           </Text>
           )
           {showStatusMessage && (
-            <MessageStatus
-              message={message}
-              showStatus={false}
-              showSeenUsers={false}
-            />
+            <MessageStatus message={message} showStatus={false} showSeenUsers={false} />
           )}
         </BubbleMessage>
       );
@@ -76,13 +67,13 @@ const NotificationMessage = forwardRef(({
             </Text>
           )}
           {showStatusMessage && (
-            <MessageStatus
-              message={message}
-              showStatus={false}
-              showSeenUsers={false}
-            />
+            <MessageStatus message={message} showStatus={false} showSeenUsers={false} />
           )}
         </BubbleMessage>
+      );
+    case Notification.NOTIFICATION_MEMBER_ADDITION:
+      return (
+        <MemberAdditionNotificationMessage receiverId={receiverId} senderId={message.sender} />
       );
     default:
       return (
@@ -92,5 +83,60 @@ const NotificationMessage = forwardRef(({
       );
   }
 });
+
+const MemberAdditionNotificationMessage = ({ receiverId, senderId }) => {
+  const [{ user: receiver }] = useUser(receiverId);
+  const [{ user: sender }] = useUser(senderId);
+  const { account } = useContext(AccountContext);
+
+  switch (account.id) {
+    case receiverId:
+      return (
+        <Text
+          fontSize="xs"
+          color="blackAlpha.700"
+          bg="gray.100"
+          borderRadius="lg"
+          px="1.5"
+          py="0.5"
+          fontStyle="italic"
+        >
+          you was added the group by &nbsp;
+          <strong>{sender.userName}</strong>
+        </Text>
+      );
+    case senderId:
+      return (
+        <Text
+          fontSize="xs"
+          color="blackAlpha.700"
+          bg="gray.100"
+          borderRadius="lg"
+          px="1.5"
+          py="0.5"
+          fontStyle="italic"
+        >
+          you added &nbsp;
+          <strong>{receiver.userName}</strong>
+          &nbsp; in the group
+        </Text>
+      );
+    default:
+      return (
+        <Text
+          fontSize="xs"
+          color="blackAlpha.700"
+          bg="gray.100"
+          borderRadius="lg"
+          px="1.5"
+          py="0.5"
+          fontStyle="italic"
+        >
+          <strong>{receiver.userName}</strong>
+          &nbsp; was added in the group
+        </Text>
+      );
+  }
+};
 
 export default NotificationMessage;

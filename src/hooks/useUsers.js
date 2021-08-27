@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { useModel } from 'model';
 
@@ -17,24 +17,25 @@ const useUsers = () => {
     getUsers({ keyword });
   };
 
-  return [{
-    users,
-    getUsersState: getUsersState[kw] || {},
-    arrayUsers: (getUsersState[kw]?.ids || []).map(id => users[id] || {}),
-
-  }, { getUsers: getUsersByKeyword, getUser }];
+  return [
+    {
+      users,
+      getUsersState: getUsersState[kw] || {},
+      arrayUsers: (getUsersState[kw]?.ids || []).map(id => users[id] || {}),
+    },
+    { getUsers: getUsersByKeyword, getUser },
+  ];
 };
 
-const userSelector = id => ({ users }) => ({
-  user: users[id] || {},
-});
-
+/**
+ *
+ * @param {string} id
+ * @returns {[{user: IUser}]}
+ */
 export const useUser = id => {
-  const [{ user }, { getUser }] = useModel('user', userSelector(id));
-  useEffect(() => {
-    if (!id || user.id) return;
-    getUser({ id });
-  }, [id]);
+  const [{ user }] = useModel('user', ({ users }) => ({
+    user: users[id] || {},
+  }));
   return [{ user }];
 };
 

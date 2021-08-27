@@ -156,7 +156,7 @@ const accountModel = {
     confirmFriendRequest: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          state.requesters.ids = state.addressees.ids.filter(id => id !== payload.friendship.id);
+          state.requesters.ids = state.requesters.ids.filter(id => id !== payload.id);
           state.getFriends.ids.push(payload.id);
           state.confirmFriendRequest = {};
           break;

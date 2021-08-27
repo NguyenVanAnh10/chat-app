@@ -1,10 +1,25 @@
-import { useLocation } from 'react-router-dom';
-
-const useQuery = () => {
+/**
+ *
+ * @param {string} params
+ * @returns {object}
+ */
+const useQuery = params => {
   const searchParams = {};
-  const urlSearchParams = new URLSearchParams(useLocation().search);
+  const urlSearchParams = new URLSearchParams(params);
   for (const [key, value] of urlSearchParams) {
-    searchParams[key] = value;
+    switch (value) {
+      case 'undefined':
+      case 'null':
+      case 'NaN':
+        break;
+      default:
+        if (!Number.isNaN(Number(value))) {
+          searchParams[key] = Number(value);
+          break;
+        }
+        searchParams[key] = value;
+        break;
+    }
   }
   return searchParams;
 };

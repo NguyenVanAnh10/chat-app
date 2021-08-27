@@ -1,52 +1,33 @@
-import React, { useState, useContext } from 'react';
-import { Image, VStack } from '@chakra-ui/react';
+import React, { useContext, forwardRef } from 'react';
+import { VStack } from '@chakra-ui/react';
 
 import MessageStatus from 'components/MessageStatus';
 import { AccountContext } from 'App';
 
-const ImageMessage = ({
-  message, onClick,
-}) => {
-  const [visible, setVisible] = useState(false);
+import styles from './ImageMessage.module.scss';
+import classNames from 'classnames';
+
+const ImageMessage = forwardRef(({ message, onClick }, ref) => {
   const { account } = useContext(AccountContext);
   return (
     <VStack
-      mr="2"
+      className={styles.ImageMessage}
+      ref={ref}
       alignItems="flex-end"
       cursor="pointer"
-      onClick={() => visible && onClick()}
+      onClick={onClick}
     >
-      <Image
-        maxW="100%"
-        maxH={200}
-        borderRadius="lg"
-        objectFit="contain"
-        display={!visible ? 'block' : 'none'}
-        objectPosition={message.sender === account.id ? 'right' : 'left'}
-        src={message.contentBlob}
-        // onLoad={() => {
-        //   containerRef.current.scrollIntoView(false);
-        // }}
-      />
-      <Image
-        maxW="100%"
-        maxH={200}
-        borderRadius="lg"
-        objectFit="contain"
-        display={visible ? 'block' : 'none'}
-        objectPosition={message.senderId === account.id ? 'right' : 'left'}
-        src={message.content}
-        onLoad={() => {
-          setVisible(true);
-          // containerRef.current.scrollIntoView(false);
-          URL.revokeObjectURL(message.contentBlob);
-          // containerRef.current.scrollIntoView(false);
-          // setTimeout(() => URL.revokeObjectURL(message.contentBlob), 100);
-        }}
+      <img
+        alt="loading.."
+        src={message.content || message.contentBlob}
+        className={classNames('image', {
+          'object-position-right': message.sender === account.id,
+          'object-position-left': message.sender !== account.id,
+        })}
       />
       <MessageStatus message={message} />
     </VStack>
   );
-};
+});
 
 export default ImageMessage;

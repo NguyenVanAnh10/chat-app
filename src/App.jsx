@@ -14,7 +14,6 @@ import LoadingPage from 'pages/LoadingPage';
 import Login from 'pages/Login';
 
 const ChatList = lazy(() => import('pages/ChatApp'));
-// const Login = lazy(() => import('pages/Login'));
 const ExceptionPage = lazy(() => import('pages/ExceptionPage'));
 
 export const AccountContext = createContext({});
@@ -53,15 +52,12 @@ const R = ({ authorize, location, ...rest }) => {
   const { account } = useContext(AccountContext);
 
   if (loading) {
-    return (
-      <LoadingPage />
-    );
+    return <LoadingPage />;
   }
   if (!authorize) {
     return <Route {...rest} />;
   }
   if (!account.id) {
-    console.log('location', location);
     return <Redirect to={{ pathname: '/login', state: location }} />;
   }
   return <Route {...rest} />;

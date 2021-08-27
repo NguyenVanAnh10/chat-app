@@ -1,4 +1,5 @@
 import data from 'components/EmojiPicker/data';
+import Notification from './Notification';
 
 const { emojis } = data;
 export default class Message {
@@ -30,5 +31,35 @@ export default class Message {
       !!input.slice(prev) && result.push(input.slice(prev));
     }
     return result.length ? result : [input];
-  }
+  };
+
+  /**
+   * @param {[string]} messageIds message order
+   * @param {object} messages
+   * @returns {[IMessage]}
+   */
+  static aggregateMessages = (messageIds = [], messages = {}) =>
+    messageIds
+      .map(id => messages[id])
+      .reduce((s, c, index, arr) => {
+        if (
+          index === 0 ||
+          arr[index - 1].sender !== c.sender ||
+          arr[index - 1].content.includes(Notification.NOTIFICATION_MEMBER_ADDITION) ||
+          c.content.includes(Notification.NOTIFICATION_MEMBER_ADDITION)
+        ) {
+          return [...s, c];
+        }
+        return [
+          ...(s.length > 1 ? s.slice(0, s.length - 1) : []),
+          {
+            id: c.id,
+            conversation: c.conversation,
+            sender: c.sender,
+            aggregateMsg: s[s.length - 1]?.aggregateMsg
+              ? [...s[s.length - 1]?.aggregateMsg, c]
+              : [s[s.length - 1], c],
+          },
+        ];
+      }, []);
 }

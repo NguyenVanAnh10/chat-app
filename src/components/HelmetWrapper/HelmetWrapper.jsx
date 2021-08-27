@@ -5,17 +5,18 @@ import useMessages from 'hooks/useMessages';
 import { useUser } from 'hooks/useUsers';
 
 export default function HelmetWrapper({ isIncomingCall, callerId }) {
-  const [{ unseenMessagesState: { total } }] = useMessages({}, {
-    forceFetchingUnseenMessages: true,
-  });
+  // TODO
+  const [
+    {
+      unseenMessagesState: { total },
+    },
+  ] = useMessages({}, { forceFetchingUnseenMessages: true });
   const [{ user: caller }] = useUser(callerId);
 
   if (total) {
     return (
       <Helmet>
-        <title>
-          {`Alorice (${total})` }
-        </title>
+        <title>{`Alorice (${total})`}</title>
       </Helmet>
     );
   }
@@ -23,9 +24,7 @@ export default function HelmetWrapper({ isIncomingCall, callerId }) {
   if (isIncomingCall) {
     return (
       <Helmet>
-        <title>
-          {`${caller.name || caller.userName} is calling...`}
-        </title>
+        <title>{`${caller.name || caller.userName} is calling...`}</title>
       </Helmet>
     );
   }
@@ -34,6 +33,5 @@ export default function HelmetWrapper({ isIncomingCall, callerId }) {
     <Helmet>
       <title> Alorice</title>
     </Helmet>
-
   );
 }

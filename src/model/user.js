@@ -1,5 +1,6 @@
 import produce from 'immer';
 import { getUsers, getUser } from 'services/user';
+import { mergeObjects } from 'utils';
 
 const userModel = {
   name: 'user',
@@ -12,10 +13,7 @@ const userModel = {
     getUsers: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          state.users = payload.users.reduce(
-            (s, u) => ({ ...s, [u.id]: u }),
-            state.users,
-          );
+          state.users = payload.users.reduce((s, u) => ({ ...s, [u.id]: u }), state.users);
           state.getUsers[payload.keyword] = {
             ids: payload.users.map(u => u.id),
           };
@@ -34,7 +32,7 @@ const userModel = {
     getUser: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          state.users[payload.id] = payload;
+          state.users[payload.id] = mergeObjects([state.users[payload.id], payload]);
           state.getUser = { id: payload.id };
           break;
         case 'error':

@@ -22,10 +22,7 @@ import styles from './VideoCallModal.module.scss';
 import { AccountContext } from 'App';
 
 const VideoCallModal = ({ receiver = null, isOpen, onClose, conversation = {} }) => {
-  const [
-    { streamVideos, callState, conversationId },
-    { onLeaveCall },
-  ] = useContext(ChatContext);
+  const [{ streamVideos, callState, conversationId }, { onLeaveCall }] = useContext(ChatContext);
   const { account } = useContext(AccountContext);
 
   useUpdateEffect(() => {
@@ -43,18 +40,12 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, conversation = {} })
   }, [callState.declined]);
 
   const renderCallingNameAndAvatar = () => {
-    if (conversation.members.length === 2) {
-      const participant = conversation.members.find(m => m.id !== account.id);
+    if (conversation.members?.length === 2) {
+      const participant = conversation.members?.find(m => m.id !== account.id);
       return (
         <>
-          <Avatar
-            name={participant.userName}
-            src={participant.avatar}
-            size="xl"
-          />
-          <Text isTruncated>
-            {participant.userName}
-          </Text>
+          <Avatar name={participant.userName} src={participant.avatar} size="xl" />
+          <Text isTruncated>{participant.userName}</Text>
           <Text>{callState.declined ? 'Busy' : 'Call...'}</Text>
         </>
       );
@@ -62,7 +53,7 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, conversation = {} })
     return (
       <>
         <AvatarGroup size="xl" max={3}>
-          {conversation.members.map(o => (
+          {conversation.members?.map(o => (
             <Avatar key={o.id} name={o.userName} src={o.avatar} />
           ))}
         </AvatarGroup>
@@ -119,15 +110,13 @@ const VideoCallModal = ({ receiver = null, isOpen, onClose, conversation = {} })
               overflow="hidden"
               className="is-full-screen"
             >
-              <VideoPlayer
-                videoSrc={streamVideos.remote}
-                isFullScreen
-                options={{ muted: false }}
-              />
+              <VideoPlayer videoSrc={streamVideos.remote} isFullScreen options={{ muted: false }} />
             </AspectRatio>
           )}
           {!!receiver && !callState.accepted && (
-            <VStack mx="auto" zIndex="1" spacing="4">{renderCallingNameAndAvatar()}</VStack>
+            <VStack mx="auto" zIndex="1" spacing="4">
+              {renderCallingNameAndAvatar()}
+            </VStack>
           )}
           <IconButton
             position="absolute"

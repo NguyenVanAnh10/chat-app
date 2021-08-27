@@ -1,10 +1,4 @@
-import {
-  useContext,
-  useEffect as useReactEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useBeforeUnload } from 'react-use';
 import Peer from 'simple-peer';
 import { v4 as uuid } from 'uuid';
@@ -15,21 +9,21 @@ import { useModel } from 'model';
 import Message from 'entities/Message';
 import Notification from 'entities/Notification';
 import { turnOnCameraAndAudio, stopStreame } from 'utils';
+import Action from 'entities/Action';
 
 const useChat = () => {
   const { account } = useContext(AccountContext);
-  const [,
-    {
-      getUnseenMessages, getMessagesWithoutLoading, sendMessage, getMessage,
-    },
-  ] = useModel('message', () => ({}));
+  const [, { getUnseenMessages, getMessagesWithoutLoading, sendMessage, getMessage }] = useModel(
+    'message',
+    () => ({}),
+  );
   const [, { getConversation }] = useModel('conversation', () => ({}));
   const [, { getFriendRequester, updateOnline, getFriend }] = useModel('account', () => ({}));
   const [, { getUser }] = useModel('user', () => ({}));
   const initChat = {
     conversationId: '',
     caller: {},
-    streamVideos: {}, // {current, remote}
+    streamVideos: { error: {} }, // {current, remote, error: {}}
     callState: {}, // {hasReceived, accepted, declined, isOutgoing}
   };
   const [chat, setChat] = useState(initChat);
@@ -50,6 +44,7 @@ const useChat = () => {
         if (callerId === account.id) return;
 
         if (chatRef.current.streamVideos.remote) {
+          // busy line
           declineCall({ callerId, conversationId });
           return;
         }
@@ -63,8 +58,7 @@ const useChat = () => {
           callState: { hasReceived: true },
         });
       },
-      end_call: ({ userId }) => {
-        if (userId === account.id) return;
+      end_call: () => {
         setChat(initChat);
         destroyCall();
       },
@@ -76,6 +70,8 @@ const useChat = () => {
       },
       add_new_conversation: ({ conversationId }) => {
         getConversation({ id: conversationId });
+        // TODO
+        getUnseenMessages({ cachedKey: 'all' });
       },
       get_message: ({ senderId, messageId, conversationId, messageContentType }) => {
         if (account.id === senderId && messageContentType !== Message.CONTENT_TYPE_NOTIFICATION) {
@@ -104,9 +100,21 @@ const useChat = () => {
     });
   }, [account.id]);
 
-  useReactEffect(() => {
+  useEffect(() => {
     chatRef.current = chat;
   }, [chat]);
+
+  useEffect(() => {
+    window.addEventListener('message', ({ data }) => {
+      switch (data.type) {
+        case Action.CLOSE_OUTGOING_CALL_WINDOW:
+          setChat(initChat);
+          break;
+        default:
+          break;
+      }
+    });
+  }, []);
 
   useBeforeUnload(() => {
     console.log('before upload');
@@ -135,7 +143,7 @@ const useChat = () => {
         stream: currentStream,
       });
       peer.on('signal', signal => {
-        socket?.emit('answer_the_call', {
+        socket.emit('answer_the_call', {
           conversationId,
           signal,
         });
@@ -153,6 +161,15 @@ const useChat = () => {
       peer._debug = console.log;
       connectionRef.current = peer;
     } catch (error) {
+      setChat({
+        ...initChat,
+        streamVideos: {
+          error: {
+            name: 'REMOTE_STREAM',
+            message: error.message,
+          },
+        },
+      });
       console.error('Failed to get local stream', error);
     }
   };
@@ -167,6 +184,7 @@ const useChat = () => {
       callState: { isOutgoing: true },
     });
   };
+
   const onCallFriend = async ({ conversationId, addresseeIds }) => {
     try {
       const currentStream = await turnOnCameraAndAudio();
@@ -220,12 +238,21 @@ const useChat = () => {
       peer._debug = console.log;
       connectionRef.current = peer;
     } catch (error) {
+      setChat({
+        ...initChat,
+        streamVideos: {
+          error: {
+            name: 'CURRENT_STREAM',
+            message: error.message,
+          },
+        },
+      });
       console.error('Failed to get local stream', error);
     }
   };
 
   const onDeclineCall = callerId => {
-    setChat({ ...chat, callState: { ...chat.callState, hasReceived: false } });
+    setChat(initChat);
     declineCall({ callerId, conversationId: chat.conversationId });
   };
 
@@ -236,20 +263,20 @@ const useChat = () => {
 
   const leaveCall = conversationId => {
     destroyCall();
-    socket?.emit('end_call', { userId: account.id, conversationId });
-    chat.callState.accepted
-      && sendMessage({
+    socket.emit('end_call', { userId: account.id, conversationId });
+    if (chat.callState.accepted) {
+      sendMessage({
         conversationId,
         contentType: Message.CONTENT_TYPE_NOTIFICATION,
         content: Notification.NOTIFICATION_ENDED_CALL,
         keyMsg: uuid(),
-        createAt: Date.now(),
         sender: account.id,
       });
+    }
   };
 
   const declineCall = ({ callerId, conversationId }) => {
-    socket?.emit('decline_the_incoming_call', {
+    socket.emit('decline_the_incoming_call', {
       callerId,
       conversationId,
     });
@@ -258,7 +285,6 @@ const useChat = () => {
       contentType: Message.CONTENT_TYPE_NOTIFICATION,
       content: Notification.NOTIFICATION_DECLINE_CALL,
       keyMsg: uuid(),
-      createAt: Date.now(),
       sender: account.id,
     });
   };

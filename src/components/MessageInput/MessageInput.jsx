@@ -22,7 +22,6 @@ import decorator, { getResetEditorState } from './emojiDecorator';
 import styles from './MessageInput.module.scss';
 import 'draft-js/dist/Draft.css';
 import { MenuContext } from 'contexts/menuContext';
-import { useConversation } from 'hooks/useConversations';
 import LazyMount from 'components/LazyMount';
 import EmojiPickerLoading from 'components/EmojiPicker/EmojiPickerLoading';
 import bindKeyDraft from 'utils/keyBindingDraft';
@@ -30,10 +29,10 @@ import bindKeyDraft from 'utils/keyBindingDraft';
 const EmojiPicker = React.lazy(() => import('components/EmojiPicker'));
 
 const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
-  const { account } = useContext(AccountContext);
   const { menuState } = useContext(MenuContext);
-  const { conversationId, friendId } = menuState[menuState.active];
-  const [{ conversation }] = useConversation({ conversationId, friendId });
+  const { conversationId } = menuState[menuState.active];
+
+  const { account } = useContext(AccountContext);
   const isMobileScreen = useBreakpointValue({ base: true, md: false });
 
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty(decorator));
@@ -41,7 +40,7 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
   const domEditorRef = useRef();
   const editorStateRef = useRef();
 
-  const [, { sendMessage }] = useModel('message', state => state);
+  const [, { sendMessage }] = useModel('message', () => ({}));
 
   useEffect(() => {
     editorStateRef.current = editorState;
@@ -59,37 +58,34 @@ const MessageInput = ({ bottomMessagesBoxRef, ...rest }) => {
       return;
     }
     sendMessage({
-      conversationId: conversationId || conversation.id,
-      friendId,
+      conversationId,
       keyMsg: uuid(),
       contentType: Message.CONTENT_TYPE_TEXT,
       content: message,
-      createdAt: new Date(),
       sender: account.id,
     });
     setEditorState(getResetEditorState(editorStateRef.current));
     setTimeout(() => {
       bottomMessagesBoxRef.current?.scrollIntoView(false);
     });
-  }, [conversationId, friendId, conversation.id]);
+  }, [conversationId]);
 
   const handleSendImage = useCallback(
     imageSource => {
-      if (!imageSource.base64Image || !imageSource.contentBlob) return;
+      if (!imageSource.imageUrl || !imageSource.contentBlob) return;
       sendMessage({
-        conversationId: conversationId || conversation.id,
+        conversationId,
         keyMsg: uuid(),
         contentType: Message.CONTENT_TYPE_IMAGE,
         contentBlob: imageSource.contentBlob,
-        base64Image: imageSource.base64Image,
-        createdAt: new Date(),
+        imageUrl: imageSource.imageUrl,
         sender: account.id,
       });
       setTimeout(() => {
         bottomMessagesBoxRef.current?.scrollIntoView(false);
       });
     },
-    [conversationId, friendId, conversation.id],
+    [conversationId],
   );
 
   const onSelectEmoji = useCallback(({ key }) => {
