@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import qs from 'query-string';
 
-import imcomingCallSound from 'statics/sounds/incoming_call.wav';
+import imcomingCallSound from 'statics/sounds/incoming_call.mp3';
 import AlertSound from 'components/AlertSound';
 import { useUser } from 'hooks/useUsers';
 import { ChatContext } from 'pages/ChatApp';
