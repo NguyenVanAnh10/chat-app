@@ -23,7 +23,7 @@ const useChat = () => {
   const initChat = {
     conversationId: '',
     caller: {},
-    streamVideos: {}, // {current, remote}
+    streamVideos: { error: {} }, // {current, remote, error: {}}
     callState: {}, // {hasReceived, accepted, declined, isOutgoing}
   };
   const [chat, setChat] = useState(initChat);
@@ -161,6 +161,15 @@ const useChat = () => {
       peer._debug = console.log;
       connectionRef.current = peer;
     } catch (error) {
+      setChat({
+        ...initChat,
+        streamVideos: {
+          error: {
+            name: 'REMOTE_STREAM',
+            message: error.message,
+          },
+        },
+      });
       console.error('Failed to get local stream', error);
     }
   };
@@ -229,6 +238,15 @@ const useChat = () => {
       peer._debug = console.log;
       connectionRef.current = peer;
     } catch (error) {
+      setChat({
+        ...initChat,
+        streamVideos: {
+          error: {
+            name: 'CURRENT_STREAM',
+            message: error.message,
+          },
+        },
+      });
       console.error('Failed to get local stream', error);
     }
   };
