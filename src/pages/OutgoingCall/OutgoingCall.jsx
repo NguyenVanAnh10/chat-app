@@ -15,6 +15,7 @@ import {
 import { useLocation } from 'react-router-dom';
 
 import VideoPlayer from 'components/VideoCallModal/VideoPlayer';
+import Video from 'components/VideoCallModal/Video';
 import {
   HangoutPhoneIcon,
   NotAllowedMicrophoneIcon,
@@ -38,16 +39,16 @@ const OutgoingCall = () => {
   const [{ streamVideos, callState }, { onLeaveCall, onCallFriend }] = useContext(ChatContext);
 
   const { account } = useContext(AccountContext);
-  const [{ conversation }] = useConversation({ conversationId });
+  const [{ conversation }] = useConversation({ conversationId }, { forceFetching: true });
   const [{ friend }] = useFriend({ friendId }, { forceFetching: true });
 
   useEffect(() => {
-    const data = { conversationId: conversationId || conversation.id };
-    if (!conversationId && !conversation.id && friend.id) {
-      data.addresseeIds = [friend.id];
-    }
-    onCallFriend(data);
-  }, []);
+    conversation.id &&
+      onCallFriend({
+        conversationId,
+        peerIds: conversation.members.map(m => m.id),
+      });
+  }, [conversation.id]);
 
   useUpdateEffect(() => {
     // finish call
@@ -86,7 +87,7 @@ const OutgoingCall = () => {
     >
       {streamVideos.current ? (
         <>
-          <AspectRatio
+          {/* <AspectRatio
             ratio={4 / 3}
             w="100%"
             position="absolute"
@@ -96,26 +97,46 @@ const OutgoingCall = () => {
             borderRadius="lg"
             overflow="hidden"
             zIndex="1"
-          >
-            <VideoPlayer videoSrc={streamVideos.current} />
-          </AspectRatio>
+          > */}
+          {/* <VideoPlayer videoSrc={streamVideos.current} /> */}
+          <Video srcObject={streamVideos.current} />
+          {/* </AspectRatio> */}
 
-          {callState.accepted && !!streamVideos.remote && (
-            <AspectRatio
-              ratio={1}
-              w="100%"
-              h="100%"
-              maxH="100%"
-              maxW="100%"
-              left="0"
-              top="0"
-              position="absolute"
-              overflow="hidden"
-              className="is-full-screen"
-            >
-              <VideoPlayer videoSrc={streamVideos.remote} isFullScreen options={{ muted: false }} />
-            </AspectRatio>
-          )}
+          {callState.accepted &&
+            Object.keys(streamVideos.remotes).map(id => (
+              <React.Fragment key={id}>
+                <Video srcObject={streamVideos.remotes[id]} />
+                {/* <VideoPlayer
+                  // isFullScreen
+                  videoSrc={streamVideos.remotes[id]}
+                  options={{ muted: false }}
+                />
+                <VideoPlayer
+                  // isFullScreen
+                  videoSrc={streamVideos.remotes[id]}
+                  options={{ muted: false }}
+                /> */}
+              </React.Fragment>
+              // <AspectRatio
+              //   key={id}
+              //   ratio={1}
+              //   w="100%"
+              //   h="100%"
+              //   maxH="100%"
+              //   maxW="100%"
+              //   left="0"
+              //   top="0"
+              //   position="absolute"
+              //   overflow="hidden"
+              //   // className="is-full-screen"
+              // >
+              //   <VideoPlayer
+              //     isFullScreen
+              //     videoSrc={streamVideos.remotes[id]}
+              //     options={{ muted: false }}
+              //   />
+              // </AspectRatio>
+            ))}
           {!callState.accepted && renderCallingNameAndAvatar()}
           <IconButton
             position="absolute"

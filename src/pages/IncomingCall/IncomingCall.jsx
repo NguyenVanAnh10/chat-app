@@ -1,10 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { useUpdateEffect } from 'react-use';
-import {
-  Center,
-  AspectRatio,
-  IconButton,
-} from '@chakra-ui/react';
+import { Center, AspectRatio, IconButton } from '@chakra-ui/react';
 import { useLocation } from 'react-router-dom';
 import qs from 'query-string';
 
@@ -17,21 +13,30 @@ import { useConversation } from 'hooks/useConversations';
 import styles from './IncomingCall.module.scss';
 
 const IncomingCall = () => {
-  const { callerId: friendId, conversationId } = qs.parse(useLocation().search);
-  const remoteSignal = window.localStorage.getItem('remoteSignal');
+  const { callerId, conversationId } = qs.parse(useLocation().search);
+  const remoteSignals = window.localStorage.getItem('remoteSignals');
 
   const [{ streamVideos, callState }, { onLeaveCall, onAnswerCall }] = useContext(ChatContext);
 
-  const [{ conversation }] = useConversation({ friendId, conversationId });
+  const [{ conversation }] = useConversation({ conversationId }, { forceFetching: true });
 
   useEffect(() => {
-    onAnswerCall({ remoteSignal, conversationId });
-  }, []);
+    conversation.id &&
+      onAnswerCall({
+        remoteSignals,
+        conversationId,
+        peerIds: conversation.members.map(m => m.id),
+        callerId,
+      });
+  }, [conversation.id]);
 
   useUpdateEffect(() => {
     // finish call
-    if ((!callState.accepted && !callState.declined)
-    || callState.declined || callState.isOutgoing) {
+    if (
+      (!callState.accepted && !callState.declined) ||
+      callState.declined ||
+      callState.isOutgoing
+    ) {
       window.close();
     }
   }, [callState.accepted, callState.declined, callState.isOutgoing]);
@@ -45,43 +50,48 @@ const IncomingCall = () => {
       className={styles.IncomingCall}
     >
       {!!streamVideos.current && (
-      <AspectRatio
-        ratio={4 / 3}
-        w="100%"
-        position="absolute"
-        maxW="250px"
-        right="3"
-        top="3"
-        borderRadius="lg"
-        overflow="hidden"
-        zIndex="1"
-      >
-        <VideoPlayer videoSrc={streamVideos.current} />
-      </AspectRatio>
+        <AspectRatio
+          ratio={4 / 3}
+          w="100%"
+          position="absolute"
+          maxW="250px"
+          right="3"
+          top="3"
+          borderRadius="lg"
+          overflow="hidden"
+          zIndex="1"
+        >
+          <VideoPlayer videoSrc={streamVideos.current} />
+        </AspectRatio>
       )}
-      {callState.accepted && !!streamVideos.remote && (
-      <AspectRatio
-        ratio={1}
-        w="100%"
-        h="100%"
-        maxH="100%"
-        maxW="100%"
-        left="0"
-        top="0"
-        position="absolute"
-        overflow="hidden"
-        className="is-full-screen"
-      >
-        <VideoPlayer
-          videoSrc={streamVideos.remote}
-          isFullScreen
-          options={{ muted: false }}
-        />
-      </AspectRatio>
-      )}
-      {/* { !callState.accepted && (
-      <VStack mx="auto" zIndex="1" spacing="4">{renderCallingNameAndAvatar()}</VStack>
-      )} */}
+      {callState.accepted &&
+        Object.keys(streamVideos.remotes).map(id => (
+          <VideoPlayer
+            key={id}
+            // isFullScreen
+            videoSrc={streamVideos.remotes[id]}
+            options={{ muted: false }}
+          />
+          // <AspectRatio
+          //   key={id}
+          //   ratio={1}
+          //   w="100%"
+          //   h="100%"
+          //   maxH="100%"
+          //   maxW="100%"
+          //   left="0"
+          //   top="0"
+          //   position="absolute"
+          //   overflow="hidden"
+          //   // className="is-full-screen"
+          // >
+          //   <VideoPlayer
+          //     isFullScreen
+          //     videoSrc={streamVideos.remotes[id]}
+          //     options={{ muted: false }}
+          //   />
+          // </AspectRatio>
+        ))}
       <IconButton
         position="absolute"
         bottom="10"

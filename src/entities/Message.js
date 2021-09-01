@@ -45,8 +45,8 @@ export default class Message {
         if (
           index === 0 ||
           arr[index - 1].sender !== c.sender ||
-          arr[index - 1].content.includes(Notification.NOTIFICATION_MEMBER_ADDITION) ||
-          c.content.includes(Notification.NOTIFICATION_MEMBER_ADDITION)
+          arr[index - 1].content?.includes(Notification.NOTIFICATION_MEMBER_ADDITION) ||
+          c.content?.includes(Notification.NOTIFICATION_MEMBER_ADDITION)
         ) {
           return [...s, c];
         }

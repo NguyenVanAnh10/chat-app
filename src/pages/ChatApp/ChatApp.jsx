@@ -47,7 +47,6 @@ const ChatContainer = () => {
         isOpen={callState.hasReceived}
         onDecline={() => onDeclineCall(caller.id)}
         onAcceptCall={onAcceptCall}
-        remoteSignal={caller.signal}
       />
       <HelmetWrapper callerId={caller.id} isIncomingCall={callState.hasReceived} />
     </>

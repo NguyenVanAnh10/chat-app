@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-export default function AlertSound({ src, isPlay, volume = 0.5 }) {
+export default function AlertSound({ src, isPlay, volume = 0 }) {
   const ref = useRef();
   useEffect(() => {
     if (!ref.current) return;
