@@ -90,6 +90,7 @@
       "node": {
         "paths": ["src"]
       }
-    }
+    },
+    "import/core-modules": ["videojs"]
   }
 }

@@ -173,8 +173,8 @@ export default class SocketHandler {
 }
 
 export const destroyCall = ({ peers, stream }) => {
-  Object.keys(peers).forEach(id => peers[id].destroy());
-  stopStreame(stream);
+  Object.keys(peers).forEach(id => peers[id]?.destroy());
+  stream && stopStreame(stream);
 };
 
 /**

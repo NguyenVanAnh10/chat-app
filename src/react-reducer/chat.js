@@ -6,7 +6,7 @@ export const initChat = {
   conversationId: '',
   caller: {},
   peers: {},
-  streamVideos: { remotes: {}, error: {} }, // {current, remote, error: {}}
+  streamVideos: { remotes: {}, error: {} }, // {current, remotes, error: {}}
   callState: {}, // {hasReceived, accepted, declined, isOutgoing}
 };
 
@@ -16,8 +16,6 @@ export function init(initState) {
 
 const reducer = produce((state, { type, payload }) => {
   switch (type) {
-    case Action.CLOSE_OUTGOING_CALL_WINDOW:
-      return initChat;
     case Action.ACCEPT_CALL:
       state.callState = { accepted: true };
       break;
@@ -57,9 +55,13 @@ const reducer = produce((state, { type, payload }) => {
     case Action.DECLINE_THE_INCOMING_CALL:
       state.callState.declined = true;
       break;
+    case Action.END_CALL:
+      if (Object.keys(state.streamVideos.remotes).length === 1) return init(initChat);
+      delete state.streamVideos.remotes[payload.peerId];
+      break;
+    case Action.CLOSE_OUTGOING_CALL_WINDOW:
     case Action.DECLINE_CALL:
     case Action.LEAVE_CALL:
-    case Action.END_CALL:
       return init(initChat);
     default:
       return state;

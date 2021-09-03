@@ -63,7 +63,7 @@ const haveAComingCall = payload => ({
   payload,
 });
 
-const endCall = () => ({ type: Action.END_CALL });
+const endCall = peerId => ({ type: Action.END_CALL, payload: { peerId } });
 
 const declineTheIncomingCall = () => ({ type: Action.DECLINE_THE_INCOMING_CALL });
 const receiveSignal = () => ({ type: Action.RECEIVE_SIGNAL });

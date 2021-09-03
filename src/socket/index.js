@@ -71,13 +71,13 @@ const useSocket = ({ peers, chat, dispatch }) => {
         );
         localStorage.setItem('remoteSignals', JSON.stringify({ [callerId]: signal }));
       },
-      end_call: () => {
-        dispatch(ChatAction.endCall());
-        destroyCall({ peers });
+      end_call: ({ userId }) => {
+        dispatch(ChatAction.endCall(userId));
+        destroyCall({ peers: { [userId]: peers[userId] } });
       },
       decline_the_incoming_call: ({ callerId }) => {
         if (callerId === account.id) {
-          destroyCall();
+          destroyCall({ peers: {} });
           dispatch(ChatAction.declineTheIncomingCall());
         }
       },

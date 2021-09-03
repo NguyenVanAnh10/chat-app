@@ -1,0 +1,7 @@
+.VideoPlayer {
+  :global {
+    .vjs-tech {
+      pointer-events: none;
+    }
+  }
+}
