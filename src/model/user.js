@@ -13,7 +13,10 @@ const userModel = {
     getUsers: produce((state, status, payload) => {
       switch (status) {
         case 'success':
-          state.users = payload.users.reduce((s, u) => ({ ...s, [u.id]: u }), state.users);
+          state.users = payload.users.reduce(
+            (s, u) => ({ ...s, [u.id]: mergeObjects([s[u.id], u]) }),
+            state.users,
+          );
           state.getUsers[payload.keyword] = {
             ids: payload.users.map(u => u.id),
           };
