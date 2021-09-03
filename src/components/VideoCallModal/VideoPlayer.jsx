@@ -1,55 +1,42 @@
-/* eslint-disable jsx-a11y/media-has-caption */
-import React, { useEffect as useReactEffect, useRef } from 'react';
-// TODO: eslint
-// eslint-disable-next-line import/no-unresolved
+import React, { useEffect, useRef } from 'react';
+import { Box } from '@chakra-ui/layout';
 import videojs from 'videojs';
 
-const VideoPlayer = ({
-  videoSrc,
-  options = {},
-}) => {
+import styles from './VideoPlayer.module.scss';
+import 'video.js/dist/video-js.css';
+
+/**
+ *
+ * @param {{videoSrc: object, options: object} & import('@chakra-ui/react/dist/types').BoxProps} props
+ * @returns
+ */
+const VideoPlayer = ({ videoSrc, options, ...rest }) => {
   const playerRef = useRef();
-  const videoNode = useRef({});
+  const videoNode = useRef();
 
-  useReactEffect(() => {
+  useEffect(() => {
+    if (playerRef.current) {
+      playerRef.current.aspectRatio(options.aspectRatio);
+      videoNode.current.srcObject = videoSrc;
+      return;
+    }
     videoNode.current.srcObject = videoSrc;
-
     playerRef.current = videojs(
       videoNode.current,
       {
         autoplay: true,
         controls: true,
-        muted: true,
-        playsInline: true,
-        autoPlay: true,
-        loadingSpinner: false,
-        errorDisplay: false,
-        textTrackSettings: false,
-        bigPlayButton: false,
+        muted: false,
         responsive: true,
+        aspectRatio: '4:3',
+        fluid: false,
+        bigPlayButton: false,
         controlBar: {
-          currentTimeDisplay: false,
-          playToggle: true,
-          captionsButton: false,
-          chaptersButton: false,
-          subtitlesButton: false,
-          remainingTimeDisplay: false,
-          durationDisplay: false,
-          audioTrackButton: false,
-          descriptionsButton: false,
+          fullscreenToggle: true,
+          pictureInPictureToggle: true,
           volumePanel: false,
-          children: false,
-          customControlSpacer: false,
+          playToggle: false,
           liveDisplay: false,
-          pictureInPictureToggle: false,
-          seekToLive: false,
-          subsCapsButton: false,
-          timeDivider: false,
-          progressControl: {
-            seekBar: true,
-          },
-          fullscreenToggle: false,
-          playbackRateMenuButton: false,
         },
         ...options,
       },
@@ -57,17 +44,24 @@ const VideoPlayer = ({
         // console.log("onPlayerReady", videoNode.current);
       },
     );
-    return () => {
-      playerRef.current.dispose();
-    };
-  }, [videoSrc]);
-  // wrap the player in a div with a `data-vjs-player` attribute
-  // so videojs won't create additional wrapper in the DOM
-  // see https://github.com/videojs/video.js/pull/3856
+  }, [videoSrc, options]);
+
+  useEffect(
+    () => () => {
+      if (playerRef.current) {
+        playerRef.current.dispose();
+        playerRef.current = null;
+      }
+    },
+    [],
+  );
+
   return (
-    <div data-vjs-player>
-      <video ref={videoNode} />
-    </div>
+    <Box w="100%" className={styles.VideoPlayer} {...rest}>
+      <div data-vjs-player>
+        <video ref={videoNode} className="video-js vjs-big-play-centered" />
+      </div>
+    </Box>
   );
 };
 

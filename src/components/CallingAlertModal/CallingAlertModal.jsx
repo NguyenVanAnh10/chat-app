@@ -15,16 +15,8 @@ import AlertSound from 'components/AlertSound';
 import { useUser } from 'hooks/useUsers';
 import { ChatContext } from 'pages/ChatApp';
 
-const CallingAlertModal = ({
-  callerId,
-  onDecline,
-  isOpen,
-  onAcceptCall,
-  remoteSignal,
-  conversationId,
-}) => {
+const CallingAlertModal = ({ callerId, onDecline, isOpen, onAcceptCall, conversationId }) => {
   const [{ user: caller }] = useUser(callerId);
-  localStorage.setItem('remoteSignal', JSON.stringify(remoteSignal));
   const [{ incomingCallWindow }] = useContext(ChatContext);
 
   return (
@@ -53,7 +45,7 @@ const CallingAlertModal = ({
             onClick={() => {
               onAcceptCall();
               incomingCallWindow.current = window.open(
-                `/call/incoming?=${qs.stringify({ conversationId, callerId })}`,
+                `/call/incoming?${qs.stringify({ conversationId, callerId })}`,
                 'incoming-call',
                 `height=${window.innerHeight},width=${window.innerWidth}`,
               );

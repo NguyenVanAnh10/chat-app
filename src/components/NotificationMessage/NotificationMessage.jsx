@@ -11,7 +11,7 @@ import { useFriend } from 'hooks/useFriends';
 import { useUser } from 'hooks/useUsers';
 
 const NotificationMessage = forwardRef(({ message, showStatusMessage }, ref) => {
-  const [notificationType, receiverId] = message.content.split('-');
+  const [notificationType, receiverId] = (message.content || '').split('-');
 
   const { account } = useContext(AccountContext);
   const [{ conversation }] = useConversation({

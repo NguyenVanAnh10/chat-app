@@ -48,7 +48,7 @@ const FriendList = () => {
           <FriendItem
             key={friend.id}
             friend={friend}
-            active={selectedConversationId === friend.conversation}
+            active={selectedConversationId && selectedConversationId === friend.conversation}
             onClick={() => onHandleClick(friend)}
           />
         )}

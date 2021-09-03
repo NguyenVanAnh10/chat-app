@@ -76,25 +76,25 @@ const ChatHeader = () => {
           )}
           {renderHeaderAvatar()}
         </HStack>
-        {(conversation.members?.length === 2 || !!friend.id) && (
-          <IconButton
-            size="lg"
-            fontSize="1.5rem"
-            colorScheme="green"
-            icon={<PhoneIcon />}
-            onClick={() => {
-              if (incomingCallWindow.current) {
-                incomingCallWindow.current.close();
-              }
-              onOutgoingCall(conversationId);
-              window.open(
-                `/call/outgoing?${qs.stringify({ conversationId, friendId: friend.id })}`,
-                'outgoing-call',
-                `height=${window.innerHeight},width=${window.innerWidth}`,
-              );
-            }}
-          />
-        )}
+        {/* {(conversation.members?.length === 2 || !!friend.id) && ( */}
+        <IconButton
+          size="lg"
+          fontSize="1.5rem"
+          colorScheme="green"
+          icon={<PhoneIcon />}
+          onClick={() => {
+            if (incomingCallWindow.current) {
+              incomingCallWindow.current.close();
+            }
+            onOutgoingCall(conversationId);
+            window.open(
+              `/call/outgoing?${qs.stringify({ conversationId, friendId: friend.id })}`,
+              'outgoing-call',
+              `height=${window.innerHeight},width=${window.innerWidth}`,
+            );
+          }}
+        />
+        {/* )} */}
       </HStack>
     </>
   );

@@ -46,7 +46,7 @@ const SearchUserButton = () => {
                   ...prev,
                   [menuKeys.CONTACT_BOOK]: {
                     ...prev[menuKeys.CONTACT_BOOK],
-                    friendId: friend.id,
+                    conversationId: friend.conversation,
                   },
                   active: menuKeys.CONTACT_BOOK,
                 }));
